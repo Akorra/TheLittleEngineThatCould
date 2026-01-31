@@ -36,7 +36,7 @@ A lightweight, modular 3D rendering engine designed for learning and experimenta
 ### Building
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/TheLittleEngineThatCould.git
+git clone https://github.com/Akorra/TheLittleEngineThatCould.git
 cd TheLittleEngineThatCould
 
 # Create build directory
@@ -254,7 +254,7 @@ cmake --build .
 
 ### Code Style
 
-- Use C++17 features where appropriate
+- Use C++20 features where appropriate
 - Follow the existing code style (roughly following Google C++ Style Guide)
 - Add comments for complex logic
 - Write clear commit messages
@@ -289,9 +289,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📬 Contact
 
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter)
+Filipe Marques - [@akorra07](https://www.linkedin.com/in/akorra07/)
 
-Project Link: [https://github.com/yourusername/TheLittleEngineThatCould](https://github.com/yourusername/TheLittleEngineThatCould)
+Project Link: [https://github.com/Akorra/TheLittleEngineThatCould](https://github.com/Akorra/TheLittleEngineThatCould)
 
 ---
 
