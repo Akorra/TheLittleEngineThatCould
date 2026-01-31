@@ -208,6 +208,42 @@ camera.transform.position = {0.0f, 0.0f, 5.0f};
 engine.SetActiveCamera(&camera);
 ```
 
+## 🧪 Testing
+
+The project uses [Catch2](https://github.com/catchorg/Catch2) for unit testing.
+
+### Running Tests
+```bash
+# Build with tests
+cmake .. -DTLETC_BUILD_TESTS=ON
+cmake --build .
+
+# Run all tests
+ctest --output-on-failure
+
+# Or run directly for more detail
+./bin/tests/TLETCTests
+
+# Run specific test categories
+./bin/tests/TLETCTests "[math]"
+./bin/tests/TLETCTests "[scene]"
+./bin/tests/TLETCTests "[rendering]"
+```
+
+### Writing Tests
+
+Tests are located in the `tests/` directory and organized by component:
+```cpp
+#include <catch2/catch_test_macros.hpp>
+#include <TLETC/Core/Math.h>
+
+TEST_CASE("My test", "[category]") {
+    SECTION("Test something") {
+        REQUIRE(1 + 1 == 2);
+    }
+}
+```
+
 ## 🗺️ Roadmap
 
 ### Version 0.1.0 (Current)
