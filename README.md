@@ -11,7 +11,7 @@ A lightweight, modular 3D rendering engine designed for learning and experimenta
 - **Clean Architecture**: Separation between geometry data, rendering state, and application logic
 - **Multi-API Ready**: Designed with abstraction layers for future Vulkan and DirectX support
 - **Behavior System**: Flexible component-based system for game logic, camera controls, and effects
-- **Modern C++**: Built with C++23 features and best practices
+- **Modern C++**: Built with C++17 features and best practices
 - **Easy Integration**: CMake-based library that can be easily included in other projects
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
