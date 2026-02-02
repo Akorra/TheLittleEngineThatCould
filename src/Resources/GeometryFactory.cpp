@@ -53,8 +53,8 @@ Mesh GeometryFactory::CreateCube(float size)
             mesh.AddVertex(vertices[faces[f].indices[v]], faces[f].normal, uvs[v], Vec4(1.0f));
         
         // Add two triangles for this face
-        mesh.AddTriangle(baseIndex + 0, baseIndex + 1, baseIndex + 2);
-        mesh.AddTriangle(baseIndex + 0, baseIndex + 2, baseIndex + 3);
+        mesh.AddTriangle(baseIndex + 0, baseIndex + 2, baseIndex + 1);
+        mesh.AddTriangle(baseIndex + 0, baseIndex + 3, baseIndex + 2);
     }
     
     return mesh;
@@ -90,8 +90,8 @@ Mesh GeometryFactory::CreateSphere(float radius, uint32 segments, uint32 rings)
             uint32 current = ring * (segments + 1) + segment;
             uint32 next = current + segments + 1;
             
-            mesh.AddTriangle(current, next, current + 1);
-            mesh.AddTriangle(current + 1, next, next + 1);
+            mesh.AddTriangle(current, current + 1, next);
+            mesh.AddTriangle(current + 1, next + 1, next);
         }
     }
     
@@ -131,8 +131,8 @@ Mesh GeometryFactory::CreatePlane(float width, float height, uint32 widthSegment
             uint32 bottomLeft = (z + 1) * (widthSegments + 1) + x;
             uint32 bottomRight = bottomLeft + 1;
             
-            mesh.AddTriangle(topLeft, bottomLeft, topRight);
-            mesh.AddTriangle(topRight, bottomLeft, bottomRight);
+            mesh.AddTriangle(topLeft, topRight,  bottomLeft);
+            mesh.AddTriangle(topRight, bottomRight, bottomLeft);
         }
     }
     
@@ -205,13 +205,13 @@ Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 segments
         uint32 top2 = sideTopStart + (i + 1) * 2;
         uint32 bottom2 = sideBottomStart + (i + 1) * 2;
         
-        mesh.AddTriangle(top1, bottom1, top2);
-        mesh.AddTriangle(top2, bottom1, bottom2);
+        mesh.AddTriangle(top1, top2, bottom1);
+        mesh.AddTriangle(top2, bottom2, bottom1);
     }
     
     // Generate cap indices
     for (uint32 i = 0; i < segments; ++i) {
-        mesh.AddTriangle(topCenter, topCapStart + i, topCapStart + i + 1);
+        mesh.AddTriangle(topCenter, topCapStart + i + 1, topCapStart + i);
         mesh.AddTriangle(bottomCenter, bottomCapStart + i + 1, bottomCapStart + i);
     }
     
@@ -263,7 +263,7 @@ Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segments)
     
     // Generate side indices (triangles from apex to rim)
     for (uint32 i = 0; i < segments; ++i) {
-        mesh.AddTriangle(apexIndex, sideStart + i, sideStart + i + 1);
+        mesh.AddTriangle(apexIndex, sideStart + i + 1, sideStart + i);
     }
     
     // Generate base cap indices
@@ -313,8 +313,8 @@ Mesh GeometryFactory::CreateTorus(float majorRadius, float minorRadius, uint32 m
             uint32 current = i * (minorSegments + 1) + j;
             uint32 next = current + minorSegments + 1;
             
-            mesh.AddTriangle(current, next, current + 1);
-            mesh.AddTriangle(current + 1, next, next + 1);
+            mesh.AddTriangle(current, current + 1, next);
+            mesh.AddTriangle(current + 1, next + 1, next);
         }
     }
     
@@ -399,8 +399,8 @@ Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 segments,
             uint32 current = ring * (segments + 1) + segment;
             uint32 next = current + segments + 1;
             
-            mesh.AddTriangle(current, next, current + 1);
-            mesh.AddTriangle(current + 1, next, next + 1);
+            mesh.AddTriangle(current, current + 1, next);
+            mesh.AddTriangle(current + 1, next + 1, next);
         }
     }
     
@@ -411,8 +411,8 @@ Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 segments,
         uint32 top2 = cylinderStart + (i + 1) * 2;
         uint32 bottom2 = cylinderStart + (i + 1) * 2 + 1;
         
-        mesh.AddTriangle(top1, bottom1, top2);
-        mesh.AddTriangle(top2, bottom1, bottom2);
+        mesh.AddTriangle(top1, top2, bottom1);
+        mesh.AddTriangle(top2, bottom2, bottom1);
     }
     
     // Generate indices for bottom hemisphere
