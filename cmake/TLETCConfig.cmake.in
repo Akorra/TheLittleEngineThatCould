@@ -1,0 +1,38 @@
+@PACKAGE_INIT@
+
+# Provide information about the package
+set(TLETC_VERSION @PROJECT_VERSION@)
+set(TLETC_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
+set(TLETC_VERSION_MINOR @PROJECT_VERSION_MINOR@)
+set(TLETC_VERSION_PATCH @PROJECT_VERSION_PATCH@)
+
+# Check if we're building shared or static
+set(TLETC_SHARED_LIBS @BUILD_SHARED_LIBS@)
+
+include(CMakeFindDependencyMacro)
+
+# Find required dependencies that users will need
+find_dependency(OpenGL REQUIRED)
+
+# Note: GLM is bundled with TLETC, so users don't need to find it
+# GLFW and GLAD are private dependencies used only during build
+
+# Include our targets
+include("${CMAKE_CURRENT_LIST_DIR}/TLETCTargets.cmake")
+
+# Check that all required components are present
+check_required_components(TLETC)
+
+# Provide helpful information
+if(NOT TARGET TLETC::TLETC)
+    message(FATAL_ERROR "TLETC::TLETC target not found!")
+endif()
+
+# Set convenience variables
+get_target_property(TLETC_INCLUDE_DIRS TLETC::TLETC INTERFACE_INCLUDE_DIRECTORIES)
+
+# Print found message
+if(NOT TLETC_FIND_QUIETLY)
+    message(STATUS "Found TLETC: ${TLETC_VERSION}")
+    message(STATUS "  Include dirs: ${TLETC_INCLUDE_DIRS}")
+endif()
