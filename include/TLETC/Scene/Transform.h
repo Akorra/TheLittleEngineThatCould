@@ -24,7 +24,7 @@ public:
         Mat4 model = Mat4(1.0f);
         model = translate(model, position);
         model = model * glm::mat4_cast(rotation);
-        model = scale(model, this->scale);
+        model = Scale(model, this->scale);
         return model;
     }
     

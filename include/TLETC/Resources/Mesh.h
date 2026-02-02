@@ -27,15 +27,20 @@ public:
     void SetVertexUVs(const std::vector<Vec2>& uvs);
     void SetVertexColors(const std::vector<Vec4>& colors);
 
+    const Vec3& GetVertexPosition(const size_t vId) const { return positions_[vId]; }
+    const Vec3& GetVertexNormal(const size_t vId)   const { return normals_[vId]; }
+    const Vec2& GetVertexUV(const size_t vId)       const { return uvs_[vId]; }
+    const Vec4& GetVertexColor(const size_t vId)    const { return colors_[vId]; }
+
     const std::vector<Vec3>& GetVertexPositions() const { return positions_; }
     const std::vector<Vec3>& GetVertexNormals()   const { return normals_; }
-    const std::vector<Vec3>& GetVertexUVs()       const { return uvs_; }
-    const std::vector<Vec3>& GetVertexColors()    const { return colors_; }
+    const std::vector<Vec2>& GetVertexUVs()       const { return uvs_; }
+    const std::vector<Vec4>& GetVertexColors()    const { return colors_; }
 
     std::vector<Vec3>& GetVertexPositions() { return positions_; }
     std::vector<Vec3>& GetVertexNormals()   { return normals_; }
-    std::vector<Vec3>& GetVertexUVs()       { return uvs_; }
-    std::vector<Vec3>& GetVertexColors()    { return colors_; }
+    std::vector<Vec2>& GetVertexUVs()       { return uvs_; }
+    std::vector<Vec4>& GetVertexColors()    { return colors_; }
     
     // Index data management
     void AddIndex(uint32 index);
@@ -74,7 +79,7 @@ protected:
     std::vector<Vec3> positions_;
     std::vector<Vec3> normals_;
     std::vector<Vec2> uvs_;
-    std::vector<Vec4> color_;
+    std::vector<Vec4> colors_;
 
     // mesh indices
     std::vector<uint32> indices_;

@@ -52,11 +52,18 @@ FetchContent_MakeAvailable(glfw)
 
 # GLAD for OpenGL loading
 FetchContent_Declare(
-    glad
+    glad2
     GIT_REPOSITORY https://github.com/Dav1dde/glad.git
     GIT_TAG v2.0.8
 )
-FetchContent_MakeAvailable(glad)
+FetchContent_MakeAvailable(glad2)
+
+# Add the CMake folder from glad2 as a subdirectory
+# GLAD2 includes its own CMake config for creating targets
+add_subdirectory(
+    ${glad2_SOURCE_DIR}/cmake
+    ${glad2_BINARY_DIR}/cmake
+)
 
 # GLM for math
 FetchContent_Declare(

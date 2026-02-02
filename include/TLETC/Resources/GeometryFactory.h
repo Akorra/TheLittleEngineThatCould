@@ -111,4 +111,6 @@ public:
      * Each subdivision quadruples the triangle count.
      */
     static Mesh CreateIcosphere(float radius = 0.5f, uint32 subdivisions = 2);
+};
+
 }

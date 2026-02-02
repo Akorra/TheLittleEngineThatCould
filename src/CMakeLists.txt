@@ -42,15 +42,26 @@ target_include_directories(TLETC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+# Define GLM_ENABLE_EXPERIMENTAL to allow experimental features
+target_compile_definitions(TLETC PUBLIC GLM_ENABLE_EXPERIMENTAL)
+
 # Link dependencies
 # Note: GLFW, GLAD, OpenGL are implementation details (PRIVATE)
 # GLM is header-only and handled via include directories above
 # Use BUILD_INTERFACE to prevent these from being exported
+
+# Create a GLAD loader target for OpenGL core 3.3
+glad_add_library(
+    glad_gl_core_46
+    REPRODUCIBLE
+    API gl:core=4.6
+)
+
 target_link_libraries(TLETC
     PRIVATE
         $<BUILD_INTERFACE:OpenGL::GL>
         $<BUILD_INTERFACE:glfw>
-        $<BUILD_INTERFACE:glad>
+        $<BUILD_INTERFACE:glad_gl_core_46>
 )
 
 # Install GLM headers alongside our headers so users don't need to find it separately

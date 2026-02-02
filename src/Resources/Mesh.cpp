@@ -60,7 +60,7 @@ void Mesh::SetVertexUVs(const std::vector<Vec2>& uvs)
 
 void Mesh::SetVertexColors(const std::vector<Vec4>& colors)
 {
-    colors_ = color;
+    colors_ = colors;
 }
 
 
@@ -131,7 +131,7 @@ void Mesh::RecalculateNormals()
 {
     // Reset all normals to zero
     normals_.clear();
-    normals_.resize(m_vertices.size(), glm::vec3(0.0f))
+    normals_.resize(positions_.size(), glm::vec3(0.0f));
     
     // Calculate face normals and accumulate
     if (IsIndexed()) 
@@ -157,7 +157,7 @@ void Mesh::RecalculateNormals()
     } 
     else 
     {
-        for (size_t i = 0; i < m_vertices.size(); i += 3) 
+        for (size_t i = 0; i < positions_.size(); i += 3) 
         {
             Vec3 v0 = positions_[i];
             Vec3 v1 = positions_[i + 1];
@@ -174,7 +174,7 @@ void Mesh::RecalculateNormals()
     }
     
     // Normalize all normals
-    for (size_t i=0; i<normals_.size(); ++n)
+    for (size_t i=0; i<normals_.size(); ++i)
         normals_[i] = normalize(normals_[i]);
 }
 
@@ -190,7 +190,7 @@ void Mesh::Transform(const Mat4& transform)
     {
         Vec4 pos = transform * Vec4(positions_[i], 1.0f);
         positions_[i] = Vec3(pos);
-        normals_[i]   = normalize(normalMatrix * normal_[i]);
+        normals_[i]   = normalize(normalMatrix * normals_[i]);
     }
 }
 

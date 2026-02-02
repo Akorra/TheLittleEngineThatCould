@@ -49,14 +49,8 @@ Mesh GeometryFactory::CreateCube(float size)
     for (int f = 0; f < 6; ++f) {
         uint32 baseIndex = static_cast<uint32>(mesh.GetVertexCount());
         
-        for (int v = 0; v < 4; ++v) {
-            Vertex vertex;
-            vertex.position = vertices[faces[f].indices[v]];
-            vertex.normal = faces[f].normal;
-            vertex.uv = uvs[v];
-            vertex.color = Vec4(1.0f);
-            mesh.AddVertex(vertex);
-        }
+        for (int v = 0; v < 4; ++v) 
+            mesh.AddVertex(vertices[faces[f].indices[v]], faces[f].normal, uvs[v], Vec4(1.0f));
         
         // Add two triangles for this face
         mesh.AddTriangle(baseIndex + 0, baseIndex + 1, baseIndex + 2);
@@ -81,16 +75,12 @@ Mesh GeometryFactory::CreateSphere(float radius, uint32 segments, uint32 rings)
             float u = static_cast<float>(segment) / static_cast<float>(segments);
             float theta = u * TWO_PI;
             
-            Vertex vertex;
-            vertex.position.x = radius * std::sin(phi) * std::cos(theta);
-            vertex.position.y = radius * std::cos(phi);
-            vertex.position.z = radius * std::sin(phi) * std::sin(theta);
+            Vec3 position(0.0f);
+            position.x = radius * std::sin(phi) * std::cos(theta);
+            position.y = radius * std::cos(phi);
+            position.z = radius * std::sin(phi) * std::sin(theta);
             
-            vertex.normal = normalize(vertex.position);
-            vertex.uv = Vec2(u, v);
-            vertex.color = Vec4(1.0f);
-            
-            mesh.AddVertex(vertex);
+            mesh.AddVertex(position, normalize(position), Vec2(u, v), Vec4(1.0f));
         }
     }
     
@@ -129,13 +119,7 @@ Mesh GeometryFactory::CreatePlane(float width, float height, uint32 widthSegment
             float u = static_cast<float>(x) / static_cast<float>(widthSegments);
             float xPos = -halfWidth + width * u;
             
-            Vertex vertex;
-            vertex.position = Vec3(xPos, 0.0f, zPos);
-            vertex.normal = Vec3(0.0f, 1.0f, 0.0f);
-            vertex.uv = Vec2(u, v);
-            vertex.color = Vec4(1.0f);
-            
-            mesh.AddVertex(vertex);
+            mesh.AddVertex(Vec3(xPos, 0.0f, zPos), Vec3(0.0f, 1.0f, 0.0f), Vec2(u, v), Vec4(1.0f));
         }
     }
     
@@ -168,17 +152,8 @@ Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 segments
     uint32 topCenter = 0;
     uint32 bottomCenter = 1;
     
-    Vertex topCenterVertex;
-    topCenterVertex.position = Vec3(0.0f, halfHeight, 0.0f);
-    topCenterVertex.normal = Vec3(0.0f, 1.0f, 0.0f);
-    topCenterVertex.uv = Vec2(0.5f, 0.5f);
-    mesh.AddVertex(topCenterVertex);
-    
-    Vertex bottomCenterVertex;
-    bottomCenterVertex.position = Vec3(0.0f, -halfHeight, 0.0f);
-    bottomCenterVertex.normal = Vec3(0.0f, -1.0f, 0.0f);
-    bottomCenterVertex.uv = Vec2(0.5f, 0.5f);
-    mesh.AddVertex(bottomCenterVertex);
+    mesh.AddVertex(Vec3(0.0f, halfHeight, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec2(0.5f, 0.5f));
+    mesh.AddVertex(Vec3(0.0f, -halfHeight, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec2(0.5f, 0.5f));
     
     // Generate side vertices
     uint32 sideTopStart = static_cast<uint32>(mesh.GetVertexCount());
@@ -192,18 +167,10 @@ Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 segments
         Vec3 normal = normalize(Vec3(x, 0.0f, z));
         
         // Top vertex
-        Vertex topVertex;
-        topVertex.position = Vec3(x, halfHeight, z);
-        topVertex.normal = normal;
-        topVertex.uv = Vec2(u, 1.0f);
-        mesh.AddVertex(topVertex);
+        mesh.AddVertex(Vec3(x, halfHeight, z), normal, Vec2(u, 1.0f));
         
         // Bottom vertex
-        Vertex bottomVertex;
-        bottomVertex.position = Vec3(x, -halfHeight, z);
-        bottomVertex.normal = normal;
-        bottomVertex.uv = Vec2(u, 0.0f);
-        mesh.AddVertex(bottomVertex);
+        mesh.AddVertex(Vec3(x, -halfHeight, z), normal, Vec2(u, 0.0f));
     }
     
     uint32 sideBottomStart = sideTopStart + 1;
@@ -217,11 +184,7 @@ Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 segments
         float x = radius * std::cos(theta);
         float z = radius * std::sin(theta);
         
-        Vertex topCapVertex;
-        topCapVertex.position = Vec3(x, halfHeight, z);
-        topCapVertex.normal = Vec3(0.0f, 1.0f, 0.0f);
-        topCapVertex.uv = Vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f);
-        mesh.AddVertex(topCapVertex);
+        mesh.AddVertex(Vec3(x, halfHeight, z), Vec3(0.0f, 1.0f, 0.0f), Vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f));
     }
     
     uint32 bottomCapStart = static_cast<uint32>(mesh.GetVertexCount());
@@ -232,11 +195,7 @@ Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 segments
         float x = radius * std::cos(theta);
         float z = radius * std::sin(theta);
         
-        Vertex bottomCapVertex;
-        bottomCapVertex.position = Vec3(x, -halfHeight, z);
-        bottomCapVertex.normal = Vec3(0.0f, -1.0f, 0.0f);
-        bottomCapVertex.uv = Vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f);
-        mesh.AddVertex(bottomCapVertex);
+        mesh.AddVertex(Vec3(x, -halfHeight, z), Vec3(0.0f, -1.0f, 0.0f), Vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f));
     }
     
     // Generate side indices
@@ -270,19 +229,11 @@ Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segments)
     
     // Apex at top
     uint32 apexIndex = 0;
-    Vertex apex;
-    apex.position = Vec3(0.0f, halfHeight, 0.0f);
-    apex.normal = Vec3(0.0f, 1.0f, 0.0f);
-    apex.uv = Vec2(0.5f, 1.0f);
-    mesh.AddVertex(apex);
+    mesh.AddVertex(Vec3(0.0f, halfHeight, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec2(0.5f, 1.0f));
     
     // Base center
     uint32 baseCenter = 1;
-    Vertex baseCenterVertex;
-    baseCenterVertex.position = Vec3(0.0f, -halfHeight, 0.0f);
-    baseCenterVertex.normal = Vec3(0.0f, -1.0f, 0.0f);
-    baseCenterVertex.uv = Vec2(0.5f, 0.5f);
-    mesh.AddVertex(baseCenterVertex);
+    mesh.AddVertex(Vec3(0.0f, -halfHeight, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec2(0.5f, 0.5f));
     
     // Side vertices (rim)
     uint32 sideStart = static_cast<uint32>(mesh.GetVertexCount());
@@ -295,12 +246,7 @@ Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segments)
         
         // Calculate normal for cone side
         Vec3 normal = normalize(Vec3(x, radius / height, z));
-        
-        Vertex sideVertex;
-        sideVertex.position = Vec3(x, -halfHeight, z);
-        sideVertex.normal = normal;
-        sideVertex.uv = Vec2(u, 0.0f);
-        mesh.AddVertex(sideVertex);
+        mesh.AddVertex(Vec3(x, -halfHeight, z), normal, Vec2(u, 0.0f));
     }
     
     // Base cap vertices
@@ -312,11 +258,7 @@ Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segments)
         float x = radius * std::cos(theta);
         float z = radius * std::sin(theta);
         
-        Vertex capVertex;
-        capVertex.position = Vec3(x, -halfHeight, z);
-        capVertex.normal = Vec3(0.0f, -1.0f, 0.0f);
-        capVertex.uv = Vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f);
-        mesh.AddVertex(capVertex);
+        mesh.AddVertex(Vec3(x, -halfHeight, z), Vec3(0.0f, -1.0f, 0.0f), Vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f));
     }
     
     // Generate side indices (triangles from apex to rim)
@@ -353,22 +295,15 @@ Mesh GeometryFactory::CreateTorus(float majorRadius, float minorRadius, uint32 m
             float cosPhi = std::cos(phi);
             float sinPhi = std::sin(phi);
             
-            Vertex vertex;
-            
             // Position
-            vertex.position.x = (majorRadius + minorRadius * cosPhi) * cosTheta;
-            vertex.position.y = minorRadius * sinPhi;
-            vertex.position.z = (majorRadius + minorRadius * cosPhi) * sinTheta;
+            Vec3 position;
+            position.x = (majorRadius + minorRadius * cosPhi) * cosTheta;
+            position.y = minorRadius * sinPhi;
+            position.z = (majorRadius + minorRadius * cosPhi) * sinTheta;
             
             // Normal
             Vec3 center(majorRadius * cosTheta, 0.0f, majorRadius * sinTheta);
-            vertex.normal = normalize(vertex.position - center);
-            
-            // UV
-            vertex.uv = Vec2(u, v);
-            vertex.color = Vec4(1.0f);
-            
-            mesh.AddVertex(vertex);
+            mesh.AddVertex(position, normalize(position - center), Vec2(u, v), Vec4(1.0f));
         }
     }
     
@@ -410,16 +345,12 @@ Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 segments,
             float u = static_cast<float>(segment) / static_cast<float>(segments);
             float theta = u * TWO_PI;
             
-            Vertex vertex;
-            vertex.position.x = radius * std::sin(phi) * std::cos(theta);
-            vertex.position.y = halfCylinderHeight + radius * std::cos(phi);
-            vertex.position.z = radius * std::sin(phi) * std::sin(theta);
+            Vec3 position;
+            position.x = radius * std::sin(phi) * std::cos(theta);
+            position.y = halfCylinderHeight + radius * std::cos(phi);
+            position.z = radius * std::sin(phi) * std::sin(theta);
             
-            vertex.normal = normalize(vertex.position - Vec3(0.0f, halfCylinderHeight, 0.0f));
-            vertex.uv = Vec2(u, v * 0.25f + 0.75f);
-            vertex.color = Vec4(1.0f);
-            
-            mesh.AddVertex(vertex);
+            mesh.AddVertex(position, normalize(position - Vec3(0.0f, halfCylinderHeight, 0.0f)), Vec2(u, v * 0.25f + 0.75f), Vec4(1.0f));
         }
     }
     
@@ -435,18 +366,10 @@ Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 segments,
         Vec3 normal = normalize(Vec3(x, 0.0f, z));
         
         // Top of cylinder
-        Vertex topVertex;
-        topVertex.position = Vec3(x, halfCylinderHeight, z);
-        topVertex.normal = normal;
-        topVertex.uv = Vec2(u, 0.75f);
-        mesh.AddVertex(topVertex);
+        mesh.AddVertex(Vec3(x, halfCylinderHeight, z), normal, Vec2(u, 0.75f));
         
         // Bottom of cylinder
-        Vertex bottomVertex;
-        bottomVertex.position = Vec3(x, -halfCylinderHeight, z);
-        bottomVertex.normal = normal;
-        bottomVertex.uv = Vec2(u, 0.25f);
-        mesh.AddVertex(bottomVertex);
+        mesh.AddVertex(Vec3(x, -halfCylinderHeight, z), normal, Vec2(u, 0.25f));
     }
     
     uint32 cylinderStart = topHemisphereVertices;
@@ -461,16 +384,12 @@ Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 segments,
             float u = static_cast<float>(segment) / static_cast<float>(segments);
             float theta = u * TWO_PI;
             
-            Vertex vertex;
-            vertex.position.x = radius * std::sin(phi) * std::cos(theta);
-            vertex.position.y = -halfCylinderHeight + radius * std::cos(phi);
-            vertex.position.z = radius * std::sin(phi) * std::sin(theta);
+            Vec3 position;
+            position.x = radius * std::sin(phi) * std::cos(theta);
+            position.y = -halfCylinderHeight + radius * std::cos(phi);
+            position.z = radius * std::sin(phi) * std::sin(theta);
             
-            vertex.normal = normalize(vertex.position - Vec3(0.0f, -halfCylinderHeight, 0.0f));
-            vertex.uv = Vec2(u, v * 0.25f);
-            vertex.color = Vec4(1.0f);
-            
-            mesh.AddVertex(vertex);
+            mesh.AddVertex(position, normalize(position - Vec3(0.0f, -halfCylinderHeight, 0.0f)), Vec2(u, v * 0.25f), Vec4(1.0f));
         }
     }
     
@@ -530,13 +449,8 @@ Mesh GeometryFactory::CreateIcosphere(float radius, uint32 subdivisions)
     }
     
     // Add initial vertices
-    for (int i = 0; i < 12; ++i) {
-        Vertex v;
-        v.position = vertices[i];
-        v.normal = normalize(vertices[i]);
-        v.color = Vec4(1.0f);
-        mesh.AddVertex(v);
-    }
+    for (int i = 0; i < 12; ++i)
+        mesh.AddVertex(vertices[i], normalize(vertices[i]), Vec4(1.0f));
     
     // 20 faces of icosahedron
     uint32 indices[60] = {
@@ -553,6 +467,7 @@ Mesh GeometryFactory::CreateIcosphere(float radius, uint32 subdivisions)
     // Subdivide (TODO: implement subdivision)
     // Each subdivision replaces each triangle with 4 triangles
     // For now, return the base icosahedron
+    (void) subdivisions;
     
     return mesh;
 }

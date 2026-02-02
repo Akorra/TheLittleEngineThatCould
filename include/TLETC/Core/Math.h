@@ -74,6 +74,11 @@ inline Quat QuatFromAxisAngle(const Vec3& axis, float angle) {
     return glm::angleAxis(angle, axis);
 }
 
+inline Mat4 Scale(const Mat4& mat, const Vec3& scale) {
+    return glm::scale(mat, scale);
+}
+
+
 // Bounding box structure
 struct BoundingBox {
     Vec3 min;
