@@ -22,20 +22,20 @@ public:
     void PollEvents();
     void SwapBuffers();
     
-    uint32 GetWidth() const { return m_width; }
-    uint32 GetHeight() const { return m_height; }
-    float GetAspectRatio() const { return static_cast<float>(m_width) / static_cast<float>(m_height); }
+    uint32 GetWidth() const { return width_; }
+    uint32 GetHeight() const { return height_; }
+    float GetAspectRatio() const { return static_cast<float>(width_) / static_cast<float>(height_); }
     
-    GLFWwindow* GetNativeWindow() const { return m_window; }
+    GLFWwindow* GetNativeWindow() const { return window_; }
     
     // Time
     double GetTime() const;
     
 private:
-    GLFWwindow* m_window;
-    uint32 m_width;
-    uint32 m_height;
-    std::string m_title;
+    GLFWwindow* window_;
+    uint32 width_;
+    uint32 height_;
+    std::string title_;
 };
 
 } // namespace TLETC
