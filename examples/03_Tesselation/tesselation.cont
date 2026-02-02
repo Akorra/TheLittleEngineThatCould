@@ -1,0 +1,15 @@
+#version 400 core
+layout (vertices = 3) out;
+
+uniform float u_tessLevel;
+
+void main() {
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+    
+    if (gl_InvocationID == 0) {
+        gl_TessLevelInner[0] = u_tessLevel;
+        gl_TessLevelOuter[0] = u_tessLevel;
+        gl_TessLevelOuter[1] = u_tessLevel;
+        gl_TessLevelOuter[2] = u_tessLevel;
+    }
+}
