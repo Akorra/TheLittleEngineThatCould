@@ -76,6 +76,7 @@ public:
     void SetWireframeMode(bool enable) override;
     
     // Query
+    const int   GetMaxTessLevel() const override;
     const char* GetRendererName() const override;
     const char* GetAPIVersion() const override;
     

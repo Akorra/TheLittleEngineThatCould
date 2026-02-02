@@ -118,6 +118,7 @@ public:
     virtual void SetWireframeMode(bool enable) = 0;
     
     // Query
+    virtual const int   GetMaxTessLevel() const = 0;
     virtual const char* GetRendererName() const = 0;
     virtual const char* GetAPIVersion() const = 0;
 };

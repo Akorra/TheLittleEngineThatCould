@@ -362,6 +362,9 @@ void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, Primitive
         glGenVertexArrays(1, &meshData.vao);
         glBindVertexArray(meshData.vao);
 
+        if (primitiveType == PrimitiveType::Patches) 
+            glPatchParameteri(GL_PATCH_VERTICES, 3); // each patch has 3 vertices (triangle)
+
         const std::vector<Vec3>& positions = mesh.GetVertexPositions();
         const std::vector<Vec3>& normals   = mesh.GetVertexNormals();
         const std::vector<Vec2>& uvs       = mesh.GetVertexUVs();
@@ -500,6 +503,13 @@ void GLRenderDevice::MemoryBarrier()
 void GLRenderDevice::SetPatchVertices(uint32 count) 
 {
     glPatchParameteri(GL_PATCH_VERTICES, count);
+}
+
+const int GLRenderDevice::GetMaxTessLevel() const
+{
+    GLint maxTessLevel = 0;
+    glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
+    return maxTessLevel;
 }
 
 const char* GLRenderDevice::GetRendererName() const 
