@@ -1,14 +1,13 @@
 #include "GLRenderDevice.h"
-#include <glad/glad.h>
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <sstream>
 
 namespace TLETC {
 
-GLRenderDevice::GLRenderDevice()
-    : m_currentShader()
-    , m_initialized(false)
+GLRenderDevice::GLRenderDevice() : currentShader_(), initialized_(false)
 {
 }
 
@@ -24,8 +23,7 @@ bool GLRenderDevice::Initialize()
     
     // GLAD should already be initialized by the window system
     // We just check if we have OpenGL
-    if (!gladLoadGL()) 
-    {
+    if (!gladLoadGL(glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return false;
     }
@@ -45,14 +43,17 @@ bool GLRenderDevice::Initialize()
 
 void GLRenderDevice::Shutdown() 
 {
-    if (!m_initialized)
+    if (!initialized_)
         return;
     
     // Clean up mesh cache
     for (auto& pair : meshCache_) 
     {
         glDeleteVertexArrays(1, &pair.second.vao);
-        DestroyBuffer(pair.second.vbo);
+        DestroyBuffer(pair.second.posVBO);
+        DestroyBuffer(pair.second.nrmVBO);
+        DestroyBuffer(pair.second.uvsVBO);
+        DestroyBuffer(pair.second.clrVBO);
         if (pair.second.ibo.IsValid())
             DestroyBuffer(pair.second.ibo);
     }
@@ -348,7 +349,7 @@ void GLRenderDevice::SetUniformMat4(ShaderHandle shader, const std::string& name
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) 
+void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType) 
 {
     if (mesh.IsEmpty()) return;
     
@@ -360,28 +361,36 @@ void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, Primitive
         MeshData meshData;
         glGenVertexArrays(1, &meshData.vao);
         glBindVertexArray(meshData.vao);
-        
-        // Create and upload vertex buffer
-        const auto& vertices = mesh.GetVertices();
-        meshData.vbo = CreateVertexBuffer(vertices.data(), vertices.size() * sizeof(Vertex), BufferUsage::Static);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, meshData.vbo.GetID());
+
+        const std::vector<Vec3>& positions = mesh.GetVertexPositions();
+        const std::vector<Vec3>& normals   = mesh.GetVertexNormals();
+        const std::vector<Vec2>& uvs       = mesh.GetVertexUVs();
+        const std::vector<Vec4>& colors    = mesh.GetVertexColors();
+
+        meshData.posVBO = CreateVertexBuffer(positions.data(), positions.size() * sizeof(Vec3), BufferUsage::Static);
+        meshData.nrmVBO = CreateVertexBuffer(normals.data(), normals.size() * sizeof(Vec3), BufferUsage::Static);
+        meshData.uvsVBO = CreateVertexBuffer(uvs.data(), uvs.size() * sizeof(Vec2), BufferUsage::Static);
+        meshData.clrVBO = CreateVertexBuffer(colors.data(), colors.size() * sizeof(Vec4), BufferUsage::Static);
         
         // Position attribute (location = 0)
+        glBindBuffer(GL_ARRAY_BUFFER, meshData.posVBO.GetID());
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
         
         // Normal attribute (location = 1)
+        glBindBuffer(GL_ARRAY_BUFFER, meshData.nrmVBO.GetID());
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
         
         // UV attribute (location = 2)
+        glBindBuffer(GL_ARRAY_BUFFER, meshData.uvsVBO.GetID());
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
         
         // Color attribute (location = 3)
+        glBindBuffer(GL_ARRAY_BUFFER, meshData.clrVBO.GetID());
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
         
         // Create and upload index buffer if mesh is indexed
         if (mesh.IsIndexed()) 
@@ -404,8 +413,8 @@ void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, Primitive
     }
     
     // Set transform uniform if we have a current shader
-    if (m_currentShader.IsValid())
-        SetUniformMat4(m_currentShader, "u_model", transform);
+    if (currentShader_.IsValid())
+        SetUniformMat4(currentShader_, "u_model", transform);
     
     // Draw the mesh
     const MeshData& meshData = it->second;

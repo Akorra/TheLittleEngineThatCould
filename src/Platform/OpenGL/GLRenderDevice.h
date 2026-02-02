@@ -89,7 +89,7 @@ private:
     // Mesh VAO cache - stores VAO for each mesh to avoid recreating
     struct MeshData {
         uint32 vao;
-        BufferHandle vbo;
+        BufferHandle posVBO, nrmVBO, uvsVBO, clrVBO;
         BufferHandle ibo;
         uint32 indexCount;
     };

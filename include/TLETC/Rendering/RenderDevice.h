@@ -2,7 +2,7 @@
 
 #include "TLETC/Core/Types.h"
 #include "TLETC/Core/Math.h"
-#include "TLETC/Rendering/Handles.h"
+#include "TLETC/Rendering/Handle.h"
 #include "TLETC/Resources/Mesh.h"
 
 #include <string>
