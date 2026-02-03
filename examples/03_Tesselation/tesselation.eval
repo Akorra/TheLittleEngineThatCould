@@ -1,0 +1,30 @@
+#version 400 core
+layout (triangles, equal_spacing, ccw) in;
+
+uniform mat4 u_model;
+uniform mat4 u_view;
+uniform mat4 u_projection;
+
+out vec3 v_normal;
+out vec3 v_fragPos;
+out vec3 v_tessCoord;
+
+void main() {
+    // Interpolate position
+    vec3 p0 = gl_TessCoord.x * gl_in[0].gl_Position.xyz;
+    vec3 p1 = gl_TessCoord.y * gl_in[2].gl_Position.xyz;
+    vec3 p2 = gl_TessCoord.z * gl_in[1].gl_Position.xyz;
+    vec3 position = p0 + p1 + p2;
+    
+    // Add displacement (simple wave pattern)
+    float height = sin(position.x * 3.14159) * cos(position.z * 3.14159) * 0.3;
+    position.y += height;
+    
+    v_fragPos = vec3(u_model * vec4(position, 1.0));
+    v_tessCoord = gl_TessCoord;
+    
+    // Calculate normal from displaced position
+    v_normal = normalize(vec3(0.0, 1.0, 0.0)); // Simplified
+    
+    gl_Position = u_projection * u_view * vec4(v_fragPos, 1.0);
+}

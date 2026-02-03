@@ -21,11 +21,10 @@ public:
     
     // Get the local transformation matrix
     Mat4 GetModelMatrix() const {
-        Mat4 model = Mat4(1.0f);
-        model = translate(model, position);
-        model = model * glm::mat4_cast(rotation);
-        model = Scale(model, this->scale);
-        return model;
+        Mat4 S = glm::scale(Mat4(1.0f), scale);
+        Mat4 R = glm::mat4_cast(rotation);
+        Mat4 T = glm::translate(Mat4(1.0f), position);
+        return T * R * S;
     }
     
     // Get the world transformation matrix (including parent transforms)
@@ -59,10 +58,18 @@ public:
         return rotation * Vec3(0.0f, 1.0f, 0.0f);
     }
     
-    // Rotation helpers
+    // Transform helpers
     void Rotate(const Vec3& axis, float angleDegrees) {
         rotation = QuatFromAxisAngle(axis, Radians(angleDegrees)) * rotation;
         rotation = normalize(rotation);
+    }
+
+    void Translate(const Vec3& delta) {
+        position += delta;
+    }
+
+    void SetScale(const Vec3& s) {
+        scale = s;
     }
     
     void LookAt(const Vec3& target, const Vec3& up = Vec3(0.0f, 1.0f, 0.0f)) {

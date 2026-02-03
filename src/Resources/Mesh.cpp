@@ -185,7 +185,7 @@ void Mesh::RecalculateTangents()
 
 void Mesh::Transform(const Mat4& transform) 
 {
-    Mat3 normalMatrix = Mat3(transpose(inverse(transform)));
+    Mat3 normalMatrix = transpose(inverse(Mat3(transform)));
     for (size_t i = 0; i < positions_.size(); ++i) 
     {
         Vec4 pos = transform * Vec4(positions_[i], 1.0f);
@@ -207,6 +207,9 @@ void Mesh::Scale(const Vec3& scale)
         positions_[i].x *= scale.x;
         positions_[i].y *= scale.y;
         positions_[i].z *= scale.z;
+        normals_[i].x *= scale.x;
+        normals_[i].y *= scale.y;
+        normals_[i].z *= scale.z;
     }
 }
 

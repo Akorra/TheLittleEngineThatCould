@@ -1,19 +1,23 @@
 # Minimal source files for initial build test
 set(TLETC_SOURCES
     Core/Math.cpp
+    Core/Window.cpp
     Rendering/Handle.cpp
     Resources/Mesh.cpp
     Resources/GeometryFactory.cpp
+    Platform/OpenGL/GLRenderDevice.cpp
 )
 
 # Public headers
 set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Types.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Math.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Window.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Mesh.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/GeometryFactory.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
 )
 
 # Create the library
