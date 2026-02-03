@@ -2,6 +2,7 @@
 set(TLETC_SOURCES
     Core/Math.cpp
     Core/Window.cpp
+    Core/Input.cpp
     Rendering/Handle.cpp
     Resources/Mesh.cpp
     Resources/GeometryFactory.cpp
@@ -13,6 +14,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Types.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Math.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Window.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Input.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
