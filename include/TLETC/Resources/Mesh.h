@@ -84,4 +84,12 @@ protected:
     // mesh indices
     std::vector<uint32> indices_;
 };
+
+// ============================================================================
+// Railroad-Themed Aliases 
+// ============================================================================
+
+// The station is where you observe the train (window shows the game)
+using Blueprint = Mesh;
+
 };

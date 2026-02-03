@@ -8,18 +8,18 @@ in vec4 v_color;
 
 uniform vec3 u_lightPos;
 uniform vec3 u_viewPos;
-uniform vec3 u_objectColor;
+uniform vec3 u_color;
 
 void main() {
     // Ambient
     float ambientStrength = 0.3;
-    vec3 ambient = ambientStrength * u_objectColor;
+    vec3 ambient = ambientStrength * u_color;
     
     // Diffuse
     vec3 norm = normalize(v_normal);
     vec3 lightDir = normalize(u_lightPos - v_fragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * u_objectColor;
+    vec3 diffuse = diff * u_color;
     
     // Specular
     float specularStrength = 0.5;

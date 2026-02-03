@@ -129,7 +129,7 @@ int main()
         renderer.SetUniformMat4(shaderProgram, "u_projection", projection);
         renderer.SetUniformVec3(shaderProgram, "u_lightPos", lightPos);
         renderer.SetUniformVec3(shaderProgram, "u_viewPos", cameraPos);
-        renderer.SetUniformVec3(shaderProgram, "u_objectColor", objectColor);
+        renderer.SetUniformVec3(shaderProgram, "u_color", objectColor);
         
         // Draw the cube
         renderer.DrawMesh(cube, cubeTransform.GetModelMatrix());

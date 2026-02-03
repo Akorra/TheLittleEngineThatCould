@@ -123,5 +123,11 @@ public:
     virtual const char* GetAPIVersion() const = 0;
 };
 
+// ============================================================================
+// Railroad-Themed Aliases 🔥
+// ============================================================================
+
+// The firebox generates power/heat to make the engine run (renders frames)
+using Firebox = RenderDevice;
 
 } // namespace TLETC
