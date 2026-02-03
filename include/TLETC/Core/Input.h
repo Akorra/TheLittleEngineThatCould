@@ -138,6 +138,7 @@ public:
     Vec2  GetMouseScroll()  const { return mouseScroll_; }
     float GetMouseScrollX() const { return mouseScroll_.x; }
     float GetMouseScrollY() const { return mouseScroll_.y; }
+    void ResetScrollDelta() { mouseScroll_ = Vec2(0.0f); }
     
     // Mouse cursor control
     void SetCursorVisible(bool visible);
@@ -154,17 +155,19 @@ public:
     bool IsControlPressed() const;
     bool IsAltPressed() const;
     bool IsSuperPressed() const;
-    
+
+public:
+    static const uint16 MAX_KEYS = 512;
+    static const uint8  MAX_MOUSE_BUTTONS = 8;
+
 private:
     GLFWwindow* window_;
     
     // Key state
-    static const uint16 MAX_KEYS = 512;
     bool keys_[MAX_KEYS];
     bool keysLastFrame_[MAX_KEYS];
     
     // Mouse button state
-    static const uint8 MAX_MOUSE_BUTTONS = 8;
     bool mouseButtons_[MAX_MOUSE_BUTTONS];
     bool mouseButtonsLastFrame_[MAX_MOUSE_BUTTONS];
     
@@ -183,5 +186,15 @@ private:
     // Callback friends
     friend void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 };
+
+// ============================================================================
+// Railroad-Themed Aliases
+// ============================================================================
+
+// The throttle controls the locomotive's speed (input controls the game)
+using Throttle = Input;
+
+// Alternative aliases
+using Controls = Input;
 
 } // namespace TLETC

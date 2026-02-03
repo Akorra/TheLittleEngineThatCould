@@ -80,12 +80,6 @@ void Input::Update()
     glfwGetCursorPos(window_, &x, &y);
     mousePosition_ = Vec2(static_cast<float>(x), static_cast<float>(y));
     mouseDelta_    = mousePosition_ - mousePositionLastFrame_;
-    
-    // Reset scroll (it's per-frame)
-    // Note: Scroll is set by callback, we just reset it here
-    // Actually, we should reset it at the end of frame or keep it
-    // For now, let's keep the scroll value and reset it here
-    mouseScroll_ = Vec2(0.0f);
 }
 
 bool Input::IsKeyPressed(const KeyCode& key) const 

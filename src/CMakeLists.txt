@@ -3,9 +3,13 @@ set(TLETC_SOURCES
     Core/Math.cpp
     Core/Window.cpp
     Core/Input.cpp
+    Core/EventDispatcher.cpp
+    Core/Application.cpp
     Rendering/Handle.cpp
     Resources/Mesh.cpp
     Resources/GeometryFactory.cpp
+    Scene/Entity.cpp
+    Scene/Behaviour.cpp
     Platform/OpenGL/GLRenderDevice.cpp
 )
 
@@ -15,9 +19,14 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Math.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Window.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Input.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Event.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/EventDispatcher.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Entity.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Behaviour.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Mesh.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/GeometryFactory.h
 )
