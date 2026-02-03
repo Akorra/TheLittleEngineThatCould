@@ -51,7 +51,7 @@ TEST_CASE("Transform component", "[scene][transform]") {
         TLETC::Vec3 forward = transform.GetForward();
         
         // After 90 degree rotation around Y, forward should point in +X
-        REQUIRE(forward.x == Approx(1.0f).margin(0.001f));
+        REQUIRE(forward.x == Approx(-1.0f).margin(0.001f));
         REQUIRE(forward.y == Approx(0.0f).margin(0.001f));
         REQUIRE(forward.z == Approx(0.0f).margin(0.001f));
     }

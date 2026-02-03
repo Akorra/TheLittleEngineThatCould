@@ -10,9 +10,11 @@ function(add_tletc_example EXAMPLE_NAME SOURCE_FILE)
 endfunction()
 
 # Add examples
-add_tletc_example(01_MeshCreation "01_MeshCreation/main.cpp")
-add_tletc_example(02_SpinningCube "02_SpinningCube/main.cpp")
+add_tletc_example(01_MeshCreation     "01_MeshCreation/main.cpp")
+add_tletc_example(02_SpinningCube     "02_SpinningCube/main.cpp")
+add_tletc_example(03_Tesselation      "03_Tesselation/main.cpp")
 
 message(STATUS "Examples configured:")
 message(STATUS "  - 01_MeshCreation")
 message(STATUS "  - 02_SpinningCube")
+message(STATUS "  - 03_Tesselation")
