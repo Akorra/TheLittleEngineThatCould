@@ -66,4 +66,11 @@ private:
     bool    enabled_;
 };
 
+// ============================================================================
+// Railroad-Themed Aliases
+// ============================================================================
+
+// The telegraph sends signals between train components (dispatches events)
+using Cargo = Behaviour;
+
 } // namespace TLETC

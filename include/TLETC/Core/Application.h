@@ -99,10 +99,10 @@ private:
 // Railroad-themed aliases for Application
 // Use whichever name fits your style!
 
-// "The Little Engine That Could" - the main engine that drives everything
-using Engine = Application;
-
 // The locomotive pulls the whole train - powers the game loop
-using Locomotive = Application;
+class Locomotive : public Application {
+public:
+    using Application::Application;
+};
 
 } // namespace TLETC

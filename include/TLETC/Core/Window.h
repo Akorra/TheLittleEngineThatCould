@@ -45,7 +45,4 @@ private:
 // The station is where you observe the train (window shows the game)
 using Station = Window;
 
-// Alternative aliases
-using Platform = Window;
-
 } // namespace TLETC

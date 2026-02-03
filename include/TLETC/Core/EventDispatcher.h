@@ -44,7 +44,4 @@ private:
 // The telegraph sends signals between train components (dispatches events)
 using Telegraph = EventDispatcher;
 
-// Alternative aliases
-using SignalTower = EventDispatcher;
-
 } // namespace TLETC

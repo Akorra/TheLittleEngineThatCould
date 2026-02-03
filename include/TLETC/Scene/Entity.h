@@ -117,4 +117,11 @@ private:
     Input* input_;
 };
 
+// ============================================================================
+// Railroad-Themed Aliases
+// ============================================================================
+
+// The telegraph sends signals between train components (dispatches events)
+using Wagon = Entity;
+
 } // namespace TLETC
