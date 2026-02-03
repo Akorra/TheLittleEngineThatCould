@@ -39,7 +39,7 @@ public:
     // Override these for custom behavios
     virtual void OnInit() {}
     virtual void OnShutdown() {}
-    virtual void OnUpdate(float deltaTime) {}
+    virtual void OnUpdate(float deltaTime) { (void)deltaTime; }
     virtual void OnRender() {}
 
     // Access to core systems

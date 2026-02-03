@@ -11,6 +11,8 @@ static Input* s_inputInstance = nullptr;
 // scroll callback
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    (void)window;
+
     if(s_inputInstance)
     {
         s_inputInstance->mouseScroll_.x = static_cast<float>(xoffset);

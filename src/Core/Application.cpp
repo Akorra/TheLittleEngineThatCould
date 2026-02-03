@@ -60,7 +60,7 @@ bool Application::Initialize()
     std::cout << "Input system initialized" << std::endl;
 
     // Subscribe to window close event
-    eventDispatcher_->Subscribe<WindowCloseEvent>([this](WindowCloseEvent& e) { running_ = false; });
+    eventDispatcher_->Subscribe<WindowCloseEvent>([this](WindowCloseEvent& e) { (void)e; running_ = false; });
     
     // Subscribe to key press for ESC to close
     eventDispatcher_->Subscribe<KeyPressedEvent>([this](KeyPressedEvent& e) {

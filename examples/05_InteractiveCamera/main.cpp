@@ -254,12 +254,12 @@ int main()
                 0.5f + 0.5f * std::sin(static_cast<float>(i) * 0.7f + 2.0f),
                 0.5f + 0.5f * std::sin(static_cast<float>(i) * 0.9f + 4.0f)
             );
-            renderer.SetUniformVec3(program, "u_objectColor", color);
+            renderer.SetUniformVec3(program, "u_color", color);
             renderer.DrawMesh(meshes[meshIndex], transforms[i].GetModelMatrix());
         }
 
         // Draw ground
-        renderer.SetUniformVec3(program, "u_objectColor", TLETC::Vec3(0.3f, 0.5f, 0.3f));
+        renderer.SetUniformVec3(program, "u_color", TLETC::Vec3(0.3f, 0.5f, 0.3f));
         renderer.DrawMesh(meshes[4], groundTransform.GetModelMatrix());
         
         renderer.SetWireframeMode(false);

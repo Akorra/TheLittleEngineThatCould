@@ -29,9 +29,9 @@ public:
     virtual void OnDestroy() {}                 // Called when behaviour is removed
     
     // Update phase callbacks (in order)
-    virtual void OnEarlyUpdate(float deltaTime) {}  // Before main update
-    virtual void OnUpdate(float deltaTime) {}       // Main game logic
-    virtual void OnLateUpdate(float deltaTime) {}   // After main update
+    virtual void OnEarlyUpdate(float deltaTime) { (void)deltaTime; }  // Before main update
+    virtual void OnUpdate(float deltaTime)      { (void)deltaTime; }  // Main game logic
+    virtual void OnLateUpdate(float deltaTime)  { (void)deltaTime; }  // After main update
     
     // Rendering phase callbacks (in order)
     virtual void OnPreRender() {}               // Before rendering
@@ -39,12 +39,12 @@ public:
     virtual void OnPostRender() {}              // After rendering
     
     // Input event callbacks
-    virtual void OnKeyPressed(KeyCode key) {}
-    virtual void OnKeyReleased(KeyCode key) {}
-    virtual void OnMouseButtonPressed(MouseButton button) {}
-    virtual void OnMouseButtonReleased(MouseButton button) {}
-    virtual void OnMouseMoved(const Vec2& position, const Vec2& delta) {}
-    virtual void OnMouseScrolled(const Vec2& offset) {}
+    virtual void OnKeyPressed(KeyCode key)  { (void)key; }
+    virtual void OnKeyReleased(KeyCode key) { (void)key; }
+    virtual void OnMouseButtonPressed(MouseButton button)   { (void)button; }
+    virtual void OnMouseButtonReleased(MouseButton button)  { (void)button; }
+    virtual void OnMouseMoved(const Vec2& position, const Vec2& delta) { (void)position; (void)delta; }
+    virtual void OnMouseScrolled(const Vec2& offset) { (void)offset; }
     
     // Enable/disable
     void SetEnabled(bool enabled) { enabled_ = enabled; }
