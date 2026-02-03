@@ -62,7 +62,7 @@ void Input::Shutdown()
 
 void Input::Update()
 {
-    if(window_) return;
+    if(!window_) return;
 
     // Update Key State
     std::memcpy(keysLastFrame_, keys_, sizeof(keys_));

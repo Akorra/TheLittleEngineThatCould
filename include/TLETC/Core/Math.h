@@ -40,6 +40,8 @@ using glm::ortho;
 // Quaternion operations
 using glm::angleAxis;
 using glm::slerp;
+using glm::sin;
+using glm::cos;
 
 // Utility functions
 inline constexpr float PI = 3.14159265358979323846f;
