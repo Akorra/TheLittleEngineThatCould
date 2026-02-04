@@ -116,7 +116,8 @@ void Application::Run()
     std::cout << "Exiting main loop..." << std::endl;
 }
 
-void Application::Shutdown() {
+void Application::Shutdown() 
+{
     if (!initialized_) return;
     
     std::cout << "Shutting down application..." << std::endl;
@@ -184,47 +185,41 @@ void Application::ProcessInput()
     // Application owns event logic, Input just tracks state
     
     // Fire keyboard events
-    for (uint16 i{0}; i < Input::MAX_KEYS; ++i) 
+    for(KeyCode key : input_->GetKeysJustPressed())
     {
-        KeyCode key = static_cast<KeyCode>(i);
-        if (input_->IsKeyJustPressed(key)) 
-        {
-            // Optional Application-level callback
-            if (OnKeyEvent) OnKeyEvent(key, true);
+        // Optional Application-level callback
+        if (OnKeyEvent) OnKeyEvent(key, true);
+        
+        // Run behaviours that handle key events
+        RunBehaviourEvent(6, [key](Behaviour* b) { b->OnKeyPressed(key); });    
+    }
 
-            // Run behaviours that handle key events
-            RunBehaviourEvent(6, [key](Behaviour* b) { b->OnKeyPressed(key); });
-        }
-        if (input_->IsKeyJustReleased(key)) 
-        {
-            // Optional Application-level callback
-            if (OnKeyEvent) OnKeyEvent(key, false);
-            
-            // Run behaviours that handle key events
-            RunBehaviourEvent(6, [key](Behaviour* b) { b->OnKeyReleased(key); });
-        }
+    for (KeyCode key : input_->GetKeysJustReleased()) 
+    {
+        // Optional Application-level callback
+        if (OnKeyEvent) OnKeyEvent(key, false);
+        
+        // Run behaviours that handle key events
+        RunBehaviourEvent(6, [key](Behaviour* b) { b->OnKeyReleased(key); });
     }
     
-    // Fire mouse button events
-    for (uint8 i{0}; i < Input::MAX_MOUSE_BUTTONS; ++i) 
+    // Fire mouse button events - only for buttons that actually changed! (efficient!)
+    for (MouseButton button : input_->GetMouseButtonsJustPressed()) 
     {
-        MouseButton button = static_cast<MouseButton>(i);
-        if (input_->IsMouseButtonJustPressed(button)) 
-        {
-            // Optional Application-level callback
-            if (OnMouseButtonEvent) OnMouseButtonEvent(button, true);
-            
-            // Run behaviours that handle mouse button events
-            RunBehaviourEvent(7, [button](Behaviour* b) { b->OnMouseButtonPressed(button); });
-        }
-        if (input_->IsMouseButtonJustReleased(button)) 
-        {
-            // Optional Application-level callback
-            if (OnMouseButtonEvent) OnMouseButtonEvent(button, false);
-            
-            // Run behaviours that handle mouse button events
-            RunBehaviourEvent(7, [button](Behaviour* b) { b->OnMouseButtonReleased(button); });
-        }
+        // Optional Application-level callback
+        if (OnMouseButtonEvent) OnMouseButtonEvent(button, true);
+        
+        // Run behaviours that handle mouse button events
+        RunBehaviourEvent(7, [button](Behaviour* b) { b->OnMouseButtonPressed(button); });
+    }
+    
+    for (MouseButton button : input_->GetMouseButtonsJustReleased()) 
+    {
+        // Optional Application-level callback
+        if (OnMouseButtonEvent) OnMouseButtonEvent(button, false);
+        
+        // Run behaviours that handle mouse button events
+        RunBehaviourEvent(7, [button](Behaviour* b) { b->OnMouseButtonReleased(button); });
     }
     
     // Fire mouse moved event

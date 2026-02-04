@@ -98,6 +98,8 @@ enum class MouseButton {
     Button7 = 6,
     Button8 = 7
 };
+static const uint16 MAX_KEYS = 512;
+static const uint8  MAX_MOUSE_BUTTONS = 8;
 
 /**
  * Input - Manages keyboard and mouse input
@@ -139,6 +141,13 @@ public:
     float GetMouseScrollX() const { return mouseScroll_.x; }
     float GetMouseScrollY() const { return mouseScroll_.y; }
     void ResetScrollDelta() { mouseScroll_ = Vec2(0.0f); }
+
+    // Changed keys/buttons this frame (for efficient iteration)
+    const std::vector<KeyCode>& GetKeysJustPressed() const { return keysJustPressed_; }
+    const std::vector<KeyCode>& GetKeysJustReleased() const { return keysJustReleased_; }
+    const std::vector<MouseButton>& GetMouseButtonsJustPressed() const { return mouseButtonsJustPressed_; }
+    const std::vector<MouseButton>& GetMouseButtonsJustReleased() const { return mouseButtonsJustReleased_; }
+    
     
     // Mouse cursor control
     void SetCursorVisible(bool visible);
@@ -155,10 +164,6 @@ public:
     bool IsControlPressed() const;
     bool IsAltPressed() const;
     bool IsSuperPressed() const;
-
-public:
-    static const uint16 MAX_KEYS = 512;
-    static const uint8  MAX_MOUSE_BUTTONS = 8;
 
 private:
     GLFWwindow* window_;
@@ -182,6 +187,12 @@ private:
     // Cursor state
     bool cursorVisible_;
     bool cursorLocked_;
+
+    // Changed keys/buttons this frame (for efficient event dispatch)
+    std::vector<KeyCode>     keysJustPressed_;
+    std::vector<KeyCode>     keysJustReleased_;
+    std::vector<MouseButton> mouseButtonsJustPressed_;
+    std::vector<MouseButton> mouseButtonsJustReleased_;
     
     // Callback friends
     friend void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);

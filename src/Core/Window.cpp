@@ -35,7 +35,10 @@ bool Window::Create(uint32 width, uint32 height, const std::string& title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+
+    // Enable 4x MSAA (anti-aliasing)
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif

@@ -198,7 +198,7 @@ public:
         std::cout << std::endl;
 
         const std::filesystem::path ProjectRoot = PROJECT_ROOT_DIR;
-        std::string vertexShaderSource   = LoadFileAsString( (ProjectRoot / "assets/shaders/basic.vert").string() );
+        std::string vertexShaderSource   = LoadFileAsString( (ProjectRoot / "assets/shaders/basic.vert").string());
         std::string fragmentShaderSource = LoadFileAsString( (ProjectRoot / "assets/shaders/basic.frag").string());
         
         // Create shaders using the firebox

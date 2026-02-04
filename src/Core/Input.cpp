@@ -66,15 +66,37 @@ void Input::Update()
 {
     if(!window_) return;
 
-    // Update Key State
+    // Clear changed key/button vectors
+    keysJustPressed_.clear();
+    keysJustReleased_.clear();
+    mouseButtonsJustPressed_.clear();
+    mouseButtonsJustReleased_.clear();
+
+    // Update key state and track changes
     std::memcpy(keysLastFrame_, keys_, sizeof(keys_));
-    for(uint16 i{0}; i<MAX_KEYS; ++i)
+    for (uint16 i{0}; i < MAX_KEYS; ++i) 
+    {
         keys_[i] = glfwGetKey(window_, i) == GLFW_PRESS;
+        
+        // Track state changes
+        if (keys_[i] && !keysLastFrame_[i])
+            keysJustPressed_.push_back(static_cast<KeyCode>(i));
+        else if (!keys_[i] && keysLastFrame_[i])
+            keysJustReleased_.push_back(static_cast<KeyCode>(i));
+    }
     
     // Update mouse button state
     std::memcpy(mouseButtonsLastFrame_, mouseButtons_, sizeof(mouseButtons_));
     for(uint8 i{0}; i< MAX_MOUSE_BUTTONS; ++i)
+    {
         mouseButtons_[i] = glfwGetMouseButton(window_, i) == GLFW_PRESS;
+
+        // Track state changes
+        if (mouseButtons_[i] && !mouseButtonsLastFrame_[i])
+            mouseButtonsJustPressed_.push_back(static_cast<MouseButton>(i));
+        else if (!mouseButtons_[i] && mouseButtonsLastFrame_[i])
+            mouseButtonsJustReleased_.push_back(static_cast<MouseButton>(i));
+    }
 
     // Update Mouse Position
     mousePositionLastFrame_ = mousePosition_;
