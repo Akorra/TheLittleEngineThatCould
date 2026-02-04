@@ -3,6 +3,7 @@
 #include "../../src/Platform/OpenGL/GLRenderDevice.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace TLETC 
 {
@@ -10,7 +11,7 @@ namespace TLETC
 Application::Application(const std::string& title, uint32 width, uint32 height)
     : title_(title)
     , width_(width), height_(height)
-    , running_(false), initialized_(false)
+    , running_(false), initialized_(false), eventsEnabled_(true)
     , time_(0.0f), deltaTime_(0.0f)
     , lastFrameTime_(0.0)
 {
@@ -54,19 +55,7 @@ bool Application::Initialize()
     input_ = MakeUnique<Input>();
     input_->Initialize(window_->GetNativeWindow());
     
-    // Create event dispatcher
-    eventDispatcher_ = MakeUnique<EventDispatcher>();
-    
     std::cout << "Input system initialized" << std::endl;
-
-    // Subscribe to window close event
-    eventDispatcher_->Subscribe<WindowCloseEvent>([this](WindowCloseEvent& e) { (void)e; running_ = false; });
-    
-    // Subscribe to key press for ESC to close
-    eventDispatcher_->Subscribe<KeyPressedEvent>([this](KeyPressedEvent& e) {
-        if (e.key == KeyCode::Escape) 
-            Close();
-    });
 
     initialized_ = true;
     
@@ -115,6 +104,9 @@ void Application::Run()
         PreRender();       // 5. Prepare for rendering
         Render();          // 6. Draw everything
         PostRender();      // 7. UI, debug overlays, cleanup
+
+        // Process any deferred destructions (safe to destroy now)
+        ProcessDestroyQueue();
         
         // Swap buffers
         window_->SwapBuffers();
@@ -138,12 +130,9 @@ void Application::Shutdown() {
     entities_.clear();
     
     // Shutdown systems
-    if (input_) 
-        input_->Shutdown();
-    if (renderDevice_) 
-        renderDevice_->Shutdown();
-    if (window_) 
-        window_->Destroy();
+    if (input_) input_->Shutdown();
+    if (renderDevice_) renderDevice_->Shutdown();
+    if (window_) window_->Destroy();
     
     initialized_ = false;
     running_     = false;
@@ -155,6 +144,7 @@ Entity* Application::CreateEntity(const std::string& name)
 {
     auto entity = MakeUnique<Entity>(name);
     entity->SetInput(input_.get());
+    entity->SetApplication(this); // access to Application for event registration
     
     Entity* ptr = entity.get();
     entities_.push_back(std::move(entity));
@@ -168,16 +158,8 @@ Entity* Application::CreateEntity(const std::string& name)
 
 void Application::DestroyEntity(Entity* entity) 
 {
-    auto it = std::find_if(entities_.begin(), entities_.end(),
-        [entity](const UniquePtr<Entity>& ptr) {
-            return ptr.get() == entity;
-        });
-    
-    if (it != entities_.end()) 
-    {
-        (*it)->Destroy();
-        entities_.erase(it);
-    }
+    // Don't destroy immediately - queue for end of frame
+    entitiesToDestroy_.push_back(entity);
 }
 
 // ============================================================================
@@ -191,37 +173,57 @@ void Application::ProcessInput()
     
     // Update input state (just reads hardware)
     input_->Update();
-    
+
+    /* Turn on for ESC exit support
+    // Handle ESC to close (built-in)
+    if (input_->IsKeyJustPressed(KeyCode::Escape))
+        Close();
+    /**/
+
     // Now fire events based on state changes
     // Application owns event logic, Input just tracks state
     
     // Fire keyboard events
     for (uint16 i{0}; i < Input::MAX_KEYS; ++i) 
     {
-        if (input_->IsKeyJustPressed(static_cast<KeyCode>(i))) 
+        KeyCode key = static_cast<KeyCode>(i);
+        if (input_->IsKeyJustPressed(key)) 
         {
-            KeyPressedEvent event(static_cast<KeyCode>(i), false);
-            eventDispatcher_->Dispatch(event);
+            // Optional Application-level callback
+            if (OnKeyEvent) OnKeyEvent(key, true);
+
+            // Run behaviours that handle key events
+            RunBehaviourEvent(6, [key](Behaviour* b) { b->OnKeyPressed(key); });
         }
-        if (input_->IsKeyJustReleased(static_cast<KeyCode>(i))) 
+        if (input_->IsKeyJustReleased(key)) 
         {
-            KeyReleasedEvent event(static_cast<KeyCode>(i));
-            eventDispatcher_->Dispatch(event);
+            // Optional Application-level callback
+            if (OnKeyEvent) OnKeyEvent(key, false);
+            
+            // Run behaviours that handle key events
+            RunBehaviourEvent(6, [key](Behaviour* b) { b->OnKeyReleased(key); });
         }
     }
     
     // Fire mouse button events
     for (uint8 i{0}; i < Input::MAX_MOUSE_BUTTONS; ++i) 
     {
-        if (input_->IsMouseButtonJustPressed(static_cast<MouseButton>(i))) 
+        MouseButton button = static_cast<MouseButton>(i);
+        if (input_->IsMouseButtonJustPressed(button)) 
         {
-            MouseButtonPressedEvent event(static_cast<MouseButton>(i));
-            eventDispatcher_->Dispatch(event);
+            // Optional Application-level callback
+            if (OnMouseButtonEvent) OnMouseButtonEvent(button, true);
+            
+            // Run behaviours that handle mouse button events
+            RunBehaviourEvent(7, [button](Behaviour* b) { b->OnMouseButtonPressed(button); });
         }
-        if (input_->IsMouseButtonJustReleased(static_cast<MouseButton>(i))) 
+        if (input_->IsMouseButtonJustReleased(button)) 
         {
-            MouseButtonReleasedEvent event(static_cast<MouseButton>(i));
-            eventDispatcher_->Dispatch(event);
+            // Optional Application-level callback
+            if (OnMouseButtonEvent) OnMouseButtonEvent(button, false);
+            
+            // Run behaviours that handle mouse button events
+            RunBehaviourEvent(7, [button](Behaviour* b) { b->OnMouseButtonReleased(button); });
         }
     }
     
@@ -229,16 +231,24 @@ void Application::ProcessInput()
     Vec2 delta = input_->GetMouseDelta();
     if (delta.x != 0.0f || delta.y != 0.0f) 
     {
-        MouseMovedEvent event(input_->GetMousePosition(), delta);
-        eventDispatcher_->Dispatch(event);
+        Vec2 position = input_->GetMousePosition();
+
+        // Optional Application-level callback
+        if (OnMouseMoveEvent) OnMouseMoveEvent(position, delta);
+        
+        // Run behaviours that handle mouse move events
+        RunBehaviourEvent(8, [position, delta](Behaviour* b) { b->OnMouseMoved(position, delta); });
     }
     
     // Fire mouse scrolled event
     Vec2 scroll = input_->GetMouseScroll();
     if (scroll.x != 0.0f || scroll.y != 0.0f) 
     {
-        MouseScrolledEvent event(scroll);
-        eventDispatcher_->Dispatch(event);
+        // Optional Application-level callback
+        if (OnMouseScrollEvent) OnMouseScrollEvent(scroll);
+        
+        // Run behaviours that handle mouse scroll events
+        RunBehaviourEvent(9, [scroll](Behaviour* b) { b->OnMouseScrolled(scroll); });
     }
     
     // Reset scroll after event is fired (scroll is per-frame)
@@ -247,24 +257,14 @@ void Application::ProcessInput()
 
 void Application::EarlyUpdate() 
 {
-    // Fire early update event
-    AppEarlyUpdateEvent event(deltaTime_);
-    eventDispatcher_->Dispatch(event);
-    
-    // Update entities - early phase
-    for (auto& entity : entities_)
-        entity->EarlyUpdate(deltaTime_);
+    // Run behaviours that handle early update
+    RunBehaviourEvent(0, [this](Behaviour* b) { b->OnEarlyUpdate(deltaTime_); });
 }
 
 void Application::Update() 
 {
-    // Fire update event
-    AppUpdateEvent event(deltaTime_);
-    eventDispatcher_->Dispatch(event);
-    
-    // Update entities - main phase
-    for (auto& entity : entities_)
-        entity->Update(deltaTime_);
+    // Run behaviours that handle update
+    RunBehaviourEvent(1, [this](Behaviour* b) { b->OnUpdate(deltaTime_); });
     
     // Call user update
     OnUpdate(deltaTime_);
@@ -272,35 +272,20 @@ void Application::Update()
 
 void Application::LateUpdate() 
 {
-    // Fire late update event
-    AppLateUpdateEvent event(deltaTime_);
-    eventDispatcher_->Dispatch(event);
-    
-    // Update entities - late phase
-    for (auto& entity : entities_) 
-        entity->LateUpdate(deltaTime_);
+    // Run behaviours that handle late update
+    RunBehaviourEvent(2, [this](Behaviour* b) { b->OnLateUpdate(deltaTime_); });
 }
 
 void Application::PreRender() 
 {
-    // Fire pre-render event
-    AppPreRenderEvent event;
-    eventDispatcher_->Dispatch(event);
-    
-    // Pre-render entities
-    for (auto& entity : entities_)
-        entity->PreRender();
+    // Run behaviours that handle pre-render
+    RunBehaviourEvent(3, [](Behaviour* b) { b->OnPreRender(); });
 }
 
 void Application::Render() 
 {
-    // Fire render event
-    AppRenderEvent event;
-    eventDispatcher_->Dispatch(event);
-    
-    // Render entities
-    for (auto& entity : entities_)
-        entity->Render();
+    // Run behaviours that handle render
+    RunBehaviourEvent(4, [](Behaviour* b) { b->OnRender(); });
     
     // Call user render
     OnRender();
@@ -308,13 +293,97 @@ void Application::Render()
 
 void Application::PostRender() 
 {
-    // Post-render entities
-    for (auto& entity : entities_)
-        entity->PostRender();
+    // Run behaviours that handle post-render
+    RunBehaviourEvent(5, [](Behaviour* b) { b->OnPostRender(); });
+}
+
+void Application::ProcessDestroyQueue() 
+{
+    if (entitiesToDestroy_.empty()) return;
     
-    // Fire post-render event
-    AppPostRenderEvent event;
-    eventDispatcher_->Dispatch(event);
+    for (Entity* entity : entitiesToDestroy_) 
+    {
+        auto it = std::find_if(entities_.begin(), entities_.end(), [entity](const UniquePtr<Entity>& ptr) { return ptr.get() == entity; });
+        
+        if (it != entities_.end()) 
+        {
+            // Unregister all behaviours from event lists before destroying
+            for (const auto& behaviour : (*it)->behaviours_) 
+                UnregisterBehaviourFromEvents(behaviour.get());
+            
+            (*it)->Destroy();
+            entities_.erase(it);
+        }
+    }
+    
+    entitiesToDestroy_.clear();
+}
+
+void Application::RegisterBehaviourForEvents(Behaviour* behaviour) 
+{
+    // Register behaviour for each event it handles
+    for (uint32 i = 0; i < Behaviour::MaxEventFlags; ++i) 
+    {  // We have 10 event types
+        if (behaviour->HasEvent(1 << i)) 
+        {
+            behaviourEventLists_[i].push_back(behaviour);
+            behaviourEventListsDirty_[i] = true;  // Needs sorting
+        }
+    }
+}
+
+void Application::UnregisterBehaviourFromEvents(Behaviour* behaviour) 
+{
+    // Remove behaviour from all event lists
+    for (auto& pair : behaviourEventLists_) 
+    {
+        auto& list = pair.second;
+        list.erase(std::remove(list.begin(), list.end(), behaviour), list.end());
+    }
+}
+
+void Application::RunBehaviourEvent(uint32 eventId, std::function<void(Behaviour*)> callback) {
+    // Check if events are enabled for certain event types
+    if (!eventsEnabled_) 
+    {
+        // These events can be disabled (useful for pausing)
+        switch (eventId) 
+        {
+        case 0:  // EarlyUpdate
+        case 1:  // Update
+        case 2:  // LateUpdate
+        case 6:  // KeyEvents
+        case 7:  // MouseButtonEvents
+        case 8:  // MouseMoveEvents
+        case 9:  // MouseScrollEvents
+            return;
+        default:
+            break;
+        }
+    }
+    
+    // Sort if needed
+    if (behaviourEventListsDirty_[eventId]) 
+    {
+        auto& list = behaviourEventLists_[eventId];
+        std::sort(list.begin(), list.end(), [](Behaviour* a, Behaviour* b) { return a->GetExecutionOrder() < b->GetExecutionOrder(); });
+        behaviourEventListsDirty_[eventId] = false;
+    }
+    
+    // Run callbacks on behaviours that handle this event
+    auto& behaviourList = behaviourEventLists_[eventId];
+    size_t originalSize = behaviourList.size();
+    
+    for (auto* behaviour : behaviourList) 
+    {
+        if (behaviour->IsEnabled())
+            callback(behaviour);
+    }
+    
+    // If list size changed during iteration, something was added/removed
+    // (shouldn't happen with deferred destruction, but check anyway)
+    if (behaviourList.size() != originalSize)
+        behaviourEventListsDirty_[eventId] = true;
 }
 
 } // namespace TLETC

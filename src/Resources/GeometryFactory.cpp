@@ -131,8 +131,8 @@ Mesh GeometryFactory::CreatePlane(float width, float height, uint32 widthSegment
             uint32 bottomLeft = (z + 1) * (widthSegments + 1) + x;
             uint32 bottomRight = bottomLeft + 1;
             
-            mesh.AddTriangle(topLeft, topRight,  bottomLeft);
-            mesh.AddTriangle(topRight, bottomRight, bottomLeft);
+            mesh.AddTriangle(topLeft,  bottomLeft, topRight);
+            mesh.AddTriangle(topRight, bottomLeft, bottomRight);
         }
     }
     
@@ -212,7 +212,7 @@ Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 segments
     // Generate cap indices
     for (uint32 i = 0; i < segments; ++i) {
         mesh.AddTriangle(topCenter, topCapStart + i + 1, topCapStart + i);
-        mesh.AddTriangle(bottomCenter, bottomCapStart + i + 1, bottomCapStart + i);
+        mesh.AddTriangle(bottomCenter, bottomCapStart + i, bottomCapStart + i + 1);
     }
     
     return mesh;
@@ -268,7 +268,7 @@ Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segments)
     
     // Generate base cap indices
     for (uint32 i = 0; i < segments; ++i) {
-        mesh.AddTriangle(baseCenter, capStart + i + 1, capStart + i);
+        mesh.AddTriangle(baseCenter, capStart + i, capStart + i + 1);
     }
     
     return mesh;
@@ -421,8 +421,8 @@ Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 segments,
             uint32 current = bottomHemisphereStart + ring * (segments + 1) + segment;
             uint32 next = current + segments + 1;
             
-            mesh.AddTriangle(current, next, current + 1);
-            mesh.AddTriangle(current + 1, next, next + 1);
+            mesh.AddTriangle(current, current + 1, next);
+            mesh.AddTriangle(current + 1, next + 1, next);
         }
     }
     

@@ -12,6 +12,12 @@
 
 namespace TLETC 
 {
+
+/**
+ * REMOVED
+ * may use later
+ */
+
 // Event Categories for Filtering
 enum class EventCategory 
 {

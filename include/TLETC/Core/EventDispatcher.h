@@ -2,6 +2,11 @@
 
 #include "TLETC/Core/Event.h"
 
+/**
+ * REMOVED
+ * may use later
+ */
+
 namespace TLETC {
 
 // Event dispatcher - manages event subscriptions and dispatching

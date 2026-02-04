@@ -3,7 +3,7 @@
 
 namespace TLETC {
 
-Behaviour::Behaviour() : entity_(nullptr), enabled_(true)
+Behaviour::Behaviour() : entity_(nullptr), enabled_(true), executionOrder_(0), eventFlags_(EventFlag::None)
 {
 }
 

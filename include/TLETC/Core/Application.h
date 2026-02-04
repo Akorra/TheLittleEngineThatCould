@@ -27,6 +27,7 @@ namespace TLETC
  */
 class Application 
 {
+    friend class Entity;
 public:
     Application(const std::string& title = "TLETC Application", uint32 width=1280, uint32 height=720);
     virtual ~Application();
@@ -43,10 +44,9 @@ public:
     virtual void OnRender() {}
 
     // Access to core systems
-    Window& GetWindow() { return *window_; }
-    Input& GetInput()   { return *input_; }
-    EventDispatcher& GetEventDispatcher() { return *eventDispatcher_; }
-    RenderDevice* GetRenderDevice()       { return renderDevice_.get(); }
+    Window& GetWindow()             { return *window_; }
+    Input& GetInput()               { return *input_; }
+    RenderDevice* GetRenderDevice() { return renderDevice_.get(); }
 
     // Entity management
     Entity* CreateEntity(const std::string& name = "Entity");
@@ -61,6 +61,17 @@ public:
     float GetDeltaTime() const { return deltaTime_; }
     float GetTime() const      { return time_; }
 
+    // Event control
+    void SetEventsEnabled(bool enabled) { eventsEnabled_ = enabled; }
+    bool AreEventsEnabled() const { return eventsEnabled_; }
+
+    // Optional: Hook into input events at Application level (before behaviours)
+    // Most code should use Behaviours, but this is available for special cases
+    std::function<void(KeyCode, bool)>     OnKeyEvent;         // key, pressed
+    std::function<void(MouseButton, bool)> OnMouseButtonEvent; // button, pressed
+    std::function<void(Vec2, Vec2)>        OnMouseMoveEvent;   // position, delta
+    std::function<void(Vec2)>              OnMouseScrollEvent; // offset
+
 protected:
     // Game loop phases (in order)
     void ProcessInput();
@@ -70,20 +81,32 @@ protected:
     void PreRender();
     void Render();
     void PostRender();
+    void ProcessDestroyQueue();  // Clean up deferred destructions
+
+    // Behaviour event management
+    void RegisterBehaviourForEvents(Behaviour* behaviour);
+    void UnregisterBehaviourFromEvents(Behaviour* behaviour);
+    void RunBehaviourEvent(uint32 eventId, std::function<void(Behaviour*)> callback);
 
 private:
     // Core systems
-    UniquePtr<Window> window_;
-    UniquePtr<Input>  input_;
-    UniquePtr<EventDispatcher> eventDispatcher_;
-    UniquePtr<RenderDevice>    renderDevice_;
+    UniquePtr<Window>       window_;
+    UniquePtr<Input>        input_;
+    UniquePtr<RenderDevice> renderDevice_;
     
     // Entities
     std::vector<UniquePtr<Entity>> entities_;
+    std::vector<Entity*>           entitiesToDestroy_; // deferred destruction
+    
+    // Event-specific behaviour lists (much faster than iterating all entities!)
+    // Maps event type -> list of behaviours that handle that event
+    std::unordered_map<uint32, std::vector<Behaviour*>> behaviourEventLists_;
+    std::unordered_map<uint32, bool>                    behaviourEventListsDirty_;  // Needs re-sorting
     
     // State
     bool running_;
     bool initialized_;
+    bool eventsEnabled_;
     
     // Time
     float  time_;

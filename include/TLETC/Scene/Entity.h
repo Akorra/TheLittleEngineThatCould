@@ -12,6 +12,10 @@
 
 namespace TLETC 
 {
+
+// forward declaration
+class Application;
+
 /**
  * Entity - A game object that can have behaviours attached
  * 
@@ -20,6 +24,7 @@ namespace TLETC
  */
 class Entity 
 {
+    friend class Application;
 public:
     Entity(const std::string& name = "Entity");
     ~Entity();
@@ -43,6 +48,9 @@ public:
         T* ptr = behaviour.get();
         behaviour->entity_ = this;
         behaviours_.push_back(std::move(behaviour));
+
+        // Register with Application's event system (if we have app reference)
+        RegisterBehaviour(ptr);
         
         // Call OnInit if entity is already initialized
         if (initialized_)
@@ -84,24 +92,6 @@ public:
     void Init();
     void Destroy();
     
-    // Update phases (in order)
-    void EarlyUpdate(float deltaTime);
-    void Update(float deltaTime);
-    void LateUpdate(float deltaTime);
-    
-    // Rendering phases (in order)
-    void PreRender();
-    void Render();
-    void PostRender();
-    
-    // Event handling
-    void OnKeyPressed(KeyCode key);
-    void OnKeyReleased(KeyCode key);
-    void OnMouseButtonPressed(MouseButton button);
-    void OnMouseButtonReleased(MouseButton button);
-    void OnMouseMoved(const Vec2& position, const Vec2& delta);
-    void OnMouseScrolled(const Vec2& offset);
-    
     // Enable/disable
     void SetEnabled(bool enabled) { enabled_ = enabled; }
     bool IsEnabled() const { return enabled_; }
@@ -110,11 +100,20 @@ public:
     void SetInput(Input* input) { input_ = input; }
     Input* GetInput() const { return input_; }
 
+    // Application access (for registering behaviours)
+    void SetApplication(class Application* app) { application_ = app; }
+    class Application* GetApplication() const { return application_; }
+
+private:
+    // Register Behaviours for events
+    bool RegisterBehaviour(Behaviour* b) const;
+
 private:
     std::vector<UniquePtr<Behaviour>> behaviours_;
-    bool enabled_;
-    bool initialized_;
-    Input* input_;
+    bool    enabled_;
+    bool    initialized_;
+    Input*  input_;
+    Application* application_;
 };
 
 // ============================================================================
