@@ -33,6 +33,8 @@ class InputHandler : public TLETC::Behaviour
 public:
     TLETC::Vec3 velocity{0.0f};
     float moveSpeed = 5.0f;
+
+    InputHandler() { SetActiveEvents(EventFlag::EarlyUpdate); }
     
     void OnEarlyUpdate(float deltaTime) override 
     {
@@ -61,6 +63,8 @@ public:
 class PhysicsMover : public TLETC::Behaviour 
 {
 public:
+    PhysicsMover() { { SetActiveEvents(EventFlag::Update); } }
+
     void OnUpdate(float deltaTime) override 
     {
         // Apply physics AFTER input is read
@@ -81,6 +85,8 @@ public:
     TLETC::Entity* target = nullptr;
     TLETC::Vec3 offset{0, 5, 10};
     float smoothSpeed = 5.0f;
+
+    CameraFollow() { { SetActiveEvents(EventFlag::LateUpdate); }}
     
     void OnLateUpdate(float deltaTime) override {
         // Update camera AFTER all movement is finalized
@@ -107,7 +113,7 @@ public:
     TLETC::Vec3 axis;
     float speed;
     
-    Rotator(const TLETC::Vec3& a = TLETC::Vec3(0, 1, 0), float s = 45.0f) : axis(a), speed(s) {}
+    Rotator(const TLETC::Vec3& a = TLETC::Vec3(0, 1, 0), float s = 45.0f) : axis(a), speed(s) { SetActiveEvents(EventFlag::Update); }
     
     void OnUpdate(float deltaTime) override
     {
@@ -124,7 +130,10 @@ class PhaseLogger : public TLETC::Behaviour
 {
 public:
     bool enabled = false;
+
+    PhaseLogger() { SetActiveEvents(EventFlag::AllRender | EventFlag::AllRender | EventFlag::KeyEvents); }
     
+    void OnKeyPressed(TLETC::KeyCode key) override { if(key == TLETC::KeyCode::L) enabled = !enabled; }
     void OnEarlyUpdate(float dt) override 
     {
         if (enabled) std::cout << "  [EarlyUpdate] " << GetEntity()->name << std::endl;
@@ -219,18 +228,6 @@ public:
         
         // Setup projection
         projection = TLETC::perspective(TLETC::radians(45.0f), GetWindow().GetAspectRatio(), 0.1f, 100.0f );
-        
-        // Subscribe to key press for logging toggle
-        GetEventDispatcher().Subscribe<TLETC::KeyPressedEvent>([this](TLETC::KeyPressedEvent& e) 
-        {
-            if (e.key == TLETC::KeyCode::L) 
-            {
-                loggingEnabled = !loggingEnabled;
-                playerLogger->enabled = loggingEnabled;
-                cameraLogger->enabled = loggingEnabled;
-                std::cout << "Phase logging: " << (loggingEnabled ? "ON" : "OFF") << std::endl;
-            }
-        });
     }
     
     void OnRender() override 

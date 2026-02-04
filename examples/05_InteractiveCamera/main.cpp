@@ -127,7 +127,10 @@ int main()
     meshes.push_back(TLETC::GeometryFactory::CreateCube(1.0f));
     meshes.push_back(TLETC::GeometryFactory::CreateSphere(0.5f, 32, 16));
     meshes.push_back(TLETC::GeometryFactory::CreateCylinder(0.5f, 1.0f, 32));
+    meshes.push_back(TLETC::GeometryFactory::CreateCone(0.5f, 1.0f, 32));
     meshes.push_back(TLETC::GeometryFactory::CreateTorus(0.5f, 0.2f, 32, 16));
+    meshes.push_back(TLETC::GeometryFactory::CreateCapsule(0.25f, 0.5f, 32, 8));
+    meshes.push_back(TLETC::GeometryFactory::CreateIcosphere(0.5f, 2));
     meshes.push_back(TLETC::GeometryFactory::CreatePlane(20.0f, 20.0f, 1, 1));
 
     const std::filesystem::path ProjectRoot = PROJECT_ROOT_DIR;
@@ -248,7 +251,7 @@ int main()
         // Draw objects
         for (size_t i = 0; i < transforms.size(); ++i) 
         {
-            int meshIndex = i % 4; // Cycle through first 4 meshes
+            int meshIndex = i % 7; // Cycle through first 7 meshes
             TLETC::Vec3 color(
                 0.5f + 0.5f * std::sin(static_cast<float>(i) * 0.5f),
                 0.5f + 0.5f * std::sin(static_cast<float>(i) * 0.7f + 2.0f),
@@ -260,7 +263,7 @@ int main()
 
         // Draw ground
         renderer.SetUniformVec3(program, "u_color", TLETC::Vec3(0.3f, 0.5f, 0.3f));
-        renderer.DrawMesh(meshes[4], groundTransform.GetModelMatrix());
+        renderer.DrawMesh(meshes[7], groundTransform.GetModelMatrix());
         
         renderer.SetWireframeMode(false);
         

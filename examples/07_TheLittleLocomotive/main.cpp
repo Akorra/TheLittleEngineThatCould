@@ -28,6 +28,8 @@ class TrainCar : public TLETC::Behaviour
 public:
     float speed = 2.0f;
     float pathProgress = 0.0f;
+
+    TrainCar() { SetActiveEvents(EventFlag::Update | EventFlag::KeyEvents); }
     
     void OnUpdate(float deltaTime) override 
     {
@@ -64,7 +66,9 @@ public:
 class Smokestack : public TLETC::Behaviour {
 public:
     float time = 0.0f;
-    
+
+    Smokestack() { SetActiveEvents(EventFlag::Update); }
+
     void OnUpdate(float deltaTime) override 
     {
         time += deltaTime * 3.0f;
@@ -84,11 +88,11 @@ public:
 class TheLittleLocomotiveThatCould : public TLETC::Locomotive {
 public:
     TheLittleLocomotiveThatCould() 
-        : Locomotive("The Little Locomotive That Could! 🚂", 1280, 720) {}
+        : Locomotive("The Little Locomotive That Could!", 1280, 720) {}
     
     void OnInit() override {
         std::cout << "========================================" << std::endl;
-        std::cout << "  🚂 The Little Locomotive That Could!" << std::endl;
+        std::cout << "  The Little Locomotive That Could!" << std::endl;
         std::cout << "========================================" << std::endl;
         std::cout << std::endl;
         std::cout << "\"I think I can! I think I can!\"" << std::endl;

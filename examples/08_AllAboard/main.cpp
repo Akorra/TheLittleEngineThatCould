@@ -23,7 +23,7 @@ std::string LoadFileAsString(const std::string& path)
 }
 
 /**
- * All Aboard! 🚂
+ * All Aboard!
  * 
  * This example uses ONLY railroad-themed aliases!
  * Every class name is railroad terminology.
@@ -36,6 +36,8 @@ std::string LoadFileAsString(const std::string& path)
 class PlayerCargo : public TLETC::Cargo {
 public:
     float moveSpeed = 3.0f;
+    
+    PlayerCargo() { SetActiveEvents(EventFlag::Update); }
     
     void OnUpdate(float deltaTime) override {
         // Get the throttle (input controls)
@@ -63,7 +65,7 @@ public:
     float speed;
     
     RotatingCargo(const TLETC::Vec3& a = TLETC::Vec3(0, 1, 0), float s = 45.0f)
-        : axis(a), speed(s) {}
+        : axis(a), speed(s) { SetActiveEvents(EventFlag::Update); }
     
     void OnUpdate(float deltaTime) override {
         GetEntity()->transform.Rotate(axis, speed * deltaTime);
@@ -80,8 +82,11 @@ class ColorChangeCargo : public TLETC::Cargo {
 public:
     TLETC::Vec3 color = TLETC::Vec3(1, 0, 0);
     int colorIndex = 0;
+
+    ColorChangeCargo() { SetActiveEvents(EventFlag::MouseButtonEvents); }
     
-    void OnMouseButtonPressed(TLETC::MouseButton button) override {
+    void OnMouseButtonPressed(TLETC::MouseButton button) override 
+    {
         if (button == TLETC::MouseButton::Left) {
             colorIndex = (colorIndex + 1) % 3;
             switch (colorIndex) {
@@ -141,9 +146,6 @@ public:
         
         // Get the throttle (input) using railroad alias!
         throttle = &GetInput();  // Could also call GetThrottle() if we add that method
-        
-        // Get the telegraph (event dispatcher) using railroad alias!
-        telegraph = &GetEventDispatcher();  // Could also call GetTelegraph()
         
         // Get the station (window) using railroad alias!
         station = &GetWindow();  // Could also call GetStation()
@@ -212,13 +214,6 @@ public:
             100.0f
         );
         
-        // Subscribe to telegraph signals (events)
-        telegraph->Subscribe<TLETC::KeyPressedEvent>([this](TLETC::KeyPressedEvent& e) {
-            if (e.key == TLETC::KeyCode::T) {
-                std::cout << "Telegraph received signal: T key pressed!" << std::endl;
-            }
-        });
-        
         std::cout <<  "All systems ready! The locomotive is departing!" << std::endl;
         std::cout << "   \"I think I can! I think I can!\"" << std::endl;
         std::cout << std::endl;
@@ -240,7 +235,7 @@ public:
         firebox->SetUniformMat4(shaderProgram, "u_view", view);
         firebox->SetUniformMat4(shaderProgram, "u_projection", projection);
         firebox->SetUniformVec3(shaderProgram, "u_lightPos", TLETC::Vec3(10, 10, 10));
-        
+
         // Draw all cars (entities)
         for (const auto& car : GetEntities()) {  // Cars!
             if (!car->mesh) continue;
@@ -257,6 +252,8 @@ public:
             firebox->SetUniformVec3(shaderProgram, "u_color", color);
             firebox->DrawMesh(*car->mesh, car->transform.GetModelMatrix());
         }
+
+        firebox->SetWireframeMode(false);
     }
     
     void OnShutdown() override {
