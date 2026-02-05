@@ -31,9 +31,6 @@ public:
 
     // Transform
     Transform transform;
-
-    // Mesh (optional)
-    const Mesh* mesh;
     
     // Name
     std::string name;
