@@ -8,7 +8,6 @@ namespace TLETC {
 
 Entity::Entity(const std::string& name)
     : name(name)
-    , mesh(nullptr)
     , enabled_(true)
     , initialized_(false)
     , input_(nullptr)
