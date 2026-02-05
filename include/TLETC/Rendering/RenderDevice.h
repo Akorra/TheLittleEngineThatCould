@@ -95,9 +95,17 @@ public:
     // Shader uniforms
     virtual void SetUniformInt(ShaderHandle shader, const std::string& name, int value) = 0;
     virtual void SetUniformFloat(ShaderHandle shader, const std::string& name, float value) = 0;
+    virtual void SetUniformVec2(ShaderHandle shader, const std::string& name, const Vec2& value) = 0;
     virtual void SetUniformVec3(ShaderHandle shader, const std::string& name, const Vec3& value) = 0;
     virtual void SetUniformVec4(ShaderHandle shader, const std::string& name, const Vec4& value) = 0;
+    virtual void SetUniformMat3(ShaderHandle shader, const std::string& name, const Mat3& value) = 0;
     virtual void SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) = 0;
+    
+    // Texture operations
+    virtual TextureHandle CreateTexture(const char* filepath) = 0;
+    virtual TextureHandle CreateTexture(int width, int height, const void* data) = 0;
+    virtual void DestroyTexture(TextureHandle texture) = 0;
+    virtual void BindTexture(TextureHandle texture, int slot = 0) = 0;
     
     // Mesh rendering
     virtual void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;

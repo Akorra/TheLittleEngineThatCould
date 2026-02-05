@@ -331,6 +331,13 @@ void GLRenderDevice::SetUniformFloat(ShaderHandle shader, const std::string& nam
         glUniform1f(location, value);
 }
 
+void GLRenderDevice::SetUniformVec2(ShaderHandle shader, const std::string& name, const Vec2& value) 
+{
+    int location = GetUniformLocation(shader, name);
+    if (location >= 0)
+        glUniform2fv(location, 1, glm::value_ptr(value));
+}
+
 void GLRenderDevice::SetUniformVec3(ShaderHandle shader, const std::string& name, const Vec3& value) 
 {
     int location = GetUniformLocation(shader, name);
@@ -345,11 +352,73 @@ void GLRenderDevice::SetUniformVec4(ShaderHandle shader, const std::string& name
         glUniform4fv(location, 1, glm::value_ptr(value));
 }
 
+void GLRenderDevice::SetUniformMat3(ShaderHandle shader, const std::string& name, const Mat3& value) 
+{
+    int location = GetUniformLocation(shader, name);
+    if (location >= 0)
+        glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+
 void GLRenderDevice::SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) 
 {
     int location = GetUniformLocation(shader, name);
     if (location >= 0)
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+// Texture operations
+TextureHandle GLRenderDevice::CreateTexture(const char* filepath) 
+{
+    (void)filepath;
+    // TODO: Load image from file using stb_image
+    // For now, just create empty handle
+    return TextureHandle();
+}
+
+TextureHandle GLRenderDevice::CreateTexture(int width, int height, const void* data) 
+{
+    GLuint textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    
+    // Upload texture data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    // Create handle and cache
+    TextureHandle handle = TextureHandle(textureId);
+    textureCache_[handle] = textureId;
+    return handle;
+}
+
+void GLRenderDevice::DestroyTexture(TextureHandle texture) 
+{
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        GLuint textureId = it->second;
+        glDeleteTextures(1, &textureId);
+        textureCache_.erase(it);
+    }
+}
+
+void GLRenderDevice::BindTexture(TextureHandle texture, int slot) 
+{
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, it->second);
+    }
 }
 
 void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType) 

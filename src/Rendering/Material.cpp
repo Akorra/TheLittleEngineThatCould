@@ -135,7 +135,7 @@ void Material::SetTransparent(bool transparent)
 
 void Material::Bind(RenderDevice* renderer) const {
     // Use shader
-    renderer->UseShader(shader);
+    renderer->UseShader(shader_);
     
     // Set all float properties
     for (const auto& [name, value] : floats_) {

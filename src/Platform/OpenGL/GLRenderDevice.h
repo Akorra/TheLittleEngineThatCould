@@ -53,9 +53,17 @@ public:
     // Shader uniforms
     void SetUniformInt(ShaderHandle shader, const std::string& name, int value) override;
     void SetUniformFloat(ShaderHandle shader, const std::string& name, float value) override;
+    void SetUniformVec2(ShaderHandle shader, const std::string& name, const Vec2& value) override;
     void SetUniformVec3(ShaderHandle shader, const std::string& name, const Vec3& value) override;
     void SetUniformVec4(ShaderHandle shader, const std::string& name, const Vec4& value) override;
+    void SetUniformMat3(ShaderHandle shader, const std::string& name, const Mat3& value) override;
     void SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) override;
+
+    // Texture operations
+    TextureHandle CreateTexture(const char* filepath) override;
+    TextureHandle CreateTexture(int width, int height, const void* data) override;
+    void DestroyTexture(TextureHandle texture) override;
+    void BindTexture(TextureHandle texture, int slot = 0) override;
     
     // Mesh rendering
     void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
@@ -95,6 +103,7 @@ private:
         uint32 indexCount;
     };
     std::unordered_map<const Mesh*, MeshData> meshCache_;
+    std::unordered_map<TextureHandle, uint32, TextureHandle::Hash> textureCache_;
     
     // Current state
     ShaderHandle currentShader_;

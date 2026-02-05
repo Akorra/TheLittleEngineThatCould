@@ -98,6 +98,7 @@ enum class MouseButton {
     Button7 = 6,
     Button8 = 7
 };
+
 static const uint16 MAX_KEYS = 512;
 static const uint8  MAX_MOUSE_BUTTONS = 8;
 
@@ -147,7 +148,6 @@ public:
     const std::vector<KeyCode>& GetKeysJustReleased() const { return keysJustReleased_; }
     const std::vector<MouseButton>& GetMouseButtonsJustPressed() const { return mouseButtonsJustPressed_; }
     const std::vector<MouseButton>& GetMouseButtonsJustReleased() const { return mouseButtonsJustReleased_; }
-    
     
     // Mouse cursor control
     void SetCursorVisible(bool visible);

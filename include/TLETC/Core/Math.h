@@ -48,39 +48,6 @@ inline constexpr float PI = 3.14159265358979323846f;
 inline constexpr float TWO_PI = 2.0f * PI;
 inline constexpr float HALF_PI = 0.5f * PI;
 
-inline float Radians(float degrees) {
-    return glm::radians(degrees);
-}
-
-inline float Degrees(float radians) {
-    return glm::degrees(radians);
-}
-
-inline Vec3 Normalize(const Vec3& v) {
-    return glm::normalize(v);
-}
-
-inline float Length(const Vec3& v) {
-    return glm::length(v);
-}
-
-inline float Dot(const Vec3& a, const Vec3& b) {
-    return glm::dot(a, b);
-}
-
-inline Vec3 Cross(const Vec3& a, const Vec3& b) {
-    return glm::cross(a, b);
-}
-
-inline Quat QuatFromAxisAngle(const Vec3& axis, float angle) {
-    return glm::angleAxis(angle, axis);
-}
-
-inline Mat4 Scale(const Mat4& mat, const Vec3& scale) {
-    return glm::scale(mat, scale);
-}
-
-
 // Bounding box structure
 struct BoundingBox {
     Vec3 min;

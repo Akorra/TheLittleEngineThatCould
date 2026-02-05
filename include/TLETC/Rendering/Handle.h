@@ -19,6 +19,12 @@ public:
     bool operator==(const Handle& other) const { return id_ == other.id_; }
     bool operator!=(const Handle& other) const { return id_ != other.id_; }
     bool operator<(const Handle& other) const { return id_ < other.id_; }
+
+    struct Hash {
+        size_t operator()(const Handle<Tag>& handle) const {
+            return std::hash<uint32>{}(handle.id_);
+        }
+    };
     
 private:
     uint32 id_;
