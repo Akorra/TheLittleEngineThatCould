@@ -1,4 +1,6 @@
 #include "TLETC/Core/Application.h"
+#include "TLETC/Rendering/MeshRenderer.h"
+#include "TLETC/Rendering/Camera.h"
 
 #include "../../src/Platform/OpenGL/GLRenderDevice.h"
 
@@ -10,9 +12,14 @@ namespace TLETC
 
 Application::Application(const std::string& title, uint32 width, uint32 height)
     : title_(title)
-    , width_(width), height_(height)
-    , running_(false), initialized_(false), eventsEnabled_(true)
-    , time_(0.0f), deltaTime_(0.0f)
+    , width_(width)
+    , height_(height)
+    , running_(false)
+    , initialized_(false)
+    , eventsEnabled_(true)
+    , camera_(nullptr)
+    , time_(0.0f)
+    , deltaTime_(0.0f)
     , lastFrameTime_(0.0)
 {
 }
@@ -175,16 +182,9 @@ void Application::ProcessInput()
     // Update input state (just reads hardware)
     input_->Update();
 
-    /* Turn on for ESC exit support
-    // Handle ESC to close (built-in)
-    if (input_->IsKeyJustPressed(KeyCode::Escape))
-        Close();
-    /**/
-
-    // Now fire events based on state changes
-    // Application owns event logic, Input just tracks state
+    /* if (input_->IsKeyJustPressed(KeyCode::Escape)) Close(); /* Turn on Handle ESC to close (built-in) */
     
-    // Fire keyboard events
+    // Fire keyboard events - only for keys that changed
     for(KeyCode key : input_->GetKeysJustPressed())
     {
         // Optional Application-level callback
@@ -277,10 +277,14 @@ void Application::PreRender()
     RunBehaviourEvent(3, [](Behaviour* b) { b->OnPreRender(); });
 }
 
+// TODO: REVIEW - REMOVE USER RENDER ACCESS
 void Application::Render() 
 {
     // Run behaviours that handle render
     RunBehaviourEvent(4, [](Behaviour* b) { b->OnRender(); });
+
+    // Render all MeshRenderers automatically (user can override OnRender to customize)
+    RenderAllMeshRenderers();
     
     // Call user render
     OnRender();
@@ -312,6 +316,38 @@ void Application::ProcessDestroyQueue()
     }
     
     entitiesToDestroy_.clear();
+}
+
+void Application::RenderAllMeshRenderers() {
+    // Need a camera to render
+    if (!camera_) return;
+    
+    // Collect all MeshRenderers from all entities
+    std::vector<MeshRenderer*> renderers;
+    for (auto& entity : entities_) {
+        if (!entity->IsEnabled()) continue;
+        
+        // Get MeshRenderer behaviour if it has one
+        auto* meshRenderer = entity->GetBehaviour<MeshRenderer>();
+        if (meshRenderer && meshRenderer->GetMaterial()) {
+            renderers.push_back(meshRenderer);
+        }
+    }
+    
+    // Sort by render queue (opaque first, then transparent)
+    std::sort(renderers.begin(), renderers.end(), 
+        [](MeshRenderer* a, MeshRenderer* b) {
+            return a->GetMaterial()->GetRenderQueue() < b->GetMaterial()->GetRenderQueue();
+        });
+    
+    // Get camera matrices
+    Mat4 view = camera_->GetViewMatrix();
+    Mat4 projection = camera_->GetProjectionMatrix(window_->GetAspectRatio());
+    
+    // Render all
+    for (auto* renderer : renderers) {
+        renderer->Render(renderDevice_.get(), view, projection);
+    }
 }
 
 void Application::RegisterBehaviourForEvents(Behaviour* behaviour) 

@@ -48,6 +48,11 @@ public:
     Input& GetInput()               { return *input_; }
     RenderDevice* GetRenderDevice() { return renderDevice_.get(); }
 
+    // TODO: Multi camera support
+    // Camera
+    void SetCamera(class Camera* camera) { camera_ = camera; }
+    class Camera* GetCamera() const { return camera_; }
+
     // Entity management
     Entity* CreateEntity(const std::string& name = "Entity");
     void    DestroyEntity(Entity* entity);
@@ -83,6 +88,10 @@ protected:
     void PostRender();
     void ProcessDestroyQueue();  // Clean up deferred destructions
 
+    // TODO: REVIEW THIS!!!
+    // Rendering helpers
+    void RenderAllMeshRenderers();  // Collects and renders all MeshRenderer behaviours
+
     // Behaviour event management
     void RegisterBehaviourForEvents(Behaviour* behaviour);
     void UnregisterBehaviourFromEvents(Behaviour* behaviour);
@@ -93,6 +102,9 @@ private:
     UniquePtr<Window>       window_;
     UniquePtr<Input>        input_;
     UniquePtr<RenderDevice> renderDevice_;
+
+    // Camera
+    class Camera* camera_;
     
     // Entities
     std::vector<UniquePtr<Entity>> entities_;
