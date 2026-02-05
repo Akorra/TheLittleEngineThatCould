@@ -155,7 +155,8 @@ int main()
         
         // Draw with tessellation (use Patches primitive type)
         // For now we'll modify DrawMesh to support tessellation
-        // In a real implementation, you'd want a separate DrawTessellatedMesh method
+        // In a real implementation, you'd want a separate DrawTessellatedMesh method´
+        renderer.SetPatchVertices(3);
         renderer.DrawMesh(plane, planeTransform.GetModelMatrix(), TLETC::PrimitiveType::Patches);
         
         window.SwapBuffers();

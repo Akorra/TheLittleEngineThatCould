@@ -5,7 +5,7 @@ set(TLETC_SOURCES
     Core/Input.cpp
     Core/Application.cpp
     Rendering/Handle.cpp
-    Rendering/Material.cpp
+    # Rendering/Material.cpp
     Resources/Mesh.cpp
     Resources/GeometryFactory.cpp
     Scene/Entity.cpp
@@ -22,7 +22,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Material.h
+    # ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Material.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Entity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Behaviour.h

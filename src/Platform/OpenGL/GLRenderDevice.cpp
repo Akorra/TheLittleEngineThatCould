@@ -36,6 +36,9 @@ bool GLRenderDevice::Initialize()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+    // Enable multisampling (MSAA) for anti-aliasing
+    glEnable(GL_MULTISAMPLE);
     
     initialized_ = true;
     return true;
@@ -362,8 +365,10 @@ void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, Primitive
         glGenVertexArrays(1, &meshData.vao);
         glBindVertexArray(meshData.vao);
 
-        if (primitiveType == PrimitiveType::Patches) 
-            glPatchParameteri(GL_PATCH_VERTICES, 3); // each patch has 3 vertices (triangle)
+        // TODO: let material and/or mesh handle this and primitive type
+        // Now we have SetPatchVertices 
+        // if (primitiveType == PrimitiveType::Patches) 
+        //    glPatchParameteri(GL_PATCH_VERTICES, 3); // each patch has 3 vertices (triangle)
 
         const std::vector<Vec3>& positions = mesh.GetVertexPositions();
         const std::vector<Vec3>& normals   = mesh.GetVertexNormals();
