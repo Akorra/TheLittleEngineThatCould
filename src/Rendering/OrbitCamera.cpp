@@ -64,8 +64,10 @@ void OrbitCamera::OnMouseButtonReleased(MouseButton button)
         panning_ = false;
 }
 
-void OrbitCamera::OnMouseMoved(const Vec2& pos, const Vec2& delta) 
+void OrbitCamera::OnMouseMoved(const Vec2& position, const Vec2& delta) 
 {
+    (void) position;
+    
     if (tumbling_) 
     {
         // Tumble: Rotate around target
