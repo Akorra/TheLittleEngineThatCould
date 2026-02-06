@@ -1,9 +1,15 @@
 #include "GLRenderDevice.h"
+
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <sstream>
+
+// STB Image - for loading textures
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../external/stb_image.h"
+
 
 namespace TLETC {
 
@@ -368,56 +374,132 @@ void GLRenderDevice::SetUniformMat4(ShaderHandle shader, const std::string& name
 }
 
 // Texture operations
-TextureHandle GLRenderDevice::CreateTexture(const char* filepath) 
+
+TextureHandle GLRenderDevice::LoadTexture(const char* filepath, int& outWidth, int& outHeight, TextureFormat& outFormat) 
 {
-    (void)filepath;
-    // TODO: Load image from file using stb_image
-    // For now, just create empty handle
-    return TextureHandle();
+    // Load image data with stb_image
+    stbi_set_flip_vertically_on_load(true);  // OpenGL expects bottom-left origin
+    
+    int width, height, channels;
+    unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
+    
+    if (!data) 
+    {
+        std::cerr << "Failed to load texture: " << filepath << std::endl;
+        outWidth = 0;
+        outHeight = 0;
+        outFormat = TextureFormat::RGBA;
+        return TextureHandle();
+    }
+    
+    // Determine format based on channels
+    TextureFormat format;
+    switch (channels) {
+        case 1: format = TextureFormat::R; break;
+        case 2: format = TextureFormat::RG; break;
+        case 3: format = TextureFormat::RGB; break;
+        case 4: format = TextureFormat::RGBA; break;
+        default:
+            std::cerr << "Unsupported channel count: " << channels << std::endl;
+            stbi_image_free(data);
+            return TextureHandle();
+    }
+    
+    // Create texture
+    TextureHandle handle = CreateTexture(width, height, format, data);
+    
+    // Free image data
+    stbi_image_free(data);
+    
+    // Set output parameters
+    outWidth = width;
+    outHeight = height;
+    outFormat = format;
+    
+    std::cout << "Loaded texture: " << filepath << " (" << width << "x" << height 
+              << ", " << channels << " channels)" << std::endl;
+    
+    return handle;
 }
 
-TextureHandle GLRenderDevice::CreateTexture(int width, int height, const void* data) 
+TextureHandle GLRenderDevice::CreateTexture(int width, int height, TextureFormat format, const void* data) 
 {
     GLuint textureId;
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
     
-    // Upload texture data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    // Convert format
+    GLenum glFormat = GetGLTextureFormat(format);
+    GLenum internalFormat = glFormat;
     
-    // Set texture parameters
+    // Upload texture data
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, 
+                 glFormat, GL_UNSIGNED_BYTE, data);
+    
+    // Set default parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
     
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    // Create handle and cache
-    TextureHandle handle = TextureHandle(textureId);
-    textureCache_[handle] = textureId;
+    // Cache texture
+    TextureHandle handle(textureId);
+    m_textureCache[handle] = textureId;
+    
     return handle;
 }
 
 void GLRenderDevice::DestroyTexture(TextureHandle texture) 
 {
-    auto it = textureCache_.find(texture);
-    if (it != textureCache_.end()) 
+    auto it = m_textureCache.find(texture);
+    if (it != m_textureCache.end()) 
     {
         GLuint textureId = it->second;
         glDeleteTextures(1, &textureId);
-        textureCache_.erase(it);
+        m_textureCache.erase(it);
     }
 }
 
 void GLRenderDevice::BindTexture(TextureHandle texture, int slot) 
 {
-    auto it = textureCache_.find(texture);
-    if (it != textureCache_.end()) 
+    auto it = m_textureCache.find(texture);
+    if (it != m_textureCache.end()) 
     {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_2D, it->second);
+    }
+}
+
+void GLRenderDevice::SetTextureFilter(TextureHandle texture, TextureFilter minFilter, TextureFilter magFilter) 
+{
+    auto it = m_textureCache.find(texture);
+    if (it != m_textureCache.end()) 
+    {
+        glBindTexture(GL_TEXTURE_2D, it->second);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetGLTextureFilter(minFilter));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetGLTextureFilter(magFilter));
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void GLRenderDevice::SetTextureWrap(TextureHandle texture, TextureWrap wrapS, TextureWrap wrapT) {
+    auto it = m_textureCache.find(texture);
+    if (it != m_textureCache.end()) {
+        glBindTexture(GL_TEXTURE_2D, it->second);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetGLTextureWrap(wrapS));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetGLTextureWrap(wrapT));
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void GLRenderDevice::GenerateTextureMipmaps(TextureHandle texture) {
+    auto it = m_textureCache.find(texture);
+    if (it != m_textureCache.end()) {
+        glBindTexture(GL_TEXTURE_2D, it->second);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
@@ -634,6 +716,40 @@ uint32 GLRenderDevice::GetGLPrimitiveType(PrimitiveType type)
         case PrimitiveType::LineStrip:     return GL_LINE_STRIP;
         case PrimitiveType::Patches:       return GL_PATCHES;
         default: return GL_TRIANGLES;
+    }
+}
+
+uint32 GLRenderDevice::GetGLTextureFormat(TextureFormat format) {
+    switch (format) {
+        case TextureFormat::RGB:          return GL_RGB;
+        case TextureFormat::RGBA:         return GL_RGBA;
+        case TextureFormat::R:            return GL_RED;
+        case TextureFormat::RG:           return GL_RG;
+        case TextureFormat::Depth:        return GL_DEPTH_COMPONENT;
+        case TextureFormat::DepthStencil: return GL_DEPTH_STENCIL;
+        default: return GL_RGBA;
+    }
+}
+
+uint32 GLRenderDevice::GetGLTextureFilter(TextureFilter filter) {
+    switch (filter) {
+        case TextureFilter::Nearest:              return GL_NEAREST;
+        case TextureFilter::Linear:               return GL_LINEAR;
+        case TextureFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+        case TextureFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
+        case TextureFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
+        case TextureFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
+        default: return GL_LINEAR;
+    }
+}
+
+uint32 GLRenderDevice::GetGLTextureWrap(TextureWrap wrap) {
+    switch (wrap) {
+        case TextureWrap::Repeat:         return GL_REPEAT;
+        case TextureWrap::MirroredRepeat: return GL_MIRRORED_REPEAT;
+        case TextureWrap::ClampToEdge:    return GL_CLAMP_TO_EDGE;
+        case TextureWrap::ClampToBorder:  return GL_CLAMP_TO_BORDER;
+        default: return GL_REPEAT;
     }
 }
 

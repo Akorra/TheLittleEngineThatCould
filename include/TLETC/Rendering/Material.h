@@ -45,7 +45,7 @@ public:
     void SetVec4(const std::string& name, const Vec4& value);
     void SetMat3(const std::string& name, const Mat3& value);
     void SetMat4(const std::string& name, const Mat4& value);
-    void SetTexture(const std::string& name, TextureHandle texture);
+    void SetTexture(const std::string& name, class Texture* texture);
 
     // Property getters (with defaults)
     float GetFloat(const std::string& name, float defaultValue = 0.0f) const;
@@ -55,7 +55,7 @@ public:
     Vec4 GetVec4(const std::string& name, const Vec4& defaultValue = Vec4(0)) const;
     Mat3 GetMat3(const std::string& name, const Mat3& defaultValue = Mat3(1)) const;
     Mat4 GetMat4(const std::string& name, const Mat4& defaultValue = Mat4(1)) const;
-    TextureHandle GetTexture(const std::string& name) const;
+    class Texture* GetTexture(const std::string& name) const;
 
     // Check if property exists
     bool HasProperty(const std::string& name) const;
@@ -98,14 +98,14 @@ private:
     ShaderHandle shader_;
     
     // Property storage (separate maps per type)
-    std::unordered_map<std::string, float>         floats_;
-    std::unordered_map<std::string, int>           ints_;
-    std::unordered_map<std::string, Vec2>          vec2s_;
-    std::unordered_map<std::string, Vec3>          vec3s_;
-    std::unordered_map<std::string, Vec4>          vec4s_;
-    std::unordered_map<std::string, Mat3>          mat3s_;
-    std::unordered_map<std::string, Mat4>          mat4s_;
-    std::unordered_map<std::string, TextureHandle> textures_;
+    std::unordered_map<std::string, float>          floats_;
+    std::unordered_map<std::string, int>            ints_;
+    std::unordered_map<std::string, Vec2>           vec2s_;
+    std::unordered_map<std::string, Vec3>           vec3s_;
+    std::unordered_map<std::string, Vec4>           vec4s_;
+    std::unordered_map<std::string, Mat3>           mat3s_;
+    std::unordered_map<std::string, Mat4>           mat4s_;
+    std::unordered_map<std::string, class Texture*> textures_;
     
     // Render state
     CullMode  cullMode_;

@@ -60,10 +60,13 @@ public:
     void SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) override;
 
     // Texture operations
-    TextureHandle CreateTexture(const char* filepath) override;
-    TextureHandle CreateTexture(int width, int height, const void* data) override;
+    TextureHandle LoadTexture(const char* filepath, int& outWidth, int& outHeight, TextureFormat& outFormat) override;
+    TextureHandle CreateTexture(int width, int height, TextureFormat format, const void* data = nullptr) override;
     void DestroyTexture(TextureHandle texture) override;
     void BindTexture(TextureHandle texture, int slot = 0) override;
+    void SetTextureFilter(TextureHandle texture, TextureFilter minFilter, TextureFilter magFilter) override;
+    void SetTextureWrap(TextureHandle texture, TextureWrap wrapS, TextureWrap wrapT) override;
+    void GenerateTextureMipmaps(TextureHandle texture) override;
     
     // Mesh rendering
     void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
@@ -93,6 +96,9 @@ private:
     uint32 GetGLUsage(BufferUsage usage);
     uint32 GetGLShaderType(ShaderType type);
     uint32 GetGLPrimitiveType(PrimitiveType type);
+    uint32 GetGLTextureFormat(TextureFormat format);
+    uint32 GetGLTextureFilter(TextureFilter filter);
+    uint32 GetGLTextureWrap(TextureWrap wrap);
     int    GetUniformLocation(ShaderHandle shader, const std::string& name);
     
     // Mesh VAO cache - stores VAO for each mesh to avoid recreating

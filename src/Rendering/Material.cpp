@@ -1,5 +1,6 @@
 #include "TLETC/Rendering/Material.h"
 #include "TLETC/Rendering/RenderDevice.h"
+#include "TLETC/Rendering/Texture.h"
 
 #include <fstream>
 #include <sstream>
@@ -28,14 +29,14 @@ Material::~Material()
 }
 
 // Property setters
-void Material::SetFloat(const std::string& name, float value)             { floats_[name] = value; }
-void Material::SetInt(const std::string& name, int value)                 { ints_[name] = value; }
-void Material::SetVec2(const std::string& name, const Vec2& value)        { vec2s_[name] = value; }
-void Material::SetVec3(const std::string& name, const Vec3& value)        { vec3s_[name] = value; }
-void Material::SetVec4(const std::string& name, const Vec4& value)        { vec4s_[name] = value; }
-void Material::SetMat3(const std::string& name, const Mat3& value)        { mat3s_[name] = value; }
-void Material::SetMat4(const std::string& name, const Mat4& value)        { mat4s_[name] = value; }
-void Material::SetTexture(const std::string& name, TextureHandle texture) { textures_[name] = texture; }
+void Material::SetFloat(const std::string& name, float value)        { floats_[name] = value; }
+void Material::SetInt(const std::string& name, int value)            { ints_[name] = value; }
+void Material::SetVec2(const std::string& name, const Vec2& value)   { vec2s_[name] = value; }
+void Material::SetVec3(const std::string& name, const Vec3& value)   { vec3s_[name] = value; }
+void Material::SetVec4(const std::string& name, const Vec4& value)   { vec4s_[name] = value; }
+void Material::SetMat3(const std::string& name, const Mat3& value)   { mat3s_[name] = value; }
+void Material::SetMat4(const std::string& name, const Mat4& value)   { mat4s_[name] = value; }
+void Material::SetTexture(const std::string& name, Texture* texture) { textures_[name] = texture; }
 
 // Property getters with parent fallback
 float Material::GetFloat(const std::string& name, float defaultValue) const 
@@ -94,25 +95,26 @@ Mat4 Material::GetMat4(const std::string& name, const Mat4& defaultValue) const
     return defaultValue;
 }
 
-TextureHandle Material::GetTexture(const std::string& name) const 
+Texture* Material::GetTexture(const std::string& name) const 
 {
     auto it = textures_.find(name);
     if (it != textures_.end()) return it->second;
     if (parent_) return parent_->GetTexture(name);
-    return TextureHandle();
+    return nullptr;
 }
 
 bool Material::HasProperty(const std::string& name) const 
 {
-    if (floats_.count(name)) return true;
-    if (ints_.count(name)) return true;
-    if (vec2s_.count(name)) return true;
-    if (vec3s_.count(name)) return true;
-    if (vec4s_.count(name)) return true;
-    if (mat3s_.count(name)) return true;
-    if (mat4s_.count(name)) return true;
+    if (floats_.count(name))   return true;
+    if (ints_.count(name))     return true;
+    if (vec2s_.count(name))    return true;
+    if (vec3s_.count(name))    return true;
+    if (vec4s_.count(name))    return true;
+    if (mat3s_.count(name))    return true;
+    if (mat4s_.count(name))    return true;
     if (textures_.count(name)) return true;
-    if (parent_) return parent_->HasProperty(name);
+    if (parent_) 
+        return parent_->HasProperty(name);
     return false;
 }
 
@@ -174,10 +176,14 @@ void Material::Bind(RenderDevice* renderer) const {
     
     // Set all texture properties
     int textureSlot = 0;
-    for (const auto& [name, value] : textures_) {
-        renderer->BindTexture(value, textureSlot);
-        renderer->SetUniformInt(shader_, name, textureSlot);
-        textureSlot++;
+    for (const auto& [name, texture] : textures_) 
+    {
+        if (texture && texture->IsValid()) 
+        {
+            renderer->BindTexture(texture->GetHandle(), textureSlot);
+            renderer->SetUniformInt(shader_, name, textureSlot);
+            textureSlot++;
+        }
     }
     
     // Apply render state (OpenGL state changes)

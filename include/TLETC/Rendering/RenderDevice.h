@@ -102,10 +102,13 @@ public:
     virtual void SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) = 0;
     
     // Texture operations
-    virtual TextureHandle CreateTexture(const char* filepath) = 0;
-    virtual TextureHandle CreateTexture(int width, int height, const void* data) = 0;
+    virtual TextureHandle LoadTexture(const char* filepath, int& outWidth, int& outHeight, enum class TextureFormat& outFormat) = 0;
+    virtual TextureHandle CreateTexture(int width, int height, enum class TextureFormat format, const void* data = nullptr) = 0;
     virtual void DestroyTexture(TextureHandle texture) = 0;
     virtual void BindTexture(TextureHandle texture, int slot = 0) = 0;
+    virtual void SetTextureFilter(TextureHandle texture, enum class TextureFilter minFilter, enum class TextureFilter magFilter) = 0;
+    virtual void SetTextureWrap(TextureHandle texture, enum class TextureWrap wrapS, enum class TextureWrap wrapT) = 0;
+    virtual void GenerateTextureMipmaps(TextureHandle texture) = 0;
     
     // Mesh rendering
     virtual void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
