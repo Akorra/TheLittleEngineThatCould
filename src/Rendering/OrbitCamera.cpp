@@ -24,6 +24,7 @@ void OrbitCamera::OnInit()
     UpdateCameraTransform();
 }
 
+//Todo : target should be transform? or updated
 void OrbitCamera::SetTarget(const Vec3& target) 
 {
     targetPoint_ = target;

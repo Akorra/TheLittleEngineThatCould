@@ -57,8 +57,7 @@ public:
     float GetZoomSpeed() const         { return zoomSpeed_; }
     
     const char* GetName() const override { return "OrbitCamera"; }
-
-    protected:
+    
     void OnInit() override;
     void OnMouseButtonPressed(MouseButton button) override;
     void OnMouseButtonReleased(MouseButton button) override;

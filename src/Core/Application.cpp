@@ -388,6 +388,9 @@ void Application::RenderAllMeshRenderers() {
     // Get camera matrices
     Mat4 view = camera_->GetViewMatrix();
     Mat4 projection = camera_->GetProjectionMatrix(window_->GetAspectRatio());
+
+    // Clear
+    GetRenderDevice()->Clear(camera_->clear_);
     
     // Render all
     for (auto* renderer : renderers) {

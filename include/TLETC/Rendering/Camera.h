@@ -23,7 +23,7 @@ class Camera
 public:
     enum class ProjectionType { Perspective, Orthographic };
 
-    Camera();
+    Camera() = default;
     virtual ~Camera() = default;
 
     // Projection type
@@ -31,8 +31,9 @@ public:
 
     // Transform
     Vec3 position_ = Vec3(0, 0, 5);
-    Vec3 target_ = Vec3(0, 0, 0);
-    Vec3 up_ = Vec3(0, 1, 0);
+    Vec3 target_   = Vec3(0, 0, 0);
+    Vec3 up_       = Vec3(0, 1, 0);
+    Vec4 clear_    = Vec4(0.2f, 0.3f, 0.3f, 1.0f);
     
     // Projection parameters
     float fov_ = 45.0f;        // Field of view in degrees

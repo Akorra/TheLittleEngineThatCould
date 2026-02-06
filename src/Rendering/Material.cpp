@@ -2,6 +2,7 @@
 #include "TLETC/Rendering/RenderDevice.h"
 #include "TLETC/Rendering/Texture.h"
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -26,6 +27,7 @@ Material::Material(const std::string& name)
 
 Material::~Material() 
 {
+    std::cout << "destorying " << name_ << std::endl;
 }
 
 // Property setters
