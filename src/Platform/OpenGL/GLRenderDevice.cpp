@@ -1,5 +1,7 @@
 #include "GLRenderDevice.h"
 
+#include "TLETC/Rendering/Texture.h"
+
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,8 +10,7 @@
 
 // STB Image - for loading textures
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../external/stb_image.h"
-
+#include <stb_image.h>
 
 namespace TLETC {
 
@@ -446,26 +447,26 @@ TextureHandle GLRenderDevice::CreateTexture(int width, int height, TextureFormat
     
     // Cache texture
     TextureHandle handle(textureId);
-    m_textureCache[handle] = textureId;
+    textureCache_[handle] = textureId;
     
     return handle;
 }
 
 void GLRenderDevice::DestroyTexture(TextureHandle texture) 
 {
-    auto it = m_textureCache.find(texture);
-    if (it != m_textureCache.end()) 
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
     {
         GLuint textureId = it->second;
         glDeleteTextures(1, &textureId);
-        m_textureCache.erase(it);
+        textureCache_.erase(it);
     }
 }
 
 void GLRenderDevice::BindTexture(TextureHandle texture, int slot) 
 {
-    auto it = m_textureCache.find(texture);
-    if (it != m_textureCache.end()) 
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
     {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_2D, it->second);
@@ -474,8 +475,8 @@ void GLRenderDevice::BindTexture(TextureHandle texture, int slot)
 
 void GLRenderDevice::SetTextureFilter(TextureHandle texture, TextureFilter minFilter, TextureFilter magFilter) 
 {
-    auto it = m_textureCache.find(texture);
-    if (it != m_textureCache.end()) 
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
     {
         glBindTexture(GL_TEXTURE_2D, it->second);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetGLTextureFilter(minFilter));
@@ -485,8 +486,9 @@ void GLRenderDevice::SetTextureFilter(TextureHandle texture, TextureFilter minFi
 }
 
 void GLRenderDevice::SetTextureWrap(TextureHandle texture, TextureWrap wrapS, TextureWrap wrapT) {
-    auto it = m_textureCache.find(texture);
-    if (it != m_textureCache.end()) {
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
         glBindTexture(GL_TEXTURE_2D, it->second);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetGLTextureWrap(wrapS));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetGLTextureWrap(wrapT));
@@ -495,8 +497,9 @@ void GLRenderDevice::SetTextureWrap(TextureHandle texture, TextureWrap wrapS, Te
 }
 
 void GLRenderDevice::GenerateTextureMipmaps(TextureHandle texture) {
-    auto it = m_textureCache.find(texture);
-    if (it != m_textureCache.end()) {
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
         glBindTexture(GL_TEXTURE_2D, it->second);
         glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -719,8 +722,10 @@ uint32 GLRenderDevice::GetGLPrimitiveType(PrimitiveType type)
     }
 }
 
-uint32 GLRenderDevice::GetGLTextureFormat(TextureFormat format) {
-    switch (format) {
+uint32 GLRenderDevice::GetGLTextureFormat(TextureFormat format) 
+{
+    switch (format) 
+    {
         case TextureFormat::RGB:          return GL_RGB;
         case TextureFormat::RGBA:         return GL_RGBA;
         case TextureFormat::R:            return GL_RED;
@@ -731,8 +736,10 @@ uint32 GLRenderDevice::GetGLTextureFormat(TextureFormat format) {
     }
 }
 
-uint32 GLRenderDevice::GetGLTextureFilter(TextureFilter filter) {
-    switch (filter) {
+uint32 GLRenderDevice::GetGLTextureFilter(TextureFilter filter) 
+{
+    switch (filter) 
+    {
         case TextureFilter::Nearest:              return GL_NEAREST;
         case TextureFilter::Linear:               return GL_LINEAR;
         case TextureFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
@@ -743,8 +750,10 @@ uint32 GLRenderDevice::GetGLTextureFilter(TextureFilter filter) {
     }
 }
 
-uint32 GLRenderDevice::GetGLTextureWrap(TextureWrap wrap) {
-    switch (wrap) {
+uint32 GLRenderDevice::GetGLTextureWrap(TextureWrap wrap) 
+{
+    switch (wrap)
+    {
         case TextureWrap::Repeat:         return GL_REPEAT;
         case TextureWrap::MirroredRepeat: return GL_MIRRORED_REPEAT;
         case TextureWrap::ClampToEdge:    return GL_CLAMP_TO_EDGE;

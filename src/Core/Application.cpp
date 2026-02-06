@@ -1,6 +1,7 @@
 #include "TLETC/Core/Application.h"
 #include "TLETC/Rendering/MeshRenderer.h"
 #include "TLETC/Rendering/Camera.h"
+#include "TLETC/Rendering/Texture.h"
 
 #include "../../src/Platform/OpenGL/GLRenderDevice.h"
 
@@ -128,6 +129,9 @@ void Application::Shutdown()
     if (!initialized_) return;
     
     std::cout << "Shutting down application..." << std::endl;
+
+    // Clean up resources BEFORE user shutdown (so user can still access them)
+    // User shutdown called after for any custom cleanup
     
     // Call user shutdown
     OnShutdown();
@@ -136,6 +140,9 @@ void Application::Shutdown()
     for (auto& entity : entities_)
         entity->Destroy();
     entities_.clear();
+
+    // Clean up resources (materials and textures)
+    ShutdownResources();
     
     // Shutdown systems
     if (input_) input_->Shutdown();
@@ -168,6 +175,22 @@ void Application::DestroyEntity(Entity* entity)
 {
     // Don't destroy immediately - queue for end of frame
     entitiesToDestroy_.push_back(entity);
+}
+
+Material* Application::CreateMaterial(const std::string& name) 
+{
+    auto material = MakeUnique<Material>(name);
+    Material* ptr = material.get();
+    materials_.push_back(std::move(material));
+    return ptr;
+}
+
+Texture* Application::CreateTexture() 
+{
+    auto texture = MakeUnique<Texture>();
+    Texture* ptr = texture.get();
+    textures_.push_back(std::move(texture));
+    return ptr;
 }
 
 // ============================================================================
@@ -316,6 +339,28 @@ void Application::ProcessDestroyQueue()
     }
     
     entitiesToDestroy_.clear();
+}
+
+//TODO: add destroy queues
+void Application::ShutdownResources() 
+{
+    std::cout << "Cleaning up resources..." << std::endl;
+    
+    // Destroy all textures (need RenderDevice)
+    size_t textureCount = textures_.size();
+    for (auto& texture : textures_) {
+        if (texture->IsValid())
+            texture->Destroy(renderDevice_.get());
+    }
+    textures_.clear();
+    
+    std::cout << "  Destroyed " << textureCount << " textures" << std::endl;
+    
+    // Materials are automatically deleted (unique_ptr)
+    size_t materialCount = materials_.size();
+    materials_.clear();
+    
+    std::cout << "  Deleted " << materialCount << " materials" << std::endl;
 }
 
 void Application::RenderAllMeshRenderers() {

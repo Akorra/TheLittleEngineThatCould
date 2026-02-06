@@ -53,6 +53,10 @@ public:
     void SetCamera(class Camera* camera) { camera_ = camera; }
     class Camera* GetCamera() const { return camera_; }
 
+    // Resource creation - Application manages lifetime
+    class Material* CreateMaterial(const std::string& name = "Material");
+    class Texture* CreateTexture();
+
     // Entity management
     Entity* CreateEntity(const std::string& name = "Entity");
     void    DestroyEntity(Entity* entity);
@@ -88,6 +92,9 @@ protected:
     void PostRender();
     void ProcessDestroyQueue();  // Clean up deferred destructions
 
+    // Cleanup resources
+    void ShutdownResources(); 
+
     // TODO: REVIEW THIS!!!
     // Rendering helpers
     void RenderAllMeshRenderers();  // Collects and renders all MeshRenderer behaviours
@@ -105,6 +112,10 @@ private:
 
     // Camera
     class Camera* camera_;
+
+    // Resources (Application owns and manages)
+    std::vector<UniquePtr<class Material>> materials_;
+    std::vector<UniquePtr<class Texture>>  textures_;
     
     // Entities
     std::vector<UniquePtr<Entity>> entities_;

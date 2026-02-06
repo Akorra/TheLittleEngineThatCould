@@ -62,6 +62,7 @@ target_include_directories(TLETC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/external  # For stb_image.h
 )
 
 # Define GLM_ENABLE_EXPERIMENTAL to allow experimental features
