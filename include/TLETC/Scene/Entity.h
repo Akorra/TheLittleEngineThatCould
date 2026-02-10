@@ -4,7 +4,6 @@
 #include "TLETC/Core/Input.h"
 #include "TLETC/Scene/Transform.h"
 #include "TLETC/Scene/Behaviour.h"
-#include "TLETC/Resources/Mesh.h"
 
 #include <vector>
 #include <memory>

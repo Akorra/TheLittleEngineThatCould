@@ -126,6 +126,7 @@ public:
     virtual void EnableDepthTest(bool enable) = 0;
     virtual void EnableBlending(bool enable) = 0;
     virtual void EnableCulling(bool enable) = 0;
+    virtual void SetPolygonMode(uint8 poly=0, uint8 rast=0) = 0;
     virtual void SetWireframeMode(bool enable) = 0;
     
     // Query

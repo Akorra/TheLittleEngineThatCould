@@ -1,7 +1,6 @@
 #include "TLETC/Core/Application.h"
-#include "TLETC/Rendering/MeshRenderer.h"
 #include "TLETC/Rendering/Camera.h"
-#include "TLETC/Rendering/Texture.h"
+#include "TLETC/Resources/ResourceDB.h
 
 #include "../../src/Platform/OpenGL/GLRenderDevice.h"
 
@@ -53,6 +52,13 @@ bool Application::Initialize()
     if (!renderDevice_->Initialize()) 
     {
         std::cerr << "Failed to initialize renderer!" << std::endl;
+        return false;
+    }
+
+    renderSystem_ = MakeUnique<RenderSystem>();
+    if (!renderSystem_->Initialize(renderDevice_.get())) 
+    {
+        std::cerr << "Failed to initialize render system!" << std::endl;
         return false;
     }
     
@@ -115,6 +121,9 @@ void Application::Run()
 
         // Process any deferred destructions (safe to destroy now)
         ProcessDestroyQueue();
+        
+        // NOW destroy GPU resources
+        Resources::ProcessDestroyQueues();
         
         // Swap buffers
         window_->SwapBuffers();
@@ -303,14 +312,12 @@ void Application::PreRender()
 // TODO: REVIEW - REMOVE USER RENDER ACCESS
 void Application::Render() 
 {
-    // Run behaviours that handle render
-    RunBehaviourEvent(4, [](Behaviour* b) { b->OnRender(); });
+    renderDevice_->BeginFrame();
 
-    // Render all MeshRenderers automatically (user can override OnRender to customize)
-    RenderAllMeshRenderers();
-    
-    // Call user render
-    OnRender();
+    float aspect = window_->GetAspectRatio();
+    renderSystem_->RenderAll(aspect);
+
+    renderDevice_->EndFrame();
 }
 
 void Application::PostRender() 
@@ -337,7 +344,6 @@ void Application::ProcessDestroyQueue()
             entities_.erase(it);
         }
     }
-    
     entitiesToDestroy_.clear();
 }
 
@@ -345,6 +351,10 @@ void Application::ProcessDestroyQueue()
 void Application::ShutdownResources() 
 {
     std::cout << "Cleaning up resources..." << std::endl;
+
+    Resources::Textures.Clear();
+    Resources::Materials.Clear();
+    Resources::Meshes.Clear();
     
     // Destroy all textures (need RenderDevice)
     size_t textureCount = textures_.size();
@@ -361,41 +371,6 @@ void Application::ShutdownResources()
     materials_.clear();
     
     std::cout << "  Deleted " << materialCount << " materials" << std::endl;
-}
-
-void Application::RenderAllMeshRenderers() {
-    // Need a camera to render
-    if (!camera_) return;
-    
-    // Collect all MeshRenderers from all entities
-    std::vector<MeshRenderer*> renderers;
-    for (auto& entity : entities_) {
-        if (!entity->IsEnabled()) continue;
-        
-        // Get MeshRenderer behaviour if it has one
-        auto* meshRenderer = entity->GetBehaviour<MeshRenderer>();
-        if (meshRenderer && meshRenderer->GetMaterial()) {
-            renderers.push_back(meshRenderer);
-        }
-    }
-    
-    // Sort by render queue (opaque first, then transparent)
-    std::sort(renderers.begin(), renderers.end(), 
-        [](MeshRenderer* a, MeshRenderer* b) {
-            return a->GetMaterial()->GetRenderQueue() < b->GetMaterial()->GetRenderQueue();
-        });
-    
-    // Get camera matrices
-    Mat4 view = camera_->GetViewMatrix();
-    Mat4 projection = camera_->GetProjectionMatrix(window_->GetAspectRatio());
-
-    // Clear
-    GetRenderDevice()->Clear(camera_->clear_);
-    
-    // Render all
-    for (auto* renderer : renderers) {
-        renderer->Render(renderDevice_.get(), view, projection);
-    }
 }
 
 void Application::RegisterBehaviourForEvents(Behaviour* behaviour) 

@@ -31,15 +31,19 @@ private:
 };
 
 // Tag types for type safety
-struct BufferTag {};
-struct ShaderTag {};
-struct TextureTag {};
+struct BufferTag   {};
+struct ShaderTag   {};
+struct MeshTag     {};
+struct MaterialTag {};
+struct TextureTag  {};
 struct PipelineTag {};
 
 // Specific handle types
-using BufferHandle = Handle<BufferTag>;
-using ShaderHandle = Handle<ShaderTag>;
-using TextureHandle = Handle<TextureTag>;
+using BufferHandle   = Handle<BufferTag>;
+using ShaderHandle   = Handle<ShaderTag>;
+using MeshHandle     = Handle<MeshTag>;
+using MaterialHandle = Handle<MaterialTag>;
+using TextureHandle  = Handle<TextureTag>;
 using PipelineHandle = Handle<PipelineTag>;
 
 } // namespace TLETC

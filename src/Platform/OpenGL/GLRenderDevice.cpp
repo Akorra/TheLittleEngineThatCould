@@ -1,6 +1,6 @@
 #include "GLRenderDevice.h"
 
-#include "TLETC/Rendering/Texture.h"
+#include "TLETC/Resources/Texture.h"
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
@@ -637,6 +637,26 @@ void GLRenderDevice::EnableCulling(bool enable)
         glEnable(GL_CULL_FACE);
     else 
         glDisable(GL_CULL_FACE);
+}
+
+// TODO: temp, Ill think about it later
+void GLRenderDevice::SetPolygonMode(uint8 polygonMode, uint8 rasterizationMode)
+{
+    uint32 poly = GL_FRONT_AND_BACK;
+    switch(polygonMode) {
+    case 1: poly = GL_FRONT; break;
+    case 2: poly = GL_BACK;  break;
+    default: break;
+    }
+
+    uint32 rast = GL_FILL;
+    switch(rasterizationMode) {
+    case 1: rast = GL_POINT; break;
+    case 2: rast = GL_LINE;  break;
+    default: break;
+    }
+
+    glPolygonMode(poly, rast);
 }
 
 void GLRenderDevice::SetWireframeMode(bool enable) 

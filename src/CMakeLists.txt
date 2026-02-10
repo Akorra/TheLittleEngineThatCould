@@ -5,12 +5,14 @@ set(TLETC_SOURCES
     Core/Input.cpp
     Core/Application.cpp
     Rendering/Handle.cpp
-    Rendering/Material.cpp
     Rendering/Camera.cpp
     Rendering/OrbitCamera.cpp
-    Rendering/MeshRenderer.cpp
-    Rendering/Texture.cpp
+    Rendering/Renderable.cpp
+    Rendering/RenderSystem.cpp
     Resources/Mesh.cpp
+    Resources/Material.cpp
+    Resources/Texture.cpp
+    Resources/ResourceDB.cpp
     Resources/GeometryFactory.cpp
     Scene/Entity.cpp
     Scene/Behaviour.cpp
@@ -26,15 +28,19 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Material.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Camera.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/OrbitCamera.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/MeshRenderer.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Texture.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Renderable.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Component.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Entity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Behaviour.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Mesh.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Texture.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Material.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceDB.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceManager.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/GeometryFactory.h
 )
 

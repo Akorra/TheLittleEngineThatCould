@@ -3,16 +3,16 @@
 #include "TLETC/Core/Types.h"
 #include "TLETC/Core/Window.h"
 #include "TLETC/Core/Input.h"
-#include "TLETC/Core/Event.h"
-#include "TLETC/Core/EventDispatcher.h"
 #include "TLETC/Scene/Entity.h"
 #include "TLETC/Rendering/RenderDevice.h"
+#include "TLETC/Rendering/RenderSystem.h
 
 #include <vector>
 #include <memory>
 
 namespace TLETC 
 {
+
 /**
  * Application - Main game loop with ordered event phases
  * 
@@ -55,7 +55,7 @@ public:
 
     // Resource creation - Application manages lifetime
     class Material* CreateMaterial(const std::string& name = "Material");
-    class Texture* CreateTexture();
+    class Texture*  CreateTexture();
 
     // Entity management
     Entity* CreateEntity(const std::string& name = "Entity");
@@ -109,14 +109,11 @@ private:
     UniquePtr<Window>       window_;
     UniquePtr<Input>        input_;
     UniquePtr<RenderDevice> renderDevice_;
+    UniquePtr<RenderSystem> renderSystem_;
 
     // Camera
     class Camera* camera_;
 
-    // Resources (Application owns and manages)
-    std::vector<UniquePtr<class Material>> materials_;
-    std::vector<UniquePtr<class Texture>>  textures_;
-    
     // Entities
     std::vector<UniquePtr<Entity>> entities_;
     std::vector<Entity*>           entitiesToDestroy_; // deferred destruction

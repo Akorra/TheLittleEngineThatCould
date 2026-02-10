@@ -21,11 +21,38 @@ namespace TLETC {
 class Camera
 {
 public:
+    enum class ClearFlags { All, ColorOnly, DepthOnly, Nothing };
     enum class ProjectionType { Perspective, Orthographic };
 
     Camera() = default;
     virtual ~Camera() = default;
 
+    
+    float GetFOV()  const { return fov_; }
+    float GetNear() const { return nearPlane_; }
+    float GetFar()  const { return farPlane_; }
+
+    // Get matrices
+    virtual Mat4 GetViewMatrix() const;
+    virtual Mat4 GetProjectionMatrix(float aspectRatio) const;
+
+    // Helpers
+    void SetPerspective() { projectionType_ = ProjectionType::Perspective;  }; //< use stored values
+    void SetOrtographic() { projectionType_ = ProjectionType::Orthographic; }; //< use stored values
+    void SetPerspective(float fovDegrees, float near, float far);
+    void SetOrthographic(float size, float near, float far);
+
+    void SetCullingMask(uint32 mask) { cullingMask_ = mask; }
+    uint32_t GetCullingMask() const  { return cullingMask_; }
+
+    ClearFlags GetClearFlags() const { return clearFlags_; }
+    Vec4       GetClearColor() const { return clearColor_; }
+
+    // Multicamera support
+    void SetRenderOrder(int order) { renderOrder_ = order; }
+    int  GetRenderOrder() const    { return renderOrder_; }
+
+private:
     // Projection type
     ProjectionType projectionType_ = ProjectionType::Perspective;
 
@@ -39,19 +66,14 @@ public:
     float fov_ = 45.0f;        // Field of view in degrees
     float nearPlane_ = 0.1f;
     float farPlane_ = 100.0f;
+
+    uint32_t   cullingMask_ = 0xFFFFFFFF; // everything
+    ClearFlags clearFlags_  = ClearFlags::All;
+    Vec4       clearColor_  = Vec4(0,0,0,1);
     
     // Orthographic parameters
     float orthoSize_ = 10.0f;  // Half-height of view volume
-    
-    // Get matrices
-    virtual Mat4 GetViewMatrix() const;
-    virtual Mat4 GetProjectionMatrix(float aspectRatio) const;
-    
-    // Helpers
-    void SetPerspective() { projectionType_ = ProjectionType::Perspective;  }; //< use stored values
-    void SetOrtographic() { projectionType_ = ProjectionType::Orthographic; }; //< use stored values
-    void SetPerspective(float fovDegrees, float near, float far);
-    void SetOrthographic(float size, float near, float far);
+    int   renderOrder_ = 0; // lower renders first
 };
 
 } // namespace TLETC

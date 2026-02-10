@@ -84,6 +84,7 @@ public:
     void EnableDepthTest(bool enable) override;
     void EnableBlending(bool enable) override;
     void EnableCulling(bool enable) override;
+    void SetPolygonMode(uint8 polygonMode, uint8 rasterizationMode) override;
     void SetWireframeMode(bool enable) override;
     
     // Query
