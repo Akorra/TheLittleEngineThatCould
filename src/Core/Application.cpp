@@ -123,7 +123,7 @@ void Application::Run()
         ProcessDestroyQueue();
         
         // NOW destroy GPU resources
-        Resources::ProcessDestroyQueues();
+        ProcessDestroyResources();
         
         // Swap buffers
         window_->SwapBuffers();
@@ -184,22 +184,6 @@ void Application::DestroyEntity(Entity* entity)
 {
     // Don't destroy immediately - queue for end of frame
     entitiesToDestroy_.push_back(entity);
-}
-
-Material* Application::CreateMaterial(const std::string& name) 
-{
-    auto material = MakeUnique<Material>(name);
-    Material* ptr = material.get();
-    materials_.push_back(std::move(material));
-    return ptr;
-}
-
-Texture* Application::CreateTexture() 
-{
-    auto texture = MakeUnique<Texture>();
-    Texture* ptr = texture.get();
-    textures_.push_back(std::move(texture));
-    return ptr;
 }
 
 // ============================================================================
@@ -345,8 +329,13 @@ void Application::ProcessDestroyQueue()
         }
     }
     entitiesToDestroy_.clear();
+}
 
-    Resources::Textures.
+void Application::ProcessDestroyResources()
+{
+    // Textures
+    Resources::Textures.ForEachQueuedDestroy([this](TextureHandle& handle){ renderDevice_.get()->DestroyTexture(handle); });
+    Resources::ProcessDestroyQueues();
 }
 
 //TODO: add destroy queues
@@ -354,25 +343,9 @@ void Application::ShutdownResources()
 {
     std::cout << "Cleaning up resources..." << std::endl;
 
-    Resources::Textures.Clear();
-    Resources::Materials.Clear();
-    Resources::Meshes.Clear();
-    
-    // Destroy all textures (need RenderDevice)
-    size_t textureCount = textures_.size();
-    for (auto& texture : textures_) {
-        if (texture->IsValid())
-            texture->Destroy(renderDevice_.get());
-    }
-    textures_.clear();
-    
-    std::cout << "  Destroyed " << textureCount << " textures" << std::endl;
-    
-    // Materials are automatically deleted (unique_ptr)
-    size_t materialCount = materials_.size();
-    materials_.clear();
-    
-    std::cout << "  Deleted " << materialCount << " materials" << std::endl;
+    Resources::Textures.ForEachResource([this](TextureHandle& handle){ renderDevice_.get()->DestroyTexture(handle); });
+
+    Resources::Clear();
 }
 
 void Application::RegisterBehaviourForEvents(Behaviour* behaviour) 

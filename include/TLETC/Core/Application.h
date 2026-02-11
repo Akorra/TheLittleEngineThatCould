@@ -53,14 +53,10 @@ public:
     void SetCamera(class Camera* camera) { camera_ = camera; }
     class Camera* GetCamera() const { return camera_; }
 
-    // Resource creation - Application manages lifetime
-    class Material* CreateMaterial(const std::string& name = "Material");
-    class Texture*  CreateTexture();
-
     // Entity management
     Entity* CreateEntity(const std::string& name = "Entity");
     void    DestroyEntity(Entity* entity);
-    const std::vector<UniquePtr<Entity>>& GetEntities() const { return entities_; }
+    const   std::vector<UniquePtr<Entity>>& GetEntities() const { return entities_; }
 
     // Control
     void Close()           { running_ = false; }
@@ -91,6 +87,7 @@ protected:
     void Render();
     void PostRender();
     void ProcessDestroyQueue();  // Clean up deferred destructions
+    void ProcessDestroyResources();
 
     // Cleanup resources
     void ShutdownResources(); 
