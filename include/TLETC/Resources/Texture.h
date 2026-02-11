@@ -72,6 +72,7 @@ public:
     TextureWrap wrapT_ = TextureWrap::Repeat;
 
     bool hasPixelData() const { return !pixelData_.empty(); }
+    bool LoadFromImage(const std::string& filepath);
 };
 
 } // namespace TLETC 
