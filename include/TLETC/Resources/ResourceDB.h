@@ -4,14 +4,17 @@
 #include "TLETC/Resources/ResourceManager.h"
 #include "TLETC/Resources/Mesh.h"
 #include "TLETC/Resources/Material.h"
-#include "TLETC/Resources/Texture.h
+#include "TLETC/Resources/TextureManager.h
+
+using MeshManager     = ResourceManager<Mesh, MeshHandle>;
+using MaterialManager = ResourceManager<Material, MaterialHandle>;
 
 // Resources
 namespace Resources
 {
-extern ResourceManager<Mesh, MeshHandle>         Meshes;
-extern ResourceManager<Material, MaterialHandle> Materials;
-extern ResourceManager<Texture, TextureHandle>   Textures;
+extern MeshManager     Meshes;
+extern MaterialManager Materials;
+extern TextureManager  Textures;
 
 void ProcessDestroyQueues() 
 {  

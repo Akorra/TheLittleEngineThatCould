@@ -3,7 +3,7 @@
 // Resources
 namespace Resources
 {
-ResourceManager<Mesh, MeshHandle>         Meshes;
-ResourceManager<Material, MaterialHandle> Materials;
-ResourceManager<Texture, TextureHandle>   Textures;
+MeshManager     Meshes;
+MaterialManager Materials;
+TextureManager  Textures;
 }

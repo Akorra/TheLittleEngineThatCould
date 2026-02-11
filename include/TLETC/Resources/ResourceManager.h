@@ -26,6 +26,12 @@ public:
         return HandleT(id);
     }
 
+    bool HasHandle(HandleT handle)
+    {
+        assert(handle.IsValid());
+        return resources_.contains(handle.GetID());
+    }
+
     T& Get(HandleT handle) 
     {
         assert(handle.IsValid());
