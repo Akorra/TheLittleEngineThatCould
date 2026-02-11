@@ -5,7 +5,7 @@
 #include "TLETC/Core/Input.h"
 #include "TLETC/Scene/Entity.h"
 #include "TLETC/Rendering/RenderDevice.h"
-#include "TLETC/Rendering/RenderSystem.h
+#include "TLETC/Rendering/RenderSystem.h"
 
 #include <vector>
 #include <memory>
@@ -94,10 +94,6 @@ protected:
 
     // Cleanup resources
     void ShutdownResources(); 
-
-    // TODO: REVIEW THIS!!!
-    // Rendering helpers
-    void RenderAllMeshRenderers();  // Collects and renders all MeshRenderer behaviours
 
     // Behaviour event management
     void RegisterBehaviourForEvents(Behaviour* behaviour);

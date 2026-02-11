@@ -1,6 +1,6 @@
 #include "TLETC/Core/Application.h"
 #include "TLETC/Rendering/Camera.h"
-#include "TLETC/Resources/ResourceDB.h
+#include "TLETC/Resources/ResourceDB.h"
 
 #include "../../src/Platform/OpenGL/GLRenderDevice.h"
 
@@ -345,6 +345,8 @@ void Application::ProcessDestroyQueue()
         }
     }
     entitiesToDestroy_.clear();
+
+    Resources::Textures.
 }
 
 //TODO: add destroy queues

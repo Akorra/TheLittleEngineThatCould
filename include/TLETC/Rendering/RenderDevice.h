@@ -111,7 +111,7 @@ public:
     virtual void GenerateTextureMipmaps(TextureHandle texture) = 0;
     
     // Mesh rendering
-    virtual void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
+    virtual void DrawMesh(MeshHandle handle, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
     virtual void DrawIndexed(BufferHandle vertexBuffer, BufferHandle indexBuffer, uint32 indexCount, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
     
     // Compute shader operations

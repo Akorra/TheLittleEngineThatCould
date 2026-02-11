@@ -183,7 +183,7 @@ void RenderSystem::Execute(Camera* cam, float aspect)
         Mat4 model = r->GetEntity()->transform.GetModelMatrix();
         device_->SetUniformMat4(boundProgram, "u_model", model);
 
-        device_->DrawMesh(*mesh, model);
+        device_->DrawMesh(r->GetMesh(), model);
 
         device_->SetPolygonMode(0, 0);
     }

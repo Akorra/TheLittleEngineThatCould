@@ -11,7 +11,7 @@ set(TLETC_SOURCES
     Rendering/RenderSystem.cpp
     Resources/Mesh.cpp
     Resources/Material.cpp
-    Resources/Texture.cpp
+    Resources/TextureManager.cpp
     Resources/ResourceDB.cpp
     Resources/GeometryFactory.cpp
     Scene/Entity.cpp
@@ -39,6 +39,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Mesh.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Texture.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Material.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/TextureManager.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceDB.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceManager.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/GeometryFactory.h

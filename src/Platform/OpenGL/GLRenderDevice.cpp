@@ -1,5 +1,6 @@
 #include "GLRenderDevice.h"
 
+#include "TLETC/Resources/ResourceDB.h"
 #include "TLETC/Resources/Texture.h"
 
 #include <glad/gl.h>
@@ -447,7 +448,7 @@ TextureHandle GLRenderDevice::CreateTexture(int width, int height, TextureFormat
     
     // Cache texture
     TextureHandle handle(textureId);
-    textureCache_[handle] = textureId;
+    textureCache_[handle] = { textureId, width, height, 0, format };
     
     return handle;
 }
@@ -457,7 +458,7 @@ void GLRenderDevice::DestroyTexture(TextureHandle texture)
     auto it = textureCache_.find(texture);
     if (it != textureCache_.end()) 
     {
-        GLuint textureId = it->second;
+        GLuint textureId = (it->second).texId;
         glDeleteTextures(1, &textureId);
         textureCache_.erase(it);
     }
@@ -469,7 +470,7 @@ void GLRenderDevice::BindTexture(TextureHandle texture, int slot)
     if (it != textureCache_.end()) 
     {
         glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_2D, it->second);
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
     }
 }
 
@@ -478,7 +479,7 @@ void GLRenderDevice::SetTextureFilter(TextureHandle texture, TextureFilter minFi
     auto it = textureCache_.find(texture);
     if (it != textureCache_.end()) 
     {
-        glBindTexture(GL_TEXTURE_2D, it->second);
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetGLTextureFilter(minFilter));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetGLTextureFilter(magFilter));
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -489,7 +490,7 @@ void GLRenderDevice::SetTextureWrap(TextureHandle texture, TextureWrap wrapS, Te
     auto it = textureCache_.find(texture);
     if (it != textureCache_.end()) 
     {
-        glBindTexture(GL_TEXTURE_2D, it->second);
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetGLTextureWrap(wrapS));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetGLTextureWrap(wrapT));
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -500,20 +501,24 @@ void GLRenderDevice::GenerateTextureMipmaps(TextureHandle texture) {
     auto it = textureCache_.find(texture);
     if (it != textureCache_.end()) 
     {
-        glBindTexture(GL_TEXTURE_2D, it->second);
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
         glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
-void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType) 
-{
-    if (mesh.IsEmpty()) return;
-    
+void GLRenderDevice::DrawMesh(MeshHandle handle, const Mat4& transform, PrimitiveType primitiveType) 
+{   
+    // mesh needs to exist in resource system
+    if(!handle.IsValid() || !Resources::Meshes.HasHandle(handle))
+        return;
+
+    const Mesh& mesh = Resources::Meshes.Get(handle);
+
     // Check if we have this mesh cached
-    auto it = meshCache_.find(&mesh);
+    auto it = meshCache_.find(handle);
     if (it == meshCache_.end()) 
-    {
+    {        
         // Create VAO for this mesh
         MeshData meshData;
         glGenVertexArrays(1, &meshData.vao);
@@ -570,8 +575,8 @@ void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, Primitive
         glBindVertexArray(0);
         
         // Cache it
-        meshCache_[&mesh] = meshData;
-        it = meshCache_.find(&mesh);
+        meshCache_[handle] = meshData;
+        it = meshCache_.find(handle);
     }
     
     // Set transform uniform if we have a current shader

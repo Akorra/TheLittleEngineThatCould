@@ -69,7 +69,7 @@ public:
     void GenerateTextureMipmaps(TextureHandle texture) override;
     
     // Mesh rendering
-    void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
+    void DrawMesh(MeshHandle handle, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
     void DrawIndexed(BufferHandle vertexBuffer, BufferHandle indexBuffer, uint32 indexCount, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
     
     // Compute shader operations
@@ -103,14 +103,22 @@ private:
     int    GetUniformLocation(ShaderHandle shader, const std::string& name);
     
     // Mesh VAO cache - stores VAO for each mesh to avoid recreating
-    struct MeshData {
+    struct MeshData 
+    {
         uint32 vao;
         BufferHandle posVBO, nrmVBO, uvsVBO, clrVBO;
         BufferHandle ibo;
         uint32 indexCount;
     };
-    std::unordered_map<const Mesh*, MeshData> meshCache_;
-    std::unordered_map<TextureHandle, uint32, TextureHandle::Hash> textureCache_;
+    std::unordered_map<MeshHandle, MeshData, MeshHandle::Hash> meshCache_;
+
+    struct TextureData 
+    {
+        uint32        texId=0;
+        int           width=0, height=0, depth=0;
+        TextureFormat format;
+    };
+    std::unordered_map<TextureHandle, TextureData, TextureHandle::Hash> textureCache_;
     
     // Current state
     ShaderHandle currentShader_;
