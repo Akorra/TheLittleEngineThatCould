@@ -52,50 +52,26 @@ enum class TextureWrap
 class Texture 
 {
 public:
-    Texture();
-    ~Texture();
+    Texture()  = default;
+    ~Texture() = default;
     
-    // Load from file
-    bool LoadFromFile(const std::string& filepath, RenderDevice* renderer);
-    
-    // Create from memory
-    bool CreateFromMemory(int width, int height, TextureFormat format, 
-                         const void* data, RenderDevice* renderer);
-    
-    // Create empty texture
-    bool Create(int width, int height, TextureFormat format, RenderDevice* renderer);
-    
-    // Destroy (must be called explicitly with RenderDevice)
-    void Destroy(RenderDevice* renderer);
-    
-    // Getters
-    TextureHandle GetHandle() const { return handle_; }
-    int GetWidth() const { return width_; }
-    int GetHeight() const { return height_; }
-    TextureFormat GetFormat() const { return format_; }
-    bool IsValid() const { return handle_.IsValid(); }
-    
-    // Texture parameters
-    void SetFilter(TextureFilter minFilter, TextureFilter magFilter, RenderDevice* renderer);
-    void SetWrap(TextureWrap wrapS, TextureWrap wrapT, RenderDevice* renderer);
-    void GenerateMipmaps(RenderDevice* renderer);
-    
-    // Name for debugging
-    const std::string& GetFilepath() const { return filepath_; }
-private:
-    TextureHandle handle_;
-    
-    int width_;
-    int height_;
-    
-    TextureFormat format_;
+    // File path (optional)
     std::string filepath_;
+
+    // Pixel data (only needed for CPU uploads or streaming)
+    std::vector<uint8_t> pixelData_;
+
+    int width_ = 0;
+    int height_ = 0;
+    TextureFormat format_ = TextureFormat::RGBA;
     
-    TextureFilter minFilter_;
-    TextureFilter magFilter_;
-    
-    TextureWrap wrapS_;
-    TextureWrap wrapT_;
+    TextureFilter minFilter_ = TextureFilter::LinearMipmapLinear;
+    TextureFilter magFilter_ = TextureFilter::Linear;
+
+    TextureWrap wrapS_ = TextureWrap::Repeat;
+    TextureWrap wrapT_ = TextureWrap::Repeat;
+
+    bool hasPixelData() const { return !pixelData_.empty(); }
 };
 
 } // namespace TLETC 
