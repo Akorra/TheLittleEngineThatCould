@@ -44,12 +44,24 @@ public:
         return resources_.at(handle.GetID());
     }
 
-    void Destroy(HandleType handle) 
+    void Destroy(HandleT handle) 
     {
         if(!handle.IsValid()) return;
         if (!resources_.contains(handle.GetID())) return;
 
         toDestroy_.insert(handle.GetID());
+    }
+
+    void ForEachResource(std::function<void(HandleT&)> func)
+    {
+        for(const auto& [key, _] : resources_)
+            func(HandleT(key));    
+    }
+
+    void ForEachQueuedDestroy(std::function<void(HandleT&)> func)
+    {
+        for(const uint32 key : toDestroy_)
+            func(HandleT(key));
     }
 
     void ProcessDestroyQueue() 

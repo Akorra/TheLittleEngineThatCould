@@ -1,5 +1,7 @@
 #include "TLETC/Resources/ResourceDB.h"
 
+#include <stb_image.h>
+
 // Resources
 namespace Resources
 {

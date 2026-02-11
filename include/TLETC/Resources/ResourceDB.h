@@ -1,13 +1,15 @@
 #pragma once
 
 #include "TLETC/Core/Types.h"
+#include "TLETC/Rendering/Handle.h"
 #include "TLETC/Resources/ResourceManager.h"
 #include "TLETC/Resources/Mesh.h"
 #include "TLETC/Resources/Material.h"
-#include "TLETC/Resources/TextureManager.h"
+#include "TLETC/Resources/Texture.h"
 
 using MeshManager     = ResourceManager<Mesh, MeshHandle>;
 using MaterialManager = ResourceManager<Material, MaterialHandle>;
+using TextureManager  = ResourceManager<Texture, TextureHandle>;
 
 // Resources
 namespace Resources
