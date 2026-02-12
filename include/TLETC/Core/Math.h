@@ -1,24 +1,41 @@
 #pragma once
 
+// =======================================================
+// Math Type Aliases (GLM)
+// =======================================================
+
+// Include GLM headers
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-namespace TLETC
-{
+namespace TLETC {
 
-// -----------------------------------------------------------------------------
-// Type aliases for common GLM types.
-// -----------------------------------------------------------------------------
+// -------------------------------------------------------
+// Vectors
+// -------------------------------------------------------
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
+using glm::ivec2;
+using glm::ivec3;
+using glm::ivec4;
+using glm::bvec2;
+using glm::bvec3;
+using glm::bvec4;
 
+// -------------------------------------------------------
+// Matrices
+// -------------------------------------------------------
+using glm::mat2;
 using glm::mat3;
 using glm::mat4;
 
+// -------------------------------------------------------
+// Quaternions
+// -------------------------------------------------------
 using glm::quat;
 
 // -----------------------------------------------------------------------------
@@ -33,6 +50,17 @@ using glm::cross;
 using glm::mix;
 using glm::clamp;
 
+// -----------------------------------------------------------------------------
+// Common math functions.
+// -----------------------------------------------------------------------------
+using glm::radians;
+using glm::degrees;
+using glm::normalize;
+using glm::length;
+using glm::dot;
+using glm::cross;
+using glm::mix;
+using glm::clamp;
 
 // -----------------------------------------------------------------------------
 // Matrix operations.
@@ -62,7 +90,8 @@ inline constexpr float kHalfPi = 0.5f * kPi;
 // -----------------------------------------------------------------------------
 // Axis-aligned bounding box.
 // -----------------------------------------------------------------------------
-struct BoundingBox {
+struct BoundingBox 
+{
   vec3 min;
   vec3 max;
 
