@@ -1,12 +1,22 @@
 # Minimal source files for initial build test
 set(TLETC_SOURCES
+    Platform/Time.cpp
+    Platform/Input.cpp
+    Platform/Window.cpp
     Core/Math.cpp
+    Core/Application.cpp
 )
 
 # Public headers
 set(TLETC_PUBLIC_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Time.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Input.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Window.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Types.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Math.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Log.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Assert.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
 )
 
 # Create the library
