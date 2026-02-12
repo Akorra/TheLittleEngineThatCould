@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TLETC/ECS/Entity.h"
+#include "TLETC/ECS/System.h"
 
 #include <vector>
 #include <unordered_map>
@@ -81,6 +82,10 @@ public:
         return &components[it->second];
     }
 };
+
+// =======================================================
+// Scene
+// =======================================================
 
 /**
  * Scene 
@@ -208,13 +213,14 @@ public:
         for (size_t i = 0; i < smallestPool->entities.size(); ++i)
         {
             EntityID id = smallestPool->entities[i];
+            Entity    e{ id, entities_[id].generation }
+            
+            if(!IsValid(e))
+                continue;
 
-            if ((HasComponent<Components>(Entity{ id, entities_[id].generation }) && ...))
+            if ((HasComponent<Components>(e) && ...))
             {
-                func(
-                    Entity{ id, entities_[id].generation },
-                    *GetComponent<Components>(Entity{ id, entities_[id].generation })...
-                );
+                func( e, *GetComponent<Components>(e)... );
             }
         }
     }
@@ -290,7 +296,6 @@ private:
 
     std::vector<EntityRecord> entities_;
     std::vector<EntityID> freeList_;
-
     std::unordered_map<std::type_index, std::unique_ptr<IComponentPool>> pools_;
 };
 

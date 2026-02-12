@@ -4,6 +4,7 @@ set(TLETC_SOURCES
     Core/Application.cpp
     Core/Input.cpp
     Core/Time.cpp
+    ECS/SystemManager.cpp
     Platform/Window.cpp
 )
 
@@ -14,6 +15,9 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Input.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Entity.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Scene.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/System.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/SystemManager.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Window.h
 )
 
