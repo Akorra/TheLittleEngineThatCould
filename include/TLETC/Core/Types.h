@@ -47,7 +47,7 @@ template <typename T> using UniqueArr = std::unique_ptr<T[]>;
 
 // Helper to create unique pointers
 template<typename T, typename... Args>
-[[nondiscard]] inline UniquePtr<T> MakeUnique(Args&&... args) { 
+[[nodiscard]] inline UniquePtr<T> MakeUnique(Args&&... args) { 
     return std::make_unique<T>(std::forward<Args>(args)...); 
 }
 
@@ -59,7 +59,7 @@ template <typename T>
 
 // Helper to create shared pointers
 template<typename T, typename... Args>
-[[nondiscard]] inline SharedPtr<T> MakeShared(Args&&... args) { 
+[[nodiscard]] inline SharedPtr<T> MakeShared(Args&&... args) { 
     return std::make_shared<T>(std::forward<Args>(args)...); 
 }
 
