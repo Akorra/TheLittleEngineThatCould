@@ -17,6 +17,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Log.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Assert.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Memory/Allocator.h
 )
 
 # Create the library
