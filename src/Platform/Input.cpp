@@ -1,4 +1,4 @@
-#include "TLETC/Core/Input.h"
+#include "TLETC/Platform/Input.h"
 
 namespace TLETC 
 {
@@ -22,7 +22,7 @@ void Input::OnKeyEvent(KeyCode key, bool pressed)
     keys_[index].current = pressed;
 }
 
-void Input::OnMouseButtonEvent(MouseButton button, bool pressed)
+void Input::OnMouseButton(MouseButton button, bool pressed)
 {
     uint8 index = static_cast<uint8>(button);
     if (index >= MAX_MOUSE_BUTTONS)

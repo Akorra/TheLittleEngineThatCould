@@ -14,10 +14,10 @@ namespace TLETC
             if (!(condition)) { \
                 std::cerr << "Assertion failed: " << message << "\n" \
                           << "File: " << __FILE__ << "\n" \
-                          << "Line: " << __LINE__ << "\n" \
+                          << "Line: " << __LINE__ << "\n"; \
                 assert(condition); \
             } \
-        } while
+        } while(0)
 #endif
 
 // Always-on verification (even in release)

@@ -121,7 +121,7 @@ public:
     
     // ---- Called by Window (platform layer) ----
     void OnKeyEvent(KeyCode key, bool pressed);
-    void OnMouseButtonEvent(MouseButton button, bool pressed);
+    void OnMouseButton(MouseButton button, bool pressed);
     void OnMouseMove(float x, float y);
     void OnMouseScroll(float xOffset, float yOffset);
     

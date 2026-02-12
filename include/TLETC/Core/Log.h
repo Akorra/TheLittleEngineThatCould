@@ -10,7 +10,7 @@ namespace TLETC
 enum class LogLevel
 {
     Trace,
-    Log,
+    Info,
     Warning,
     Error,
     Fatal
@@ -47,6 +47,7 @@ private:
     template<typename... Args>
     static void Print(LogLevel level, const char* prefix, Args&&... args)
     {
+        (void)level;
         std::ostringstream oss;
         oss << prefix;
         (oss << ... << args);  // C++17 fold expression

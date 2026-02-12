@@ -91,18 +91,6 @@ using MaterialHandle = Handle<Material>;
 using ShaderHandle   = Handle<Shader>;
 using BufferHandle   = Handle<Buffer>;
 
-// =======================================================
-// Math Type Aliases (GLM)
-// =======================================================
-
-// Note: Include GLM headers separately where needed
-// These are just forward declarations for common types
-
-// If you want to swap out GLM later, you can:
-// 1. Keep these aliases
-// 2. Point them to your own math lib
-// 3. Update implementation in Math.h
-
 } // namespace TLETC
 
 // =======================================================
