@@ -1,46 +1,22 @@
 # Minimal source files for initial build test
 set(TLETC_SOURCES
+    Platform/Time.cpp
+    Platform/Input.cpp
+    Platform/Window.cpp
     Core/Math.cpp
-    Core/Window.cpp
-    Core/Input.cpp
     Core/Application.cpp
-    Rendering/Handle.cpp
-    Rendering/Camera.cpp
-    Rendering/OrbitCamera.cpp
-    Rendering/Renderable.cpp
-    Rendering/RenderSystem.cpp
-    Resources/Mesh.cpp
-    Resources/Material.cpp
-    Resources/ResourceDB.cpp
-    Resources/GeometryFactory.cpp
-    Scene/Entity.cpp
-    Scene/Behaviour.cpp
-    Platform/OpenGL/GLRenderDevice.cpp
 )
 
 # Public headers
 set(TLETC_PUBLIC_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Time.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Input.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Window.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Types.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Math.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Window.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Input.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Log.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Assert.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Camera.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/OrbitCamera.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Renderable.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderSystem.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Component.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Entity.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Behaviour.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Mesh.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Texture.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Material.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceDB.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceManager.h
-    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/GeometryFactory.h
 )
 
 # Create the library
