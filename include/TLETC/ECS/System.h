@@ -1,7 +1,13 @@
 #pragma once
 
+#include "TLETC/Core/Types.h"
+#include <functional>
+
+#
+
 namespace TLETC::ECS 
 {
+class Scene;
 
 /**
  * System 
@@ -13,11 +19,20 @@ class System
 public:
     virtual ~System() = default;
 
-    virtual void OnCreate(class Scene&) {}
-    virtual void OnDestroy(class Scene&) {}
+    // Optional ordering inside same phase
+    virtual int GetPriority() const { return 0; }
 
-    virtual void Update(class Scene&, float dt) {}
-    virtual void Render(class Scene&) {}
+    virtual void Startup(Scene&) {}
+    virtual void Shutdown(Scene&) {}
+
+    virtual void PreUpdate(Scene&, float) {}
+    virtual void FixedUpdate(Scene&, float) {} //< physics
+    virtual void Update(Scene&, float) {}      //< input/animation/AI 
+    virtual void PostUpdate(Scene&, float) {}
+
+    virtual void PreRender(Scene&, float) {}
+    virtual void Render(Scene&, float) {}
+    virtual void PostRender(Scene&, float) {}
 };
 
 } // namespace TLETC::ECS

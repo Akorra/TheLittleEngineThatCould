@@ -29,14 +29,16 @@ void Application::Run()
     while(running_ && !window_->ShouldClose())
     {
         Time::Update();
-        float dt = Time::DeltaTime();
+        float frameDt = Time::DeltaTime();
 
         input_->BeginFrame();  //< 1. Begin Frame
 
         window_->PollEvents(); //< 2. Poll OS events
 
         //< 3. Update Systems 
+        // world_.Tick(frameDt);
         //< 4. Render
+        // world_.Render();
 
         window_->SwapBuffers(); //< 5. Present
     }
