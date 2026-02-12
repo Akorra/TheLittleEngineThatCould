@@ -1,37 +1,43 @@
 #pragma once
 
 #include "TLETC/Core/Types.h"
+#include "TLETC/Platform/Window.h"
+#include "TLETC/Platform/Input.h"
 
 #include <string>
 
-namespace TLETC 
+namespace TLETC
 {
 
-/**
- * Application - Main game loop with ordered event phases
- */
 class Application
 {
 public:
-    Application(const std::string& title = "The Little Engine That Could", uint32 width=1280, uint32 height=720);
+    Application(const std::string& title="[TLETC] The Little Engine That Could!!!", uint32 width=1280, uint32 height=720);
     virtual ~Application();
 
-    // game loop
     void Run();
+    void RequestShutdown() { running_ = false; }
+
+protected:
+    // [USER]: Override this in your solution
+    virtual void OnStartup() {}
+    virtual void OnShutdown() {}
+    virtual void OnUpdate(float dt) { (void)dt; }
+    virtual void OnRender() {}
 
 private:
-    bool Initialize();    
-    void Shutdown(); 
+    bool Initialize();
+    void Shutdown();
+
+protected:
+    UniquePtr<Window> window_;
+    UniquePtr<Input>  input_;
 
 private:
-    bool initialized_;
-    bool running_;
-    uint32 width_, height_;
-    std::string title_;
+    bool initialized_ = false;
+    bool running_     = false;
 
-    // Core/Platform systems
-    UniquePtr<class Window> window_;
-    UniquePtr<class Input>  input_;
+    WindowProps windowProps_;
 };
 
 } // namespace TLETC

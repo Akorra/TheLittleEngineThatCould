@@ -1,76 +1,88 @@
 #include "TLETC/Core/Application.h"
-
-#include "TLETC/Platform/Window.h"
-#include "TLETC/Core/Time.h"
+#include "TLETC/Platform/Time.h"
+#include "TLETC/Core/Log.h"
 
 namespace TLETC
 {
 
-Application::Application(const std::string& title, uint32 width, uint32 height) 
-    : initialized_(false)
-    , running_(false)
-    , title_(title)
-    , width_(width)
-    , height_(height)
+Application::Application(const std::string& title, uint32 width, uint32 height)
 {
+    windowProps_.title = title;
+    windowProps_.width = width;
+    windowProps_.height = height;
 }
 
-Application::~Application() 
+Application::~Application()
 {
-}
-
-void Application::Run() 
-{
-    if(!Initialize()) return;
-
-    running_ = true;
-
-    // Main Game Loop
-    while(running_ && !window_->ShouldClose())
-    {
-        Time::Update();
-        float frameDt = Time::DeltaTime();
-
-        input_->BeginFrame();  //< 1. Begin Frame
-
-        window_->PollEvents(); //< 2. Poll OS events
-
-        //< 3. Update Systems 
-        // world_.Tick(frameDt);
-        //< 4. Render
-        // world_.Render();
-
-        window_->SwapBuffers(); //< 5. Present
-    }
-
     Shutdown();
 }
 
-bool Application::Initialize() 
+void Application::Run()
 {
-    // Create Window
-    window_ = MakeUnique<Window>();
-    if(!window_->Create(width_, height_, title_))
-        return false;
+    if (!Initialize())
+    {
+        TLETC_ERROR("Failed to initialize application");
+        return;
+    }
 
+    TLETC_INFO("Application starting main loop");
+    running_ = true;
+
+    OnStartup();
+    
+    // Main loop
+    while (running_ && !window_->ShouldClose())
+    {
+        Time::Update();
+        float dt = Time::DeltaTime();
+        
+        input_->BeginFrame();
+        window_->PollEvents();
+        
+        OnUpdate(dt);
+        OnRender();
+        
+        window_->SwapBuffers();
+    }
+    
+    OnShutdown();
+    Shutdown();
+}
+
+bool Application::Initialize()
+{
+    TLETC_INFO("Initializing application");
+    
+    // Create input
     input_ = MakeUnique<Input>();
+    
+    // Create window
+    window_ = MakeUnique<Window>();
+    if (!window_->Create(windowProps_))
+    {
+        TLETC_ERROR("Failed to create window");
+        return false;
+    }
+    
     window_->SetInput(input_.get());
-
+    
     initialized_ = true;
     return true;
 }
 
-void Application::Shutdown() 
+void Application::Shutdown()
 {
-    if(!initialized_) return;
-
-    // shutdown systems
+    if (!initialized_)
+        return;
+    
+    TLETC_INFO("Shutting down application");
+    
     window_->Destroy();
     window_.reset();
     input_.reset();
-
+    
     initialized_ = false;
-    running_     = false;
-} 
+    running_ = false;
+}
 
 } // namespace TLETC
