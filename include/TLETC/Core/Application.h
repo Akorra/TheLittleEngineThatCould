@@ -3,16 +3,16 @@
 #include "TLETC/Core/Types.h"
 #include "TLETC/Core/Window.h"
 #include "TLETC/Core/Input.h"
-#include "TLETC/Core/Event.h"
-#include "TLETC/Core/EventDispatcher.h"
 #include "TLETC/Scene/Entity.h"
 #include "TLETC/Rendering/RenderDevice.h"
+#include "TLETC/Rendering/RenderSystem.h"
 
 #include <vector>
 #include <memory>
 
 namespace TLETC 
 {
+
 /**
  * Application - Main game loop with ordered event phases
  * 
@@ -48,10 +48,15 @@ public:
     Input& GetInput()               { return *input_; }
     RenderDevice* GetRenderDevice() { return renderDevice_.get(); }
 
+    // TODO: Multi camera support
+    // Camera
+    void SetCamera(class Camera* camera) { camera_ = camera; }
+    class Camera* GetCamera() const { return camera_; }
+
     // Entity management
     Entity* CreateEntity(const std::string& name = "Entity");
     void    DestroyEntity(Entity* entity);
-    const std::vector<UniquePtr<Entity>>& GetEntities() const { return entities_; }
+    const   std::vector<UniquePtr<Entity>>& GetEntities() const { return entities_; }
 
     // Control
     void Close()           { running_ = false; }
@@ -82,6 +87,10 @@ protected:
     void Render();
     void PostRender();
     void ProcessDestroyQueue();  // Clean up deferred destructions
+    void ProcessDestroyResources();
+
+    // Cleanup resources
+    void ShutdownResources(); 
 
     // Behaviour event management
     void RegisterBehaviourForEvents(Behaviour* behaviour);
@@ -93,7 +102,11 @@ private:
     UniquePtr<Window>       window_;
     UniquePtr<Input>        input_;
     UniquePtr<RenderDevice> renderDevice_;
-    
+    UniquePtr<RenderSystem> renderSystem_;
+
+    // Camera
+    class Camera* camera_;
+
     // Entities
     std::vector<UniquePtr<Entity>> entities_;
     std::vector<Entity*>           entitiesToDestroy_; // deferred destruction

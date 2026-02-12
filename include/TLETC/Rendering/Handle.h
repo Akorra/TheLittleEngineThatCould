@@ -19,21 +19,31 @@ public:
     bool operator==(const Handle& other) const { return id_ == other.id_; }
     bool operator!=(const Handle& other) const { return id_ != other.id_; }
     bool operator<(const Handle& other) const { return id_ < other.id_; }
+
+    struct Hash {
+        size_t operator()(const Handle<Tag>& handle) const {
+            return std::hash<uint32>{}(handle.id_);
+        }
+    };
     
 private:
     uint32 id_;
 };
 
 // Tag types for type safety
-struct BufferTag {};
-struct ShaderTag {};
-struct TextureTag {};
+struct BufferTag   {};
+struct ShaderTag   {};
+struct MeshTag     {};
+struct MaterialTag {};
+struct TextureTag  {};
 struct PipelineTag {};
 
 // Specific handle types
-using BufferHandle = Handle<BufferTag>;
-using ShaderHandle = Handle<ShaderTag>;
-using TextureHandle = Handle<TextureTag>;
+using BufferHandle   = Handle<BufferTag>;
+using ShaderHandle   = Handle<ShaderTag>;
+using MeshHandle     = Handle<MeshTag>;
+using MaterialHandle = Handle<MaterialTag>;
+using TextureHandle  = Handle<TextureTag>;
 using PipelineHandle = Handle<PipelineTag>;
 
 } // namespace TLETC

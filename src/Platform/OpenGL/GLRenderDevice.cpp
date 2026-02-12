@@ -1,9 +1,17 @@
 #include "GLRenderDevice.h"
+
+#include "TLETC/Resources/ResourceDB.h"
+#include "TLETC/Resources/Texture.h"
+
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <sstream>
+
+// STB Image - for loading textures
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 namespace TLETC {
 
@@ -36,6 +44,9 @@ bool GLRenderDevice::Initialize()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+    // Enable multisampling (MSAA) for anti-aliasing
+    glEnable(GL_MULTISAMPLE);
     
     initialized_ = true;
     return true;
@@ -328,6 +339,13 @@ void GLRenderDevice::SetUniformFloat(ShaderHandle shader, const std::string& nam
         glUniform1f(location, value);
 }
 
+void GLRenderDevice::SetUniformVec2(ShaderHandle shader, const std::string& name, const Vec2& value) 
+{
+    int location = GetUniformLocation(shader, name);
+    if (location >= 0)
+        glUniform2fv(location, 1, glm::value_ptr(value));
+}
+
 void GLRenderDevice::SetUniformVec3(ShaderHandle shader, const std::string& name, const Vec3& value) 
 {
     int location = GetUniformLocation(shader, name);
@@ -342,6 +360,14 @@ void GLRenderDevice::SetUniformVec4(ShaderHandle shader, const std::string& name
         glUniform4fv(location, 1, glm::value_ptr(value));
 }
 
+void GLRenderDevice::SetUniformMat3(ShaderHandle shader, const std::string& name, const Mat3& value) 
+{
+    int location = GetUniformLocation(shader, name);
+    if (location >= 0)
+        glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+
 void GLRenderDevice::SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) 
 {
     int location = GetUniformLocation(shader, name);
@@ -349,21 +375,159 @@ void GLRenderDevice::SetUniformMat4(ShaderHandle shader, const std::string& name
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType) 
+// Texture operations
+
+TextureHandle GLRenderDevice::LoadTexture(const char* filepath, int& outWidth, int& outHeight, TextureFormat& outFormat) 
 {
-    if (mesh.IsEmpty()) return;
+    // Load image data with stb_image
+    stbi_set_flip_vertically_on_load(true);  // OpenGL expects bottom-left origin
     
-    // Check if we have this mesh cached
-    auto it = meshCache_.find(&mesh);
-    if (it == meshCache_.end()) 
+    int width, height, channels;
+    unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
+    
+    if (!data) 
     {
+        std::cerr << "Failed to load texture: " << filepath << std::endl;
+        outWidth = 0;
+        outHeight = 0;
+        outFormat = TextureFormat::RGBA;
+        return TextureHandle();
+    }
+    
+    // Determine format based on channels
+    TextureFormat format;
+    switch (channels) {
+        case 1: format = TextureFormat::R; break;
+        case 2: format = TextureFormat::RG; break;
+        case 3: format = TextureFormat::RGB; break;
+        case 4: format = TextureFormat::RGBA; break;
+        default:
+            std::cerr << "Unsupported channel count: " << channels << std::endl;
+            stbi_image_free(data);
+            return TextureHandle();
+    }
+    
+    // Create texture
+    TextureHandle handle = CreateTexture(width, height, format, data);
+    
+    // Free image data
+    stbi_image_free(data);
+    
+    // Set output parameters
+    outWidth = width;
+    outHeight = height;
+    outFormat = format;
+    
+    std::cout << "Loaded texture: " << filepath << " (" << width << "x" << height 
+              << ", " << channels << " channels)" << std::endl;
+    
+    return handle;
+}
+
+TextureHandle GLRenderDevice::CreateTexture(int width, int height, TextureFormat format, const void* data) 
+{
+    GLuint textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    
+    // Convert format
+    GLenum glFormat = GetGLTextureFormat(format);
+    GLenum internalFormat = glFormat;
+    
+    // Upload texture data
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, 
+                 glFormat, GL_UNSIGNED_BYTE, data);
+    
+    // Set default parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    // Cache texture
+    TextureHandle handle(textureId);
+    textureCache_[handle] = { textureId, width, height, 0, format };
+    
+    return handle;
+}
+
+void GLRenderDevice::DestroyTexture(TextureHandle texture) 
+{
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        GLuint textureId = (it->second).texId;
+        glDeleteTextures(1, &textureId);
+        textureCache_.erase(it);
+    }
+}
+
+void GLRenderDevice::BindTexture(TextureHandle texture, int slot) 
+{
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
+    }
+}
+
+void GLRenderDevice::SetTextureFilter(TextureHandle texture, TextureFilter minFilter, TextureFilter magFilter) 
+{
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetGLTextureFilter(minFilter));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetGLTextureFilter(magFilter));
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void GLRenderDevice::SetTextureWrap(TextureHandle texture, TextureWrap wrapS, TextureWrap wrapT) {
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetGLTextureWrap(wrapS));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetGLTextureWrap(wrapT));
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void GLRenderDevice::GenerateTextureMipmaps(TextureHandle texture) {
+    auto it = textureCache_.find(texture);
+    if (it != textureCache_.end()) 
+    {
+        glBindTexture(GL_TEXTURE_2D, (it->second).texId);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void GLRenderDevice::DrawMesh(MeshHandle handle, const Mat4& transform, PrimitiveType primitiveType) 
+{   
+    // mesh needs to exist in resource system
+    if(!handle.IsValid() || !Resources::Meshes.HasHandle(handle))
+        return;
+
+    const Mesh& mesh = Resources::Meshes.Get(handle);
+
+    // Check if we have this mesh cached
+    auto it = meshCache_.find(handle);
+    if (it == meshCache_.end()) 
+    {        
         // Create VAO for this mesh
         MeshData meshData;
         glGenVertexArrays(1, &meshData.vao);
         glBindVertexArray(meshData.vao);
 
-        if (primitiveType == PrimitiveType::Patches) 
-            glPatchParameteri(GL_PATCH_VERTICES, 3); // each patch has 3 vertices (triangle)
+        // TODO: let material and/or mesh handle this and primitive type
+        // Now we have SetPatchVertices 
+        // if (primitiveType == PrimitiveType::Patches) 
+        //    glPatchParameteri(GL_PATCH_VERTICES, 3); // each patch has 3 vertices (triangle)
 
         const std::vector<Vec3>& positions = mesh.GetVertexPositions();
         const std::vector<Vec3>& normals   = mesh.GetVertexNormals();
@@ -411,8 +575,8 @@ void GLRenderDevice::DrawMesh(const Mesh& mesh, const Mat4& transform, Primitive
         glBindVertexArray(0);
         
         // Cache it
-        meshCache_[&mesh] = meshData;
-        it = meshCache_.find(&mesh);
+        meshCache_[handle] = meshData;
+        it = meshCache_.find(handle);
     }
     
     // Set transform uniform if we have a current shader
@@ -478,6 +642,26 @@ void GLRenderDevice::EnableCulling(bool enable)
         glEnable(GL_CULL_FACE);
     else 
         glDisable(GL_CULL_FACE);
+}
+
+// TODO: temp, Ill think about it later
+void GLRenderDevice::SetPolygonMode(uint8 polygonMode, uint8 rasterizationMode)
+{
+    uint32 poly = GL_FRONT_AND_BACK;
+    switch(polygonMode) {
+    case 1: poly = GL_FRONT; break;
+    case 2: poly = GL_BACK;  break;
+    default: break;
+    }
+
+    uint32 rast = GL_FILL;
+    switch(rasterizationMode) {
+    case 1: rast = GL_POINT; break;
+    case 2: rast = GL_LINE;  break;
+    default: break;
+    }
+
+    glPolygonMode(poly, rast);
 }
 
 void GLRenderDevice::SetWireframeMode(bool enable) 
@@ -560,6 +744,46 @@ uint32 GLRenderDevice::GetGLPrimitiveType(PrimitiveType type)
         case PrimitiveType::LineStrip:     return GL_LINE_STRIP;
         case PrimitiveType::Patches:       return GL_PATCHES;
         default: return GL_TRIANGLES;
+    }
+}
+
+uint32 GLRenderDevice::GetGLTextureFormat(TextureFormat format) 
+{
+    switch (format) 
+    {
+        case TextureFormat::RGB:          return GL_RGB;
+        case TextureFormat::RGBA:         return GL_RGBA;
+        case TextureFormat::R:            return GL_RED;
+        case TextureFormat::RG:           return GL_RG;
+        case TextureFormat::Depth:        return GL_DEPTH_COMPONENT;
+        case TextureFormat::DepthStencil: return GL_DEPTH_STENCIL;
+        default: return GL_RGBA;
+    }
+}
+
+uint32 GLRenderDevice::GetGLTextureFilter(TextureFilter filter) 
+{
+    switch (filter) 
+    {
+        case TextureFilter::Nearest:              return GL_NEAREST;
+        case TextureFilter::Linear:               return GL_LINEAR;
+        case TextureFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+        case TextureFilter::LinearMipmapNearest:  return GL_LINEAR_MIPMAP_NEAREST;
+        case TextureFilter::NearestMipmapLinear:  return GL_NEAREST_MIPMAP_LINEAR;
+        case TextureFilter::LinearMipmapLinear:   return GL_LINEAR_MIPMAP_LINEAR;
+        default: return GL_LINEAR;
+    }
+}
+
+uint32 GLRenderDevice::GetGLTextureWrap(TextureWrap wrap) 
+{
+    switch (wrap)
+    {
+        case TextureWrap::Repeat:         return GL_REPEAT;
+        case TextureWrap::MirroredRepeat: return GL_MIRRORED_REPEAT;
+        case TextureWrap::ClampToEdge:    return GL_CLAMP_TO_EDGE;
+        case TextureWrap::ClampToBorder:  return GL_CLAMP_TO_BORDER;
+        default: return GL_REPEAT;
     }
 }
 

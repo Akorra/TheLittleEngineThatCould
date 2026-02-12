@@ -5,7 +5,13 @@ set(TLETC_SOURCES
     Core/Input.cpp
     Core/Application.cpp
     Rendering/Handle.cpp
+    Rendering/Camera.cpp
+    Rendering/OrbitCamera.cpp
+    Rendering/Renderable.cpp
+    Rendering/RenderSystem.cpp
     Resources/Mesh.cpp
+    Resources/Material.cpp
+    Resources/ResourceDB.cpp
     Resources/GeometryFactory.cpp
     Scene/Entity.cpp
     Scene/Behaviour.cpp
@@ -21,10 +27,19 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Handle.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderDevice.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Camera.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/OrbitCamera.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/Renderable.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Rendering/RenderSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Transform.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Component.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Entity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Scene/Behaviour.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Mesh.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Texture.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/Material.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceDB.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/ResourceManager.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Resources/GeometryFactory.h
 )
 
@@ -52,6 +67,7 @@ target_include_directories(TLETC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/external  # For stb_image.h
 )
 
 # Define GLM_ENABLE_EXPERIMENTAL to allow experimental features

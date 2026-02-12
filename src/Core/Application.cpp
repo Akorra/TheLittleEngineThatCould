@@ -1,4 +1,6 @@
 #include "TLETC/Core/Application.h"
+#include "TLETC/Rendering/Camera.h"
+#include "TLETC/Resources/ResourceDB.h"
 
 #include "../../src/Platform/OpenGL/GLRenderDevice.h"
 
@@ -10,9 +12,14 @@ namespace TLETC
 
 Application::Application(const std::string& title, uint32 width, uint32 height)
     : title_(title)
-    , width_(width), height_(height)
-    , running_(false), initialized_(false), eventsEnabled_(true)
-    , time_(0.0f), deltaTime_(0.0f)
+    , width_(width)
+    , height_(height)
+    , running_(false)
+    , initialized_(false)
+    , eventsEnabled_(true)
+    , camera_(nullptr)
+    , time_(0.0f)
+    , deltaTime_(0.0f)
     , lastFrameTime_(0.0)
 {
 }
@@ -45,6 +52,13 @@ bool Application::Initialize()
     if (!renderDevice_->Initialize()) 
     {
         std::cerr << "Failed to initialize renderer!" << std::endl;
+        return false;
+    }
+
+    renderSystem_ = MakeUnique<RenderSystem>();
+    if (!renderSystem_->Initialize(renderDevice_.get())) 
+    {
+        std::cerr << "Failed to initialize render system!" << std::endl;
         return false;
     }
     
@@ -108,6 +122,9 @@ void Application::Run()
         // Process any deferred destructions (safe to destroy now)
         ProcessDestroyQueue();
         
+        // NOW destroy GPU resources
+        ProcessDestroyResources();
+        
         // Swap buffers
         window_->SwapBuffers();
     }
@@ -121,6 +138,9 @@ void Application::Shutdown()
     if (!initialized_) return;
     
     std::cout << "Shutting down application..." << std::endl;
+
+    // Clean up resources BEFORE user shutdown (so user can still access them)
+    // User shutdown called after for any custom cleanup
     
     // Call user shutdown
     OnShutdown();
@@ -129,6 +149,9 @@ void Application::Shutdown()
     for (auto& entity : entities_)
         entity->Destroy();
     entities_.clear();
+
+    // Clean up resources (materials and textures)
+    ShutdownResources();
     
     // Shutdown systems
     if (input_) input_->Shutdown();
@@ -175,16 +198,9 @@ void Application::ProcessInput()
     // Update input state (just reads hardware)
     input_->Update();
 
-    /* Turn on for ESC exit support
-    // Handle ESC to close (built-in)
-    if (input_->IsKeyJustPressed(KeyCode::Escape))
-        Close();
-    /**/
-
-    // Now fire events based on state changes
-    // Application owns event logic, Input just tracks state
+    /* if (input_->IsKeyJustPressed(KeyCode::Escape)) Close(); /* Turn on Handle ESC to close (built-in) */
     
-    // Fire keyboard events
+    // Fire keyboard events - only for keys that changed
     for(KeyCode key : input_->GetKeysJustPressed())
     {
         // Optional Application-level callback
@@ -277,13 +293,15 @@ void Application::PreRender()
     RunBehaviourEvent(3, [](Behaviour* b) { b->OnPreRender(); });
 }
 
+// TODO: REVIEW - REMOVE USER RENDER ACCESS
 void Application::Render() 
 {
-    // Run behaviours that handle render
-    RunBehaviourEvent(4, [](Behaviour* b) { b->OnRender(); });
-    
-    // Call user render
-    OnRender();
+    renderDevice_->BeginFrame();
+
+    float aspect = window_->GetAspectRatio();
+    renderSystem_->RenderAll(aspect);
+
+    renderDevice_->EndFrame();
 }
 
 void Application::PostRender() 
@@ -310,8 +328,24 @@ void Application::ProcessDestroyQueue()
             entities_.erase(it);
         }
     }
-    
     entitiesToDestroy_.clear();
+}
+
+void Application::ProcessDestroyResources()
+{
+    // Textures
+    Resources::Textures.ForEachQueuedDestroy([this](TextureHandle handle){ renderDevice_.get()->DestroyTexture(handle); });
+    Resources::ProcessDestroyQueues();
+}
+
+//TODO: add destroy queues
+void Application::ShutdownResources() 
+{
+    std::cout << "Cleaning up resources..." << std::endl;
+
+    Resources::Textures.ForEachResource([this](TextureHandle handle, const Texture&){ renderDevice_.get()->DestroyTexture(handle); });
+
+    Resources::Clear();
 }
 
 void Application::RegisterBehaviourForEvents(Behaviour* behaviour) 

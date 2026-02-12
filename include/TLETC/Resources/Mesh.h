@@ -91,5 +91,4 @@ protected:
 
 // The station is where you observe the train (window shows the game)
 using Blueprint = Mesh;
-
 };

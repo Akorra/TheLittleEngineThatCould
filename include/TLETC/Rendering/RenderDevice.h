@@ -95,12 +95,23 @@ public:
     // Shader uniforms
     virtual void SetUniformInt(ShaderHandle shader, const std::string& name, int value) = 0;
     virtual void SetUniformFloat(ShaderHandle shader, const std::string& name, float value) = 0;
+    virtual void SetUniformVec2(ShaderHandle shader, const std::string& name, const Vec2& value) = 0;
     virtual void SetUniformVec3(ShaderHandle shader, const std::string& name, const Vec3& value) = 0;
     virtual void SetUniformVec4(ShaderHandle shader, const std::string& name, const Vec4& value) = 0;
+    virtual void SetUniformMat3(ShaderHandle shader, const std::string& name, const Mat3& value) = 0;
     virtual void SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) = 0;
     
+    // Texture operations
+    virtual TextureHandle LoadTexture(const char* filepath, int& outWidth, int& outHeight, enum class TextureFormat& outFormat) = 0;
+    virtual TextureHandle CreateTexture(int width, int height, enum class TextureFormat format, const void* data = nullptr) = 0;
+    virtual void DestroyTexture(TextureHandle texture) = 0;
+    virtual void BindTexture(TextureHandle texture, int slot = 0) = 0;
+    virtual void SetTextureFilter(TextureHandle texture, enum class TextureFilter minFilter, enum class TextureFilter magFilter) = 0;
+    virtual void SetTextureWrap(TextureHandle texture, enum class TextureWrap wrapS, enum class TextureWrap wrapT) = 0;
+    virtual void GenerateTextureMipmaps(TextureHandle texture) = 0;
+    
     // Mesh rendering
-    virtual void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
+    virtual void DrawMesh(MeshHandle handle, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
     virtual void DrawIndexed(BufferHandle vertexBuffer, BufferHandle indexBuffer, uint32 indexCount, PrimitiveType primitiveType = PrimitiveType::Triangles) = 0;
     
     // Compute shader operations
@@ -115,6 +126,7 @@ public:
     virtual void EnableDepthTest(bool enable) = 0;
     virtual void EnableBlending(bool enable) = 0;
     virtual void EnableCulling(bool enable) = 0;
+    virtual void SetPolygonMode(uint8 poly=0, uint8 rast=0) = 0;
     virtual void SetWireframeMode(bool enable) = 0;
     
     // Query

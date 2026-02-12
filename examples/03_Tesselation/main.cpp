@@ -140,7 +140,7 @@ int main()
         if (tessLevel < 1.0f) tessLevel = 1.0f;
         
         // Rotate plane slowly
-        planeTransform.Rotate(TLETC::Vec3(0,1,0), TLETC::Radians(10.0f));
+        planeTransform.Rotate(TLETC::Vec3(0,1,0), TLETC::radians(10.0f));
         
         // Clear
         renderer.Clear(TLETC::Vec4(0.05f, 0.05f, 0.1f, 1.0f));
@@ -155,7 +155,8 @@ int main()
         
         // Draw with tessellation (use Patches primitive type)
         // For now we'll modify DrawMesh to support tessellation
-        // In a real implementation, you'd want a separate DrawTessellatedMesh method
+        // In a real implementation, you'd want a separate DrawTessellatedMesh method´
+        renderer.SetPatchVertices(3);
         renderer.DrawMesh(plane, planeTransform.GetModelMatrix(), TLETC::PrimitiveType::Patches);
         
         window.SwapBuffers();

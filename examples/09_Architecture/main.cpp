@@ -1,320 +1,248 @@
+// Example 12: Automatic Resource Management
+// Demonstrates Application-managed materials and textures with automatic cleanup
+
 #include "TLETC/Core/Application.h"
-#include "TLETC/Scene/Behaviour.h"
 #include "TLETC/Resources/GeometryFactory.h"
+#include "TLETC/Rendering/MeshRenderer.h"
+#include "TLETC/Rendering/OrbitCamera.h"
+#include "TLETC/Rendering/Material.h"
+#include "TLETC/Rendering/Texture.h"
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <filesystem>
 
-/**
- * Example demonstrating:
- * 1. Bit flags - only calling implemented methods
- * 2. Execution order - behaviours run in priority order
- * 3. Deferred destruction - safe mid-frame entity removal
- * 4. Event routing - entities receive input events automatically
- */
+using namespace TLETC;
 
- std::string LoadFileAsString(const std::string& path)
-{
-    std::ifstream file(path);
-    if (!file.is_open())
-    {
-        std::cerr << "Failed to open file: " + path << std::endl;
-        return "";
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-/**
- * EarlyBehaviour - Runs first (execution order = -100)
- * Uses clean SetEventFlags API
- */
-class EarlyBehaviour : public TLETC::Behaviour 
+class AutoResourceExample : public Application 
 {
 public:
-    EarlyBehaviour() {
-        SetExecutionOrder(-100);  // Run first!
-        SetActiveEvents(TLETC::Behaviour::Update);  // Clean API!
-    }
-    
-    void OnUpdate(float dt) override {
-        std::cout << "  [Early] Running first (order: " << GetExecutionOrder() << ")" << std::endl;
-    }
-    
-    const char* GetName() const override { return "EarlyBehaviour"; }
-};
+    // Just pointers - Application owns them
+    Material* redMaterial;
+    Material* greenMaterial;
+    Material* blueMaterial;
+    Material* texturedMaterial;
+    Texture*  checkerTexture;
+    Mesh      cubeMesh;
 
-/**
- * NormalBehaviour - Runs second (execution order = 0, default)
- * Uses clean SetEventFlags API
- */
-class NormalBehaviour : public TLETC::Behaviour 
-{
 public:
-    NormalBehaviour() {
-        SetExecutionOrder(0);  // Default
-        SetActiveEvents(TLETC::Behaviour::Update);  // Clean API!
-    }
+    AutoResourceExample() : Application("Auto Resource Management", 1280, 720) {}
     
-    void OnUpdate(float dt) override {
-        std::cout << "  [Normal] Running second (order: " << GetExecutionOrder() << ")" << std::endl;
-    }
-    
-    const char* GetName() const override { return "NormalBehaviour"; }
-};
-
-/**
- * LateBehaviour - Runs third (execution order = 100)
- * Uses clean SetEventFlags API
- */
-class LateBehaviour : public TLETC::Behaviour {
-public:
-    LateBehaviour() {
-        SetExecutionOrder(100);  // Run last!
-        SetActiveEvents(TLETC::Behaviour::Update);  // Clean API!
-    }
-    
-    void OnUpdate(float dt) override {
-        std::cout << "  [Late] Running third (order: " << GetExecutionOrder() << ")" << std::endl;
-    }
-    
-    const char* GetName() const override { return "LateBehaviour"; }
-};
-
-/**
- * KeyHandler - Only responds to key events
- * Uses clean SetEventFlags API with bitwise OR
- */
-class KeyHandler : public TLETC::Behaviour {
-public:
-    KeyHandler() {
-        SetActiveEvents(TLETC::Behaviour::KeyEvents);  // Clean API - one line!
-    }
-    
-    void OnKeyPressed(TLETC::KeyCode key) override {
-        std::cout << "  KeyHandler: Key pressed: " << static_cast<int>(key) << std::endl;
-        
-        if (key == TLETC::KeyCode::K) {
-            std::cout << "   You pressed K! Destroying this entity in 1 second..." << std::endl;
-            m_destroyTimer = 1.0f;
-            ActivateEvents(TLETC::Behaviour::Update);  // Dynamically add Update event!
-        }
-    }
-    
-    void OnUpdate(float dt) override {
-        if (m_destroyTimer > 0.0f) {
-            m_destroyTimer -= dt;
-            if (m_destroyTimer <= 0.0f) {
-                std::cout << "  Destroying entity NOW (deferred destruction)!" << std::endl;
-                GetEntity()->SetEnabled(false);
-            }
-        }
-    }
-    
-    const char* GetName() const override { return "KeyHandler"; }
-    
-private:
-    float m_destroyTimer = 0.0f;
-};
-
-/**
- * MouseHandler - Only responds to mouse events
- * Uses clean SetEventFlags API
- */
-class MouseHandler : public TLETC::Behaviour {
-public:
-    MouseHandler() {
-        SetActiveEvents(TLETC::Behaviour::MouseButtonEvents);  // Clean API!
-    }
-    
-    void OnMouseButtonPressed(TLETC::MouseButton button) override {
-        std::cout << "  MouseHandler: Mouse button pressed: " << static_cast<int>(button) << std::endl;
-    }
-    
-    const char* GetName() const override { return "MouseHandler"; }
-};
-
-/**
- * Rotator - Only needs Update
- * Uses clean SetEventFlags API
- */
-class Rotator : public TLETC::Behaviour {
-public:
-    TLETC::Vec3 axis;
-    float speed;
-    
-    Rotator(const TLETC::Vec3& a = TLETC::Vec3(0, 1, 0), float s = 45.0f)
-        : axis(a), speed(s) {
-        SetActiveEvents(TLETC::Behaviour::Update);  // Clean API!
-    }
-    
-    void OnUpdate(float dt) override {
-        GetEntity()->transform.Rotate(axis, speed * dt);
-    }
-    
-    const char* GetName() const override { return "Rotator"; }
-};
-
-/**
- * ArchitectureFixes - Demonstrates all the fixes
- */
-class ArchitectureFixes : public TLETC::Locomotive {
-public:
-    ArchitectureFixes() : Locomotive("Architecture Fixes Demo", 1280, 720) {}
-    
+protected:
     void OnInit() override {
-        std::cout << "========================================" << std::endl;
-        std::cout << "  Architecture Fixes Demo" << std::endl;
-        std::cout << "========================================" << std::endl;
-        std::cout << std::endl;
-        std::cout << "This demo shows:" << std::endl;
-        std::cout << "  1. Bit Flags - Only implemented methods get called" << std::endl;
-        std::cout << "  2. Execution Order - Behaviours run in priority order" << std::endl;
-        std::cout << "  3. Deferred Destruction - Safe mid-frame removal" << std::endl;
-        std::cout << "  4. Event Routing - Entities receive events automatically" << std::endl;
-        std::cout << std::endl;
-        std::cout << "Controls:" << std::endl;
-        std::cout << "  Any Key       - KeyHandler will log it" << std::endl;
-        std::cout << "  Left Click    - MouseHandler will log it" << std::endl;
-        std::cout << "  K             - Destroy event test entity (deferred)" << std::endl;
-        std::cout << "  ESC           - Exit" << std::endl;
-        std::cout << std::endl;
+        std::cout << "\n=== Automatic Resource Management Demo ===" << std::endl;
+        std::cout << "Application will automatically clean up all resources!" << std::endl;
+        std::cout << "\nControls:" << std::endl;
+        std::cout << "  Left Mouse + Drag: Rotate camera" << std::endl;
+        std::cout << "  Right Mouse + Drag: Pan camera" << std::endl;
+        std::cout << "  Mouse Wheel: Zoom" << std::endl;
+        std::cout << "  ESC: Quit (watch cleanup messages!)" << std::endl;
         
-        cubeMesh = TLETC::GeometryFactory::CreateCube(1.0f);
-        sphereMesh = TLETC::GeometryFactory::CreateSphere(0.5f, 32, 16);
+        // Create shader
+        auto shader = CreateSimpleShader();
         
-        // Create entity with execution-ordered behaviours
-        auto* orderedEntity = CreateEntity("OrderedEntity");
-        orderedEntity->mesh = &cubeMesh;
-        orderedEntity->transform.position = TLETC::Vec3(-3, 0, 0);
+        // Create materials using Application (automatic cleanup!)
+        redMaterial = new Material("Red");
+        redMaterial->SetShader(shader);
+        redMaterial->SetVec3("u_color", Vec3(1.0f, 0.0f, 0.0f));
         
-        // Add in WRONG order - they'll be sorted by executionOrder!
-        //orderedEntity->AddBehaviour<LateBehaviour>();    // Order: 100
-        //orderedEntity->AddBehaviour<EarlyBehaviour>();   // Order: -100
-        //orderedEntity->AddBehaviour<NormalBehaviour>();  // Order: 0
+        greenMaterial = new Material("Green");
+        greenMaterial->SetShader(shader);
+        greenMaterial->SetVec3("u_color", Vec3(0.0f, 1.0f, 0.0f));
         
-        std::cout << "Created OrderedEntity with 3 behaviours" << std::endl;
-        std::cout << "  - Added in wrong order: Late, Early, Normal" << std::endl;
-        std::cout << "  - Will execute in correct order: Early, Normal, Late" << std::endl;
-        std::cout << std::endl;
+        blueMaterial = new Material("Blue");
+        blueMaterial->SetShader(shader);
+        blueMaterial->SetVec3("u_color", Vec3(0.0f, 0.0f, 1.0f));
         
-        // Create entity that only responds to events
-        eventTestEntity = CreateEntity("EventTestEntity");
-        eventTestEntity->mesh = &sphereMesh;
-        eventTestEntity->transform.position = TLETC::Vec3(0, 0, 0);
-        eventTestEntity->AddBehaviour<KeyHandler>();
-        eventTestEntity->AddBehaviour<MouseHandler>();
-        eventTestEntity->AddBehaviour<Rotator>();
+        std::cout << "\nCreated 3 materials (Application owns them)" << std::endl;
         
-        std::cout << "Created EventTestEntity" << std::endl;
-        std::cout << "  - KeyHandler: Only responds to key events (bit flags)" << std::endl;
-        std::cout << "  - MouseHandler: Only responds to mouse events (bit flags)" << std::endl;
-        std::cout << "  - Rotator: Only needs Update (bit flags)" << std::endl;
-        std::cout << "  Press K to test deferred destruction!" << std::endl;
-        std::cout << std::endl;
+        // Create procedural texture using Application (automatic cleanup!)
+        checkerTexture = new Texture();
+        CreateCheckerboardTexture(checkerTexture);
         
-        // Create decorative spinning cubes
-        for (int i = 0; i < 5; ++i) {
-            auto* spinner = CreateEntity("Spinner" + std::to_string(i));
-            spinner->mesh = &cubeMesh;
-            float angle = (i / 5.0f) * TLETC::TWO_PI;
-            spinner->transform.position = TLETC::Vec3(
-                std::cos(angle) * 5.0f,
-                0,
-                std::sin(angle) * 5.0f
-            );
-            spinner->transform.scale = TLETC::Vec3(0.5f);
-            spinner->AddBehaviour<Rotator>(TLETC::Vec3(0, 1, 0), 90.0f);
-        }
+        texturedMaterial = new Material("Checkerboard");
+        texturedMaterial->SetShader(CreateTexturedShader());
+        texturedMaterial->SetTexture("u_texture", checkerTexture);
         
-        const std::filesystem::path ProjectRoot = PROJECT_ROOT_DIR;
-        std::string vertexShaderSource   = LoadFileAsString( (ProjectRoot / "assets/shaders/basic.vert").string());
-        std::string fragmentShaderSource = LoadFileAsString( (ProjectRoot / "assets/shaders/basic.frag").string());
-
-        // Create shaders
-        auto* renderer = GetRenderDevice();
-        auto vertShader = renderer->CreateShader(TLETC::ShaderType::Vertex, vertexShaderSource);
-        auto fragShader = renderer->CreateShader(TLETC::ShaderType::Fragment, fragmentShaderSource);
-        shaderProgram = renderer->CreateShaderProgram(vertShader, fragShader);
+        std::cout << "Created 1 texture (Application owns it)" << std::endl;
         
-        projection = TLETC::perspective(
-            TLETC::radians(45.0f),
-            GetWindow().GetAspectRatio(),
-            0.1f,
-            100.0f
-        );
+        // Create cubes with different materials
+        Mesh cubeMesh = GeometryFactory::CreateCube(1.0f);
         
-        std::cout << "   All systems ready!" << std::endl;
-        std::cout << "   Events will be automatically routed to entities" << std::endl;
-        std::cout << "   Behaviours will execute in priority order" << std::endl;
-        std::cout << "   Only enabled callbacks will be called" << std::endl;
-        std::cout << std::endl;
+        auto* redCube = CreateEntity("RedCube");
+        redCube->transform.position_ = Vec3(-3, 0, 0);
+        redCube->AddBehaviour<MeshRenderer>(&cubeMesh, redMaterial);
+        
+        auto* greenCube = CreateEntity("GreenCube");
+        greenCube->transform.position_ = Vec3(0, 0, 0);
+        greenCube->AddBehaviour<MeshRenderer>(&cubeMesh, greenMaterial);
+        
+        auto* blueCube = CreateEntity("BlueCube");
+        blueCube->transform.position_ = Vec3(3, 0, 0);
+        blueCube->AddBehaviour<MeshRenderer>(&cubeMesh, blueMaterial);
+        
+        auto* texturedCube = CreateEntity("TexturedCube");
+        texturedCube->transform.position_ = Vec3(0, 2, 0);
+        texturedCube->AddBehaviour<MeshRenderer>(&cubeMesh, texturedMaterial);
+        
+        // Create orbit camera
+        auto* camEntity = CreateEntity("Camera");
+        auto* orbitCam = camEntity->AddBehaviour<OrbitCamera>();
+        orbitCam->SetTarget(Vec3(0, 0, 0));
+        orbitCam->SetDistance(10.0f);
+        orbitCam->SetPerspective(45.0f, 0.1f, 100.0f);
+        SetCamera(orbitCam);
+        
+        std::cout << "\nAll resources created! Application will clean up automatically.\n" << std::endl;
     }
     
-    void OnUpdate(float dt) override {
-        if (showUpdateLogs) {
-            static int frameCount = 0;
-            if (++frameCount % 60 == 0) {  // Log every 60 frames
-                std::cout << "Frame " << frameCount << " - Execution order demo:" << std::endl;
-            }
-        }
-    }
-    
-    void OnRender() override {
-        auto* renderer = GetRenderDevice();
-        renderer->Clear(TLETC::Vec4(0.1f, 0.1f, 0.15f, 1.0f));
-        
-        TLETC::Vec3 cameraPos(0, 8, 12);
-        TLETC::Mat4 view = TLETC::lookAt(cameraPos, TLETC::Vec3(0, 0, 0), TLETC::Vec3(0, 1, 0));
-        
-        renderer->UseShader(shaderProgram);
-        renderer->SetUniformMat4(shaderProgram, "u_view", view);
-        renderer->SetUniformMat4(shaderProgram, "u_projection", projection);
-        renderer->SetUniformVec3(shaderProgram, "u_lightPos", TLETC::Vec3(10, 10, 10));
-        
-        for (const auto& entity : GetEntities()) {
-            if (!entity->mesh || !entity->IsEnabled()) continue;
-            
-            TLETC::Vec3 color;
-            if (entity->name == "EventTestEntity") {
-                color = TLETC::Vec3(1.0f, 0.5f, 0.0f);  // Orange
-            } else if (entity->name == "OrderedEntity") {
-                color = TLETC::Vec3(0.0f, 0.7f, 1.0f);  // Cyan
-            } else {
-                color = TLETC::Vec3(0.5f, 0.5f, 0.5f);  // Gray
-            }
-            
-            renderer->SetUniformVec3(shaderProgram, "u_color", color);
-            renderer->DrawMesh(*entity->mesh, entity->transform.GetModelMatrix());
-        }
-    }
-    
-    void OnShutdown() override {
-        GetRenderDevice()->DestroyShader(shaderProgram);
-    }
+    // NO OnShutdown needed! Application cleans up automatically! ✅
     
 private:
-    TLETC::Mesh cubeMesh, sphereMesh;
-    TLETC::ShaderHandle shaderProgram;
-    TLETC::Mat4 projection;
-    TLETC::Entity* eventTestEntity;
-    bool showUpdateLogs = false;
-};
-
-int main() {
-    ArchitectureFixes app;
-    
-    if (!app.Initialize()) {
-        return -1;
+    void CreateCheckerboardTexture(Texture* texture) {
+        const int size = 256;
+        unsigned char* pixels = new unsigned char[size * size * 4];
+        
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                bool white = ((x / 32) + (y / 32)) % 2 == 0;
+                int idx = (y * size + x) * 4;
+                pixels[idx + 0] = white ? 255 : 64;
+                pixels[idx + 1] = white ? 255 : 64;
+                pixels[idx + 2] = white ? 255 : 64;
+                pixels[idx + 3] = 255;
+            }
+        }
+        
+        texture->CreateFromMemory(size, size, TextureFormat::RGBA, pixels, GetRenderDevice());
+        delete[] pixels;
     }
     
+    ShaderHandle CreateSimpleShader() {
+        const char* vertCode = R"(
+            #version 330 core
+            layout (location = 0) in vec3 a_position;
+            layout (location = 1) in vec3 a_normal;
+            
+            out vec3 v_normal;
+            out vec3 v_fragPos;
+            
+            uniform mat4 u_model;
+            uniform mat4 u_view;
+            uniform mat4 u_projection;
+            uniform mat3 u_normalMatrix;
+            
+            void main() {
+                v_fragPos = vec3(u_model * vec4(a_position, 1.0));
+                v_normal = u_normalMatrix * a_normal;
+                gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
+            }
+        )";
+        
+        const char* fragCode = R"(
+            #version 330 core
+            out vec4 FragColor;
+            
+            in vec3 v_normal;
+            in vec3 v_fragPos;
+            
+            uniform vec3 u_color;
+            
+            void main() {
+                // Simple lighting
+                vec3 lightPos = vec3(5.0, 5.0, 5.0);
+                vec3 lightDir = normalize(lightPos - v_fragPos);
+                float diff = max(dot(normalize(v_normal), lightDir), 0.0);
+                
+                // Ambient + diffuse
+                vec3 ambient = 0.3 * u_color;
+                vec3 diffuse = 0.7 * diff * u_color;
+                vec3 result = ambient + diffuse;
+                
+                FragColor = vec4(result, 1.0);
+            }
+        )";
+        
+        auto vert = GetRenderDevice()->CreateShader(ShaderType::Vertex, vertCode);
+        auto frag = GetRenderDevice()->CreateShader(ShaderType::Fragment, fragCode);
+        return GetRenderDevice()->CreateShaderProgram(vert, frag);
+    }
+    
+    ShaderHandle CreateTexturedShader() {
+        const char* vertCode = R"(
+            #version 330 core
+            layout (location = 0) in vec3 a_position;
+            layout (location = 1) in vec3 a_normal;
+            layout (location = 2) in vec2 a_texCoord;
+            
+            out vec2 v_texCoord;
+            out vec3 v_normal;
+            out vec3 v_fragPos;
+            
+            uniform mat4 u_model;
+            uniform mat4 u_view;
+            uniform mat4 u_projection;
+            uniform mat3 u_normalMatrix;
+            
+            void main() {
+                v_fragPos = vec3(u_model * vec4(a_position, 1.0));
+                v_normal = u_normalMatrix * a_normal;
+                v_texCoord = a_texCoord;
+                gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
+            }
+        )";
+        
+        const char* fragCode = R"(
+            #version 330 core
+            out vec4 FragColor;
+            
+            in vec2 v_texCoord;
+            in vec3 v_normal;
+            in vec3 v_fragPos;
+            
+            uniform sampler2D u_texture;
+            
+            void main() {
+                // Sample texture
+                vec4 texColor = texture(u_texture, v_texCoord);
+                
+                // Simple lighting
+                vec3 lightPos = vec3(5.0, 5.0, 5.0);
+                vec3 lightDir = normalize(lightPos - v_fragPos);
+                float diff = max(dot(normalize(v_normal), lightDir), 0.0);
+                
+                // Apply lighting to texture
+                vec3 ambient = 0.3 * texColor.rgb;
+                vec3 diffuse = 0.7 * diff * texColor.rgb;
+                vec3 result = ambient + diffuse;
+                
+                FragColor = vec4(result, 1.0);
+            }
+        )";
+        
+        auto vert = GetRenderDevice()->CreateShader(ShaderType::Vertex, vertCode);
+        auto frag = GetRenderDevice()->CreateShader(ShaderType::Fragment, fragCode);
+        return GetRenderDevice()->CreateShaderProgram(vert, frag);
+    }
+
+public:
+    void Destroy()
+    {
+        checkerTexture->Destroy(GetRenderDevice());
+        delete checkerTexture;
+        delete redMaterial;
+        delete greenMaterial;
+        delete blueMaterial;
+        delete texturedMaterial;
+        delete checkerTexture;
+    }
+};
+
+int main() 
+{
+    AutoResourceExample app;
+    if(!app.Initialize())
+        return -1;
     app.Run();
     app.Shutdown();
-    
+    app.Destroy();
     return 0;
 }

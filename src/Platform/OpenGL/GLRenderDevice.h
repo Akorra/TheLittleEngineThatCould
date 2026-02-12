@@ -53,12 +53,23 @@ public:
     // Shader uniforms
     void SetUniformInt(ShaderHandle shader, const std::string& name, int value) override;
     void SetUniformFloat(ShaderHandle shader, const std::string& name, float value) override;
+    void SetUniformVec2(ShaderHandle shader, const std::string& name, const Vec2& value) override;
     void SetUniformVec3(ShaderHandle shader, const std::string& name, const Vec3& value) override;
     void SetUniformVec4(ShaderHandle shader, const std::string& name, const Vec4& value) override;
+    void SetUniformMat3(ShaderHandle shader, const std::string& name, const Mat3& value) override;
     void SetUniformMat4(ShaderHandle shader, const std::string& name, const Mat4& value) override;
+
+    // Texture operations
+    TextureHandle LoadTexture(const char* filepath, int& outWidth, int& outHeight, TextureFormat& outFormat) override;
+    TextureHandle CreateTexture(int width, int height, TextureFormat format, const void* data = nullptr) override;
+    void DestroyTexture(TextureHandle texture) override;
+    void BindTexture(TextureHandle texture, int slot = 0) override;
+    void SetTextureFilter(TextureHandle texture, TextureFilter minFilter, TextureFilter magFilter) override;
+    void SetTextureWrap(TextureHandle texture, TextureWrap wrapS, TextureWrap wrapT) override;
+    void GenerateTextureMipmaps(TextureHandle texture) override;
     
     // Mesh rendering
-    void DrawMesh(const Mesh& mesh, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
+    void DrawMesh(MeshHandle handle, const Mat4& transform, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
     void DrawIndexed(BufferHandle vertexBuffer, BufferHandle indexBuffer, uint32 indexCount, PrimitiveType primitiveType = PrimitiveType::Triangles) override;
     
     // Compute shader operations
@@ -73,6 +84,7 @@ public:
     void EnableDepthTest(bool enable) override;
     void EnableBlending(bool enable) override;
     void EnableCulling(bool enable) override;
+    void SetPolygonMode(uint8 polygonMode, uint8 rasterizationMode) override;
     void SetWireframeMode(bool enable) override;
     
     // Query
@@ -85,16 +97,28 @@ private:
     uint32 GetGLUsage(BufferUsage usage);
     uint32 GetGLShaderType(ShaderType type);
     uint32 GetGLPrimitiveType(PrimitiveType type);
+    uint32 GetGLTextureFormat(TextureFormat format);
+    uint32 GetGLTextureFilter(TextureFilter filter);
+    uint32 GetGLTextureWrap(TextureWrap wrap);
     int    GetUniformLocation(ShaderHandle shader, const std::string& name);
     
     // Mesh VAO cache - stores VAO for each mesh to avoid recreating
-    struct MeshData {
+    struct MeshData 
+    {
         uint32 vao;
         BufferHandle posVBO, nrmVBO, uvsVBO, clrVBO;
         BufferHandle ibo;
         uint32 indexCount;
     };
-    std::unordered_map<const Mesh*, MeshData> meshCache_;
+    std::unordered_map<MeshHandle, MeshData, MeshHandle::Hash> meshCache_;
+
+    struct TextureData 
+    {
+        uint32        texId=0;
+        int           width=0, height=0, depth=0;
+        TextureFormat format;
+    };
+    std::unordered_map<TextureHandle, TextureData, TextureHandle::Hash> textureCache_;
     
     // Current state
     ShaderHandle currentShader_;
