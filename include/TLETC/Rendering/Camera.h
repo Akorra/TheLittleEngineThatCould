@@ -27,6 +27,14 @@ public:
     Camera() = default;
     virtual ~Camera() = default;
 
+    void        SetPosition(Vec3 pos) { position_ = pos; }
+    const Vec3& GetPosition() const    { return position_; }
+
+    void        SetCameraUp(Vec3 up) { up_ = up; }
+    const Vec3& GetCameraUp() const { return up_; }
+
+    void        SetTarget(Vec3 target) { target_ = target; }
+    const Vec3& GetTarget()   const { return target_; }
     
     float GetFOV()  const { return fov_; }
     float GetNear() const { return nearPlane_; }
@@ -45,8 +53,11 @@ public:
     void SetCullingMask(uint32 mask) { cullingMask_ = mask; }
     uint32_t GetCullingMask() const  { return cullingMask_; }
 
+    void       SetClearFlags(ClearFlags flags) { clearFlags_ = flags; }
     ClearFlags GetClearFlags() const { return clearFlags_; }
-    Vec4       GetClearColor() const { return clearColor_; }
+    
+    void        SetClearColor(Vec4 color) { clearColor_ = color; }
+    const Vec4& GetClearColor() const     { return clearColor_; }
 
     // Multicamera support
     void SetRenderOrder(int order) { renderOrder_ = order; }

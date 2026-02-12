@@ -334,7 +334,7 @@ void Application::ProcessDestroyQueue()
 void Application::ProcessDestroyResources()
 {
     // Textures
-    Resources::Textures.ForEachQueuedDestroy([this](TextureHandle& handle){ renderDevice_.get()->DestroyTexture(handle); });
+    Resources::Textures.ForEachQueuedDestroy([this](TextureHandle handle){ renderDevice_.get()->DestroyTexture(handle); });
     Resources::ProcessDestroyQueues();
 }
 
@@ -343,7 +343,7 @@ void Application::ShutdownResources()
 {
     std::cout << "Cleaning up resources..." << std::endl;
 
-    Resources::Textures.ForEachResource([this](TextureHandle& handle){ renderDevice_.get()->DestroyTexture(handle); });
+    Resources::Textures.ForEachResource([this](TextureHandle handle, const Texture&){ renderDevice_.get()->DestroyTexture(handle); });
 
     Resources::Clear();
 }

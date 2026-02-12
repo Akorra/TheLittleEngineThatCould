@@ -59,12 +59,21 @@ public:
     const Mat4 GetMat4(const std::string& name, const Mat4& defaultValue = Mat4(1)) const;
     const class Texture* GetTexture(const std::string& name) const;
 
+    const auto& GetFloats()   const { return floats_; }
+    const auto& GetInts()     const { return ints_; }
+    const auto& GetVec2s()    const { return vec2s_; }
+    const auto& GetVec3s()    const { return vec3s_; }
+    const auto& GetVec4s()    const { return vec4s_; }
+    const auto& GetMat3s()    const { return mat3s_; }
+    const auto& GetMat4s()    const { return mat4s_; }
+    const auto& GetTextures() const { return textures_; }
+
     // Check if property exists
     bool HasProperty(const std::string& name) const;
 
     // Polygon mode (example - wireframe: SetPolymode(Polymode::FrontAndBack, RastMode::Line) )
-    void SetPolygonMode(PolyMode poly, RastMode rast) { polygonMode_ = poly; rastmode_ = rast; }
-    void GetPolygonMode(PolyMode& poly, RastMode& rast) const { poly = polygonMode_; rast = rastmode_; }
+    void SetPolygonMode(PolyMode poly, RastMode rast) { polygonMode_ = poly; rastMode_ = rast; }
+    void GetPolygonMode(PolyMode& poly, RastMode& rast) const { poly = polygonMode_; rast = rastMode_; }
 
     // Render state
     void SetCullMode(CullMode mode) { cullMode_ = mode; }

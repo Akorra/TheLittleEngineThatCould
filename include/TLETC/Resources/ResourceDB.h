@@ -7,6 +7,9 @@
 #include "TLETC/Resources/Material.h"
 #include "TLETC/Resources/Texture.h"
 
+namespace TLETC 
+{
+
 using MeshManager     = ResourceManager<Mesh, MeshHandle>;
 using MaterialManager = ResourceManager<Material, MaterialHandle>;
 using TextureManager  = ResourceManager<Texture, TextureHandle>;
@@ -32,4 +35,7 @@ void Clear()
     Textures.Clear();
 }
 
-}
+} // namespace Resources
+
+} // namespace TLETC 
+

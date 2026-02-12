@@ -83,8 +83,8 @@ void OrbitCamera::OnMouseMoved(const Vec2& position, const Vec2& delta)
     else if (panning_) 
     {
         // Pan: Move target in camera's local XY plane
-        Vec3 forward = normalize(targetPoint_ - position_);
-        Vec3 right = normalize(cross(forward, up_));
+        Vec3 forward = normalize(targetPoint_ - GetPosition());
+        Vec3 right = normalize(cross(forward, GetCameraUp()));
         Vec3 upVec = cross(right, forward);
         
         targetPoint_ -= right * delta.x * panSpeed_ * distance_;
@@ -113,8 +113,8 @@ void OrbitCamera::UpdateCameraTransform() {
     offset.z = distance_ * cos(pitchRad) * cos(yawRad);
     
     // Update Camera base class members
-    position_ = targetPoint_ + offset;
-    target_   = targetPoint_;
+    SetPosition(targetPoint_ + offset);
+    SetTarget(targetPoint_);
 }
 
 } // namespace TLETC

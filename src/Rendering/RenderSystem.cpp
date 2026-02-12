@@ -142,8 +142,8 @@ void RenderSystem::Execute(Camera* cam, float aspect)
         auto& mesh = Resources::Meshes.Get(r->GetMesh());
         auto& mat  = Resources::Materials.Get(r->GetMaterial());
 
-        if (mat != boundMaterial) {
-            ShaderHandle prog = mat->GetProgram();
+        if (r->GetMaterial() != boundMaterial) {
+            ShaderHandle prog = mat.GetProgram();
 
             if (prog != boundProgram) {
                 device_->UseShader(prog);
@@ -153,31 +153,31 @@ void RenderSystem::Execute(Camera* cam, float aspect)
                 device_->SetUniformMat4(prog, "u_projection", projection);
             }
 
-            device_->EnableDepthTest(mat->GetDepthTest());
-            device_->EnableCulling(mat->GetCullMode() != Material::CullMode::None);
-            device_->EnableBlending(mat->IsTransparent());
+            device_->EnableDepthTest(mat.GetDepthTest());
+            device_->EnableCulling(mat.GetCullMode() != Material::CullMode::None);
+            device_->EnableBlending(mat.IsTransparent());
             
             Material::PolyMode poly = Material::PolyMode::FrontAndBack;
             Material::RastMode rast = Material::RastMode::Fill;
-            mat->GetPolygonMode(poly, rast);
+            mat.GetPolygonMode(poly, rast);
             device_->SetPolygonMode(uint8(poly), uint8(rast));
 
-            boundMaterial = mat;
+            boundMaterial = r->GetMaterial();
 
             int slot = 0;
-            for (auto& [name, tex] : mat->GetTextures()) {
+            for (auto& [name, tex] : mat.GetTextures()) {
                 device_->BindTexture(tex->GetHandle(), slot);
                 device_->SetUniformInt(prog, name, slot);
                 slot++;
             }
 
-            for (auto& [name, v] : mat->GetFloats()) device_->SetUniformFloat(prog, name, v);
-            for (auto& [name, v] : mat->GetInts())   device_->SetUniformInt  (prog, name, v);
-            for (auto& [name, v] : mat->GetVec2s())  device_->SetUniformVec2 (prog, name, v);
-            for (auto& [name, v] : mat->GetVec3s())  device_->SetUniformVec3 (prog, name, v);
-            for (auto& [name, v] : mat->GetVec4s())  device_->SetUniformVec4 (prog, name, v);
-            for (auto& [name, v] : mat->GetMat3s())  device_->SetUniformMat3 (prog, name, v);
-            for (auto& [name, v] : mat->GetMat4s())  device_->SetUniformMat4 (prog, name, v);
+            for (auto& [name, v] : mat.GetFloats()) device_->SetUniformFloat(prog, name, v);
+            for (auto& [name, v] : mat.GetInts())   device_->SetUniformInt  (prog, name, v);
+            for (auto& [name, v] : mat.GetVec2s())  device_->SetUniformVec2 (prog, name, v);
+            for (auto& [name, v] : mat.GetVec3s())  device_->SetUniformVec3 (prog, name, v);
+            for (auto& [name, v] : mat.GetVec4s())  device_->SetUniformVec4 (prog, name, v);
+            for (auto& [name, v] : mat.GetMat3s())  device_->SetUniformMat3 (prog, name, v);
+            for (auto& [name, v] : mat.GetMat4s())  device_->SetUniformMat4 (prog, name, v);
         }
 
         Mat4 model = r->GetEntity()->transform.GetModelMatrix();

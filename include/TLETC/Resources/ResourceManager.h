@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <functional>
 
 #include "TLETC/Rendering/Handle.h"
 
@@ -52,13 +53,15 @@ public:
         toDestroy_.insert(handle.GetID());
     }
 
-    void ForEachResource(std::function<void(HandleT&)> func)
+    template<typename Func>
+    void ForEachResource(Func&& func)
     {
-        for(const auto& [key, _] : resources_)
-            func(HandleT(key));    
+        for(const auto& [key, resource] : resources_)
+            func(HandleT(key), resource);    
     }
 
-    void ForEachQueuedDestroy(std::function<void(HandleT&)> func)
+    template<typename Func>
+    void ForEachQueuedDestroy(Func&& func)
     {
         for(const uint32 key : toDestroy_)
             func(HandleT(key));
