@@ -1,6 +1,7 @@
 #include "TLETC/Core/Application.h"
 
 #include "TLETC/Platform/Window.h"
+#include "TLETC/Core/Time.h"
 
 namespace TLETC
 {
@@ -27,6 +28,9 @@ void Application::Run()
     // Main Game Loop
     while(running_ && !window_->ShouldClose())
     {
+        Time::Update();
+        float dt = Time::DeltaTime();
+
         input_->BeginFrame();  //< 1. Begin Frame
 
         window_->PollEvents(); //< 2. Poll OS events
@@ -62,7 +66,7 @@ void Application::Shutdown()
     window_->Destroy();
     window_.reset();
     input_.reset();
-    
+
     initialized_ = false;
     running_     = false;
 } 

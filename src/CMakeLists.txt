@@ -3,6 +3,7 @@ set(TLETC_SOURCES
     Core/Math.cpp
     Core/Application.cpp
     Core/Input.cpp
+    Core/Time.cpp
     Platform/Window.cpp
 )
 
@@ -12,6 +13,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Math.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Input.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Entity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Platform/Window.h
 )
 
