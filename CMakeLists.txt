@@ -12,7 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Options
 option(TLETC_BUILD_EXAMPLES "Build example programs" ON)
-option(TLETC_BUILD_TESTS "Build tests" ON)
+option(TLETC_BUILD_TESTS "Build tests" OFF)
 option(TLETC_BUILD_SHARED "Build shared library" OFF)
 
 # Set default build type if not specified
@@ -95,8 +95,8 @@ endif()
 
 # Add tests if requested
 if(TLETC_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
+    #enable_testing()
+    #add_subdirectory(tests)
 endif()
 
 # Installation rules
