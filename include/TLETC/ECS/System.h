@@ -1,9 +1,6 @@
 #pragma once
 
 #include "TLETC/Core/Types.h"
-#include <functional>
-
-#
 
 namespace TLETC::ECS 
 {

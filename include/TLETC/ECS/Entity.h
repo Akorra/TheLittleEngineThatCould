@@ -14,7 +14,7 @@ using EntityID = uint32;
  */
 struct Entity
 {
-    EntityID id = 0;
+    EntityID id = INVALID_ID;
     uint32   generation = 0;
 
     bool operator==(const Entity& other) const 
@@ -22,7 +22,8 @@ struct Entity
         return id == other.id && generation == other.generation;
     }
 
-    explicit operator bool() const { return id!=0; }
+    static constexpr EntityID INVALID_ID = 0xFFFFFFFF;
+    explicit operator bool() const { return id!=INVALID_ID; }
 };
 
 } // namespace TLETC::ECS

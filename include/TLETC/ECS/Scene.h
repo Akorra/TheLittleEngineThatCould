@@ -47,19 +47,21 @@ public:
     void Remove(EntityID id) override
     {
         auto it = lookup.find(id);
-        if (it == lookup.end())
-            return;
+        if (it == lookup.end()) return;
 
-        size_t index = it->second;                  //< Index of entity to remove
+        size_t index = it->second; //< Index of entity to remove
         size_t lastIndex = components.size() - 1;
 
-        // Swap with last
-        components[index] = std::move(components[lastIndex]);
-        entities[index] = entities[lastIndex];
+        if(index != lastIndex)
+        {
+            // Swap with last, if not last
+            components[index] = std::move(components[lastIndex]);
+            entities[index] = entities[lastIndex];
 
-        // update lookup for moved entity
-        lookup[entities[index]] = index;
-
+            // update lookup for moved entity
+            lookup[entities[index]] = index;
+        }
+        
         // remove last element from dense arrays
         components.pop_back();
         entities.pop_back();
@@ -109,6 +111,11 @@ public:
         else
         {
             id = static_cast<EntityID>(entities_.size());
+            if(id == Entity::INVALID_ID)
+            {
+                // Handle overflow - you can't create more entities
+                return Entity{}; // Invalid
+            }
             entities_.emplace_back();
         }
 
@@ -206,14 +213,33 @@ public:
     template<typename... Components, typename Func>
     void View(Func&& func)
     {
-        auto* smallestPool = GetSmallestPool<Components...>();
-        if (!smallestPool)
-            return;
+        constexpr size_t N = sizeof...(Components);
+        if constexpr (N==0) return;
 
-        for (size_t i = 0; i < smallestPool->entities.size(); ++i)
+        // Get all pools:
+        std::array<IComponentPool*>, N> pools = { GetPool<Components>()... };
+
+        // Find smallest
+        IComponentPool* smallest = nullptr;
+        size_t smallestSize = SIZE_MAX;
+        size_t smallestIdx  = 0;
+
+        for (size_t i = 0; i < N; ++i) 
         {
-            EntityID id = smallestPool->entities[i];
-            Entity    e{ id, entities_[id].generation }
+            if (!pools[i]) return; // Missing pool = no results
+            auto* typed = static_cast<ComponentPool<void>*>(pools[i]); // Hack, fix with better design
+            if (typed->entities.size() < smallestSize) 
+            {
+                smallest = typed;
+                smallestSize = typed->entities.size();
+                smallestIdx = i;
+            }
+        }
+
+        for (size_t i = 0; i < smallest->entities.size(); ++i)
+        {
+            EntityID id = smallest->entities[i];
+            Entity e{ id, entities_[id].generation };
             
             if(!IsValid(e))
                 continue;
