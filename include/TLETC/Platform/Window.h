@@ -1,21 +1,36 @@
 #pragma once
 
-#include "TLETC/Core/Input.h"
+#include "TLETC/Core/Types.h"
 #include <string>
 
 struct GLFWwindow;
 
-namespace TLETC {
+namespace TLETC 
+{
+
+// Forward declaration
+class Input;
+
+struct WindowProps
+{
+    std::string title = "[TLETC] The Little Engine That Could!";
+
+    uint32 width    = 1280;
+    uint32 height   = 720;
+    bool vsync      = true;
+    bool fullscreen = false;
+};
 
 /**
  * Window - Simple GLFW window wrapper
  */
-class Window {
+class Window 
+{
 public:
-    Window();
+    Window() = default;
     ~Window();
     
-    bool Create(uint32 width, uint32 height, const std::string& title);
+    bool Create(const WindowProps& props);
     void Destroy();
     
     void PollEvents();
@@ -23,7 +38,7 @@ public:
     
     bool ShouldClose() const;
 
-    void SetInput(Input* input);
+    void SetInput(Input* input) { input_ = input; }
 
     uint32 GetWidth() const { return width_; }
     uint32 GetHeight() const { return height_; }
@@ -31,21 +46,22 @@ public:
     
     GLFWwindow* GetNativeWindow() const { return window_; }
 
-    double GetTime() const;
-
 private:
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
     static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     
 private:
     GLFWwindow* window_ = nullptr;
     Input*      input_  = nullptr;
 
-    uint32      width_;
-    uint32      height_;
+    uint32      width_  = 0;
+    uint32      height_ = 0;
     std::string title_;
+
+    static int  instanceCount_;
 };
 
 } // namespace TLETC

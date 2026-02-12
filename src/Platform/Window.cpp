@@ -1,29 +1,37 @@
 #include "TLETC/Platform/Window.h"
+#include "TLETC/Platform/Input.h"
+#include "TLETC/Core/Log.h"
+#include "TLETC/Core/Assert.h"
 
 #include <GLFW/glfw3.h>
 
 namespace TLETC 
 {
 
-Window::Window() : window_(nullptr), input_(nullptr), width_(0), height_(0) 
-{ 
+int Window::instanceCount_ = 0;
 
-}
-
-Window::~Window() 
-{ 
-    Destroy(); 
-    glfwTerminate();
-}
-
-bool Window::Create(uint32 width, uint32 height, const std::string& title) 
+Window::~Window()
 {
-    width_  = width;
-    height_ = height;
-    title_  = title;
+    Destroy();
+}
 
-    if(!glfwInit())
-        return false;
+bool Window::Create(const WindowProps& props) 
+{
+    width_  = props.width;
+    height_ = props.height;
+    title_  = props.title;
+
+    // Initialize GLFW (only once)
+    if (instanceCount_ == 0)
+    {
+        if (!glfwInit())
+        {
+            TLETC_ERROR("Failed to initialize GLFW");
+            return false;
+        }
+        TLETC_INFO("GLFW initialized");
+    }
+    instanceCount_++;
 
     // Set OpenGL version (4.6 Core)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -38,29 +46,45 @@ bool Window::Create(uint32 width, uint32 height, const std::string& title)
 #endif
 
     // Create window
-    window_ = glfwCreateWindow(width_, height_, title_.c_str(), nullptr, nullptr);
-    if (!window_) 
+    GLFWmonitor* monitor = props.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
+    window_ = glfwCreateWindow(width_, height_, title_.c_str(), monitor, nullptr);
+    
+    if (!window_)
+    {
+        TLETC_ERROR("Failed to create GLFW window");
+        glfwTerminate();
         return false;
+    }
 
     glfwMakeContextCurrent(window_);
-    glfwSetWindowUserPointer(window_, this);
+    glfwSwapInterval(props.vsync ? 1 : 0);
 
+    // Set callbacks
+    glfwSetWindowUserPointer(window_, this);
+    glfwSetFramebufferSizeCallback(window_, FramebufferSizeCallback);
     glfwSetKeyCallback(window_, KeyCallback);
     glfwSetMouseButtonCallback(window_, MouseButtonCallback);
     glfwSetCursorPosCallback(window_, CursorPosCallback);
     glfwSetScrollCallback(window_, ScrollCallback);
-
-    glfwSwapInterval(1); // Enable vsync
     
+    TLETC_INFO("Window created: ", width_, "x", height_);
+
     return true;
 }
 
 void Window::Destroy() 
 {
-    if (window_) 
+    if (window_)
     {
         glfwDestroyWindow(window_);
         window_ = nullptr;
+        
+        instanceCount_--;
+        if (instanceCount_ == 0)
+        {
+            glfwTerminate();
+            TLETC_INFO("GLFW terminated");
+        }
     }
 }
 
@@ -71,25 +95,23 @@ void Window::PollEvents()
 
 void Window::SwapBuffers() 
 {
-    if (window_) 
+    TLETC_ASSERT(window_, "Window is null!");
+    if(window_)
         glfwSwapBuffers(window_);
 }
 
 bool Window::ShouldClose() const 
 {
-    return window_ && glfwWindowShouldClose(window_);
+    return window_ ? glfwWindowShouldClose(window_) : true;
 }
 
-double Window::GetTime() const 
+void Window::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    return glfwGetTime();
+    Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    win->width_ = width;
+    win->height_ = height;
+    TLETC_INFO("Window resized: ", width, "x", height);
 }
-
-void Window::SetInput(Input* input)
-{
-    input_ = input;
-}
-
 
 // Callbacks -------------------------------------------------- //
 void Window::KeyCallback(GLFWwindow* window, int key, int, int action, int)
@@ -109,7 +131,7 @@ void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int
         return;
 
     bool pressed = action != GLFW_RELEASE;
-    self->input_->OnMouseButtonEvent(static_cast<MouseButton>(button), pressed);
+    self->input_->OnMouseButton(static_cast<MouseButton>(button), pressed);
 }
 
 void Window::CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
