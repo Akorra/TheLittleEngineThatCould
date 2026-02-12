@@ -16,7 +16,7 @@ public:
     virtual ~IAllocator() = default;
 
     // Allocate Memory (aligned)
-    virtual void* Allocator(size_t size, size_t alignment = alignof(std::max_align_t)) = 0;
+    virtual void* Allocate(size_t size, size_t alignment = alignof(std::max_align_t)) = 0;
 
     // Free memory
     virtual void Free(void* ptr) = 0;
