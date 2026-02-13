@@ -1,4 +1,5 @@
 #include "TLETC/Core/Memory/LinearAllocator.h"
+#include "TLETC/Core/Assert.h"
 #include "TLETC/Core/Log.h"
 
 #include <cstdlib>
