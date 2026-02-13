@@ -45,6 +45,42 @@ void TestLinearAllocator()
     TLETC_INFO("After reset: ", allocator.GetAllocatedSize(), " bytes");
 }
 
+void TestDoubleEndedStack()
+{
+    TLETC_INFO("=== Testing DoubleEndedStackAllocator ===");
+    
+    DoubleEndedStackAllocator allocator(1024);
+    
+    // Allocate from bottom
+    int* bottomData1 = static_cast<int*>(allocator.AllocateBottom(sizeof(int) * 10));
+    for (int i = 0; i < 10; ++i) bottomData1[i] = i;
+    
+    // Allocate from top
+    float* topData1 = static_cast<float*>(allocator.AllocateTop(sizeof(float) * 10));
+    for (int i = 0; i < 10; ++i) topData1[i] = i * 1.5f;
+    
+    // More from bottom
+    int* bottomData2 = static_cast<int*>(allocator.AllocateBottom(sizeof(int) * 10));
+    
+    // More from top
+    float* topData2 = static_cast<float*>(allocator.AllocateTop(sizeof(float) * 10));
+    
+    TLETC_INFO("Free space between stacks: ", allocator.GetFreeSpace(), " bytes");
+    TLETC_INFO("Total allocated: ", allocator.GetAllocatedSize(), " bytes");
+    
+    // Verify data
+    TLETC_ASSERT(bottomData1[5] == 5, "Bottom data corrupted!");
+    TLETC_ASSERT(topData1[5] == 7.5f, "Top data corrupted!");
+    
+    // Free in LIFO order
+    allocator.FreeTop(topData2);
+    allocator.FreeTop(topData1);
+    allocator.FreeBottom(bottomData2);
+    allocator.FreeBottom(bottomData1);
+    
+    TLETC_INFO("After freeing all: ", allocator.GetAllocatedSize(), " bytes");
+}
+
 void TestPoolAllocator()
 {
     TLETC_INFO("=== Testing PoolAllocator ===");
@@ -145,6 +181,9 @@ int main()
     TestLinearAllocator();
     TLETC_INFO("");
     
+    TestDoubleEndedStack();
+    TLETC_INFO("");
+
     TestPoolAllocator();
     TLETC_INFO("");
     

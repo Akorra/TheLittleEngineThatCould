@@ -114,9 +114,9 @@ DoubleEndedStackAllocator::~DoubleEndedStackAllocator()
     }
 }
 
-void* DoubleEndedStackAllocator::Allocate(size_t size, size_t alignment = alignof(std::max_align_t))
+void* DoubleEndedStackAllocator::Allocate(size_t size, size_t alignment)
 {
-    AllocateBottom(size, alignment);
+    return AllocateBottom(size, alignment);
 }
 
 void DoubleEndedStackAllocator::Free(void* ptr)
@@ -130,7 +130,7 @@ void DoubleEndedStackAllocator::Reset()
     ResetTop();
 }
 
-void* DoubleEndedStackAllocator::AllocateBottom(size_t size, size_t alignment = alignof(std::max_align_t))
+void* DoubleEndedStackAllocator::AllocateBottom(size_t size, size_t alignment)
 {
     // Calculate header + data size
     size_t headerSize = sizeof(AllocationHeader);
@@ -159,7 +159,7 @@ void* DoubleEndedStackAllocator::AllocateBottom(size_t size, size_t alignment = 
     return header + 1;
 }
 
-void* DoubleEndedStackAllocator::AllocateTop(size_t size, size_t alignment = alignof(std::max_align_t))
+void* DoubleEndedStackAllocator::AllocateTop(size_t size, size_t alignment)
 {
     // Calculate header + data size
     size_t dataOffset = topOffset_ - size;
