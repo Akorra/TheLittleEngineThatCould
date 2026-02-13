@@ -21,12 +21,72 @@ StackAllocator::~StackAllocator()
     if (buffer_)
     {
         if (currentOffset_ > 0)
-        {
             TLETC_WARN("StackAllocator destroyed with active allocations");
-        }
+
         std::free(buffer_);
         buffer_ = nullptr;
     }
+}
+
+void* StackAllocator::Allocate(size_t size, size_t alignment)
+{
+    // Calculate header + data size
+    size_t headerSize = sizeof(AllocationHeader);
+    size_t totalSize = headerSize + size;
+    
+    // Align offset
+    size_t alignedOffset = AlignSize(currentOffset_, alignment);
+    
+    // Check space
+    if (alignedOffset + totalSize > totalSize_)
+    {
+        TLETC_ERROR("StackAllocator out of memory!");
+        return nullptr;
+    }
+    
+    // Write header
+    AllocationHeader* header = reinterpret_cast<AllocationHeader*>(static_cast<char*>(buffer_) + alignedOffset);
+    header->size = size;
+    header->prevOffset = prevOffset_;
+    
+    // Update offsets
+    prevOffset_ = alignedOffset;
+    currentOffset_ = alignedOffset + totalSize;
+    
+    // Return data pointer (after header)
+    return header + 1;
+}
+
+void StackAllocator::Free(void* ptr)
+{
+    if (!ptr)
+        return;
+    
+    // Get header
+    AllocationHeader* header = static_cast<AllocationHeader*>(ptr) - 1;
+    
+    // Verify this is the top allocation
+    size_t headerOffset = reinterpret_cast<char*>(header) - static_cast<char*>(buffer_);
+    TLETC_ASSERT(headerOffset == prevOffset_, "Stack allocator: must free in LIFO order!");
+    
+    // Restore previous offset
+    currentOffset_ = prevOffset_;
+    prevOffset_ = header->prevOffset;
+}
+
+void StackAllocator::Reset()
+{
+    currentOffset_ = 0;
+    prevOffset_ = 0;
+}
+
+void StackAllocator::FreeToMarker(Marker marker)
+{
+    TLETC_ASSERT(marker.offset <= currentOffset_, "Invalid marker!");
+    currentOffset_ = marker.offset;
+    
+    // Note: prevOffset_ becomes invalid here, but that's okay
+    // as long as we don't Free() individual pointers
 }
 
 } // namespace TLETC::Memory
