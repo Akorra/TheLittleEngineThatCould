@@ -45,6 +45,8 @@ PoolAllocator::~PoolAllocator()
 
 void* PoolAllocator::Allocate(size_t size, size_t alignment)
 {
+    (void)alignment;
+    
     // Pool allocator only handles one size
     TLETC_ASSERT(size <= chunkSize_, "Requested size exceeds chunk size");
     

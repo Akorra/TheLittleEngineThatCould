@@ -48,6 +48,7 @@ void LinearAllocator::Free(void* ptr)
 {
     // Linear allocator doesn't support individual free
     // Use Reset() to free everything
+    (void)ptr;
 }
 
 void LinearAllocator::Reset()

@@ -6,6 +6,9 @@ set(TLETC_SOURCES
     Core/Math.cpp
     Core/Application.cpp
     Core/Memory/LinearAllocator.cpp
+    Core/Memory/PoolAllocator.cpp
+    Core/Memory/StackAllocator.cpp
+    Core/Memory/MemoryStats.cpp
 )
 
 # Public headers
@@ -20,6 +23,10 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Application.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/Allocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/LinearAllocator.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/PoolAllocator.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/StackAllocator.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/MemoryStats.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Containers/PackedArray.h
 )
 
 # Create the library

@@ -10,7 +10,9 @@ function(add_tletc_example EXAMPLE_NAME SOURCE_FILE)
 endfunction()
 
 # Add examples
-add_tletc_example(01_HelloTriangle "01_HelloTriangle/main.cpp")
+add_tletc_example(01_HelloWindow "01_HelloWindow/main.cpp")
+add_tletc_example(02_MemoryTests "02_MemoryTests/main.cpp")
 
 message(STATUS "Examples configured:")
-message(STATUS "  - 01_HelloTriangle")
+message(STATUS "  - 01_HelloWindow")
+message(STATUS "  - 02_MemoryTests")
