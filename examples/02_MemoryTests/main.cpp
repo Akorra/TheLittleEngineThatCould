@@ -1,7 +1,9 @@
 // tests/MemoryTest.cpp
 #include "TLETC/Core/Memory/LinearAllocator.h"
 #include "TLETC/Core/Memory/PoolAllocator.h"
+#include "TLETC/Core/Memory/STLPoolAllocator.h"
 #include "TLETC/Core/Memory/StackAllocator.h"
+#include "TLETC/Core/Memory/DoubleEndedStackAllocator.h"
 #include "TLETC/Core/Memory/MemoryStats.h"
 #include "TLETC/Core/Containers/PackedArray.h"
 #include "TLETC/Core/Math.h"

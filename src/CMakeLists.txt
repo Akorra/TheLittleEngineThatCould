@@ -8,6 +8,7 @@ set(TLETC_SOURCES
     Core/Memory/LinearAllocator.cpp
     Core/Memory/PoolAllocator.cpp
     Core/Memory/StackAllocator.cpp
+    Core/Memory/DoubleEndedStackAllocator.cpp
     Core/Memory/MemoryStats.cpp
 )
 
@@ -24,7 +25,9 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/Allocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/LinearAllocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/PoolAllocator.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/STLPoolAllocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/StackAllocator.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/DoubleEndedStackAllocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/MemoryStats.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Containers/PackedArray.h
 )
