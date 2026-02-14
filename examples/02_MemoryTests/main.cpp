@@ -8,6 +8,9 @@
 #include "TLETC/Core/Log.h"
 
 #include <chrono>
+#include <vector>
+#include <list>
+#include <map>
 
 using namespace TLETC;
 using namespace TLETC::Memory;
@@ -176,6 +179,34 @@ void TestPackedArray()
     TLETC_ASSERT(transforms.Size() == 9999, "Size incorrect!");
 }
 
+void TestSTLPoolAllocator()
+{
+    TLETC_INFO("=== Testing STL Pool Allocator ===");
+
+    using namespace TLETC::Memory;
+    
+    // Create pool for Transform-sized chunks
+    PoolAllocator pool(sizeof(Transform), 1000);
+    
+    // Use with std::vector
+    {
+        std::vector<Transform, STLPoolAllocator<Transform>> transforms{STLPoolAllocator<Transform>(pool)};
+        
+        for (int i = 0; i < 100; ++i)
+        {
+            transforms.emplace_back();
+            transforms.back().position = vec3(i, i, i);
+        }
+        
+        TLETC_INFO("Vector size: ", transforms.size());
+        TLETC_INFO("Pool usage: ", pool.GetAllocatedChunks(), "/", pool.GetAllocatedChunks() + pool.GetFreeChunks());
+    }
+    
+    // Pool chunks are automatically returned
+    TLETC_INFO("After vector destruction: ", pool.GetAllocatedChunks(), " chunks allocated");
+}
+
+
 int main()
 {
     TestLinearAllocator();
@@ -186,7 +217,10 @@ int main()
 
     TestPoolAllocator();
     TLETC_INFO("");
-    
+
+    TestSTLPoolAllocator();
+    TLETC_INFO("");
+
     TestPackedArray();
     TLETC_INFO("");
     
