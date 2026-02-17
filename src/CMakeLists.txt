@@ -35,6 +35,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentStorage.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentPool.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentRegistry.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentDependencies.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Scene.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Prefab.h
 )

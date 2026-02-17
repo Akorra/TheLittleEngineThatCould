@@ -3,6 +3,7 @@
 #include "TLETC/ECS/Entity.h"
 #include "TLETC/ECS/ComponentPool.h"
 #include "TLETC/ECS/ComponentRegistry.h"
+#include "TLETC/ECS/ComponentDependencies.h"
 #include "TLETC/Core/Assert.h"
 #include "TLETC/Core/Log.h"
 
@@ -124,6 +125,9 @@ template<typename T, typename... Args>
 T& Scene::AddComponent(Entity entity, Args&&... args)
 {
     TLETC_ASSERT(IsValid(entity), "Entity is not valid!");
+
+    // Resolve dependencies first
+    EnsureDependencies<Scene, T>(*this, entity);
     
     ComponentPool<T>* pool = GetOrCreatePool<T>();
     TLETC_ASSERT(!pool->Has(entity), "Entity already has this component!");

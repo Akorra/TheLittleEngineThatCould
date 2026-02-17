@@ -2,11 +2,15 @@
 #include "TLETC/ECS/Prefab.h"
 #include "TLETC/Core/Math.h"
 #include "TLETC/Core/Log.h"
+#include "TLETC/ECS/ComponentDependencies.h"
 
 #include <chrono>
 
 using namespace TLETC;
 using namespace TLETC::ECS;
+
+struct MeshRenderer { /* ... */ };
+struct Bounds       { /* ... */ };
 
 // Example components
 struct Transform
@@ -41,6 +45,13 @@ struct Name
     std::string name;
     
     Name(const std::string& n = "Entity") : name(n) {}
+};
+
+// MeshRenderer requires Transform and Bounds
+template<>
+struct TLETC::ECS::ComponentDependencies<MeshRenderer>
+{
+    using Dependencies = std::tuple<Transform, Bounds>;
 };
 
 void TestBasicECS()
@@ -213,7 +224,27 @@ void TestPrefabs()
     Entity enemy = scene.Instantiate(enemyPrefab);
 
 // Spawn a wave of 100
-scene.Instantiate(enemyPrefab, 100);
+scene.Instantiate(enemyPrefab, 3);
+}
+
+void TestDependencies()
+{
+    TLETC_INFO("\n=== Testing Component Dependencies ===");
+    
+    Scene scene;
+
+    scene.OnComponentAdded<Bounds>([](Entity e, Bounds& b)
+    {
+        TLETC_INFO("Added Bounds to ", e.Index());    
+    });
+
+    scene.OnComponentAdded<Transform>([](Entity e, Transform& t)
+    {
+        TLETC_INFO("Added Transform to ", e.Index(), " at (", t.position.x, ", ", t.position.y, ")");    
+    });
+
+    Entity e = scene.CreateEntity();
+    scene.AddComponent<MeshRenderer>(e);
 }
 
 int main()
@@ -222,6 +253,7 @@ int main()
     TestEntityReuse();
     TestPerformance();
     TestPrefabs();
+    TestDependencies();
     
     return 0;
 }
