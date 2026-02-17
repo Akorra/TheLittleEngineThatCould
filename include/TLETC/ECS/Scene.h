@@ -71,6 +71,23 @@ public:
     // View: Iterate over entities with specific components
     template<typename... Components, typename Func>
     void View(Func&& func);
+
+    // ==== Callbakcs ====
+    template<typename T>
+    void OnComponentAdded(std::function<void(Entity, T&)> callback)
+    {
+        GetOrCreatePool<T>()->OnAdded(std::move(callback));
+    }
+
+    template<typename T>
+    void OnComponentRemoved(std::function<void(Entity)> callback)
+    {
+        GetOrCreatePool<T>()->OnRemoved(std::move(callback));
+    }
+
+    // ===== Prefabs =====
+    Entity Instantiate(const class Prefab& prefab);
+    void   Instantiate(const Prefab& prefab, uint32 count);
     
     // ===== Utility =====
     

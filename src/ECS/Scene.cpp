@@ -1,4 +1,5 @@
 #include "TLETC/ECS/Scene.h"
+#include "TLETC/ECS/Prefab.h"
 
 namespace TLETC::ECS
 {
@@ -78,6 +79,19 @@ bool Scene::IsValid(Entity entity) const
     
     const auto& record = entities_[index];
     return record.alive && record.generation == entity.Generation();
+}
+
+Entity Scene::Instantiate(const Prefab& prefab)
+{
+    Entity e = CreateEntity();
+    prefab.Apply(*this, e);
+    return e;
+}
+
+void Scene::Instantiate(const Prefab& prefab, uint32 count)
+{
+    for (uint32 i = 0; i < count; ++i)
+        Instantiate(prefab);
 }
 
 size_t Scene::GetEntityCount() const

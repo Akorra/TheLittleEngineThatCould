@@ -1,4 +1,5 @@
 #include "TLETC/ECS/Scene.h"
+#include "TLETC/ECS/Prefab.h"
 #include "TLETC/Core/Math.h"
 #include "TLETC/Core/Log.h"
 
@@ -47,23 +48,27 @@ void TestBasicECS()
     TLETC_INFO("=== Testing Basic ECS ===");
     
     Scene scene;
+
+    scene.OnComponentAdded<Transform>([](Entity e, Transform& t)
+    {
+        TLETC_INFO("Transform added to entity ", e.Index(), " at (", t.position.x, ", ", t.position.y, ")");    
+    });
     
+    Prefab playerPrefab;
+    playerPrefab.AddComponent<Transform>(vec3(0));
+    playerPrefab.AddComponent<Health>(100);
+    playerPrefab.AddComponent<Velocity>(vec3(1,0,0), 5.0f);
+    playerPrefab.AddComponent<Name>("Player");
+
+    Prefab enemyPrefab;
+    enemyPrefab.AddComponent<Transform>(vec3(10, 0, 0));
+    enemyPrefab.AddComponent<Health>(50);
+    enemyPrefab.AddComponent<Name>("Enemy");
+
     // Create entities
-    Entity player = scene.CreateEntity();
-    scene.AddComponent<Name>(player, "Player");
-    scene.AddComponent<Transform>(player, vec3(0, 0, 0));
-    scene.AddComponent<Health>(player, 100);
-    scene.AddComponent<Velocity>(player, vec3(1, 0, 0), 5.0f);
-    
-    Entity enemy1 = scene.CreateEntity();
-    scene.AddComponent<Name>(enemy1, "Enemy 1");
-    scene.AddComponent<Transform>(enemy1, vec3(10, 0, 0));
-    scene.AddComponent<Health>(enemy1, 50);
-    
-    Entity enemy2 = scene.CreateEntity();
-    scene.AddComponent<Name>(enemy2, "Enemy 2");
-    scene.AddComponent<Transform>(enemy2, vec3(-10, 0, 0));
-    scene.AddComponent<Health>(enemy2, 75);
+    Entity player = scene.Instantiate(playerPrefab);
+    Entity enemy1 = scene.Instantiate(enemyPrefab);
+    Entity enemy2 = scene.Instantiate(enemyPrefab);
     scene.AddComponent<Velocity>(enemy2, vec3(-1, 0, 0), 3.0f);
     
     TLETC_INFO("Created ", scene.GetAliveEntityCount(), " entities");
@@ -186,11 +191,37 @@ void TestPerformance()
     TLETC_INFO("Sparse query found ", count, " entities in ", duration.count(), " µs");
 }
 
+void TestPrefabs()
+{
+    TLETC_INFO("\n=== Testing Prefabs ===");
+    
+    Scene scene;
+
+    scene.OnComponentAdded<Name>([](Entity e, Name& t)
+    {
+        TLETC_INFO("Created Enemy ", e.Index(), " - ", t.name);    
+    });
+
+    Prefab enemyPrefab;
+    enemyPrefab
+        .AddComponent<Transform>(vec3(0))
+        .AddComponent<Health>(50)
+        .AddComponent<Velocity>(vec3(1, 0, 0), 3.0f)
+        .AddComponent<Name>("Enemy");
+
+    // Spawn one
+    Entity enemy = scene.Instantiate(enemyPrefab);
+
+// Spawn a wave of 100
+scene.Instantiate(enemyPrefab, 100);
+}
+
 int main()
 {
     TestBasicECS();
     TestEntityReuse();
     TestPerformance();
+    TestPrefabs();
     
     return 0;
 }
