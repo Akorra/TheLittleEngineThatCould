@@ -14,6 +14,11 @@ class Scene;
  * A template for creating entities.
  * Stores a list of "applicator" functions that add
  * components to a newly created entity.
+ * 
+ * Enables:
+ * Scene serialization (save prefab definitions to JSON)
+ * Editor "drag-and-drop" entity templates
+ * Wave spawning systems
  */
 class Prefab
 {
