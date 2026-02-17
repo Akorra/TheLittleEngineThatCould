@@ -4,6 +4,9 @@
 #include "TLETC/Core/Containers/PackedArray.h"
 #include "TLETC/Core/Assert.h"
 
+#include <functional>
+#include <vector>
+
 namespace TLETC::ECS
 {
 /**
@@ -19,27 +22,55 @@ public:
     ComponentPool() = default;
     ~ComponentPool() override = default;
 
+    using OnAddCallback    = std::function<void(Entity, T&)>;
+    using OnRemoveCallback = std::function<void(Entity)>;
+
+    // --- Callbacks ---
+    void OnAdded(OnAddCallback cb)      { onAddCallbacks_.push_back(std::move(cb)); }
+    void OnRemoved(OnRemoveCallback cb) { onRemoveCallbacks_.push_back(std::move(cb)); }
+
     // Add component
     T& Add(Entity entity, const T& component) 
     {
-        return components_.Add(entity.Index(), component);
+        T& component = components_.Add(entity.Index(), component);
+
+        for (auto& cb : onAddCallbacks_)
+            cb(entity, component);
+        
+        return component;
     }
 
     T& Add(Entity entity, T&& component) 
     {
-        return components_.Add(entity.Index(), std::move(component));
+        T& component = components_.Add(entity.Index(), std::move(component));
+
+        for (auto& cb : onAddCallbacks_)
+            cb(entity, component);
+        
+        return component;
     }
 
     // Emplace component
     template<typename... Args>
     T& Emplace(Entity entity, Args&&... args)
     {
-        return components_.Emplace(entity.Index(), std::forward<Args>(args)...);
+        T& component = components_.Emplace(entity.Index(), std::forward<Args>(args)...);
+
+        for (auto& cb : onAddCallbacks_)
+            cb(entity, component);
+        
+        return component;
     }
 
     // Remove component
     void Remove(Entity entity) override
     {
+        if(!components_.Has(entity.Index()))
+            return;
+        
+        for (auto& cb : onRemoveCallbacks_)
+            cb(entity);
+
         components_.Remove(entity.Index());
     }
 
@@ -70,5 +101,7 @@ public:
 
 private:
     PackedArray<T> components_;  
+    std::vector<OnAddCallback>    onAddCallbacks_;
+    std::vector<OnRemoveCallback> onRemoveCallbacks_;
 };
 } // namespace TLETC::ECS
