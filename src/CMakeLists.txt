@@ -30,6 +30,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/DoubleEndedStackAllocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/MemoryStats.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Containers/PackedArray.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Entity.h
 )
 
 # Create the library
