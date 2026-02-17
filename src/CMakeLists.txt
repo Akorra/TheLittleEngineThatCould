@@ -33,6 +33,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Entity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentStorage.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentPool.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentRegistry.h
 )
 
 # Create the library
