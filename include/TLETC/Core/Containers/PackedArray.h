@@ -149,6 +149,7 @@ private:
     std::vector<T> components_;                  //< Dense array of components
     std::vector<uint32> entityIDs_;              //< Parallel array of entity IDs
     std::unordered_map<uint32, size_t> sparse_;  //< EntityID -> index lookup
+    // TODO: Thinkabout it : std::vector<size_t> sparce_; //< initialize with INVALID (0xFFFFFFFFFFFFFFFF)
 };
 
 } // namespace TLETC
