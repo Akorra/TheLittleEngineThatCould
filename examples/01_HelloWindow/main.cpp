@@ -4,7 +4,7 @@
 class TestApp : public TLETC::Application
 {
 public:
-    TestApp() : Application("Milestone 1 Test") {}
+    TestApp() : Application("Hello Window!") {}
     
     void OnStartup() override
     {
