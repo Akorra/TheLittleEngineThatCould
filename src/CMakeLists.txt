@@ -11,6 +11,7 @@ set(TLETC_SOURCES
     Core/Memory/DoubleEndedStackAllocator.cpp
     Core/Memory/MemoryStats.cpp
     ECS/Scene.cpp
+    ECS/Systems/SystemManager.cpp
 )
 
 # Public headers
@@ -39,6 +40,8 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ArchtypeIndex.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Scene.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Prefab.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/System.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/SystemManager.h
 )
 
 # Create the library
