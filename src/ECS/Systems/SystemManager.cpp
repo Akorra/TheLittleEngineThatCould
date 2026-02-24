@@ -16,6 +16,41 @@ SystemManager::~SystemManager()
         Shutdown();
 }
 
+bool SystemManager::CreateGroup(const std::string& name) 
+{
+    if(groups_.find(name) != groups_.end())
+        return false;
+    groups_[name] = {};
+    return true;
+}
+
+void SystemManager::SetGroupEnabled(const std::string& groupName, bool enabled)
+{
+    auto it = groups_.find(groupName);
+    if (it == groups_.end())
+    {
+        TLETC_WARN("Group not found: ", groupName);
+        return;
+    }
+
+    for (System* sys : it->second)
+        sys->SetEnabled(enabled);
+
+    TLETC_INFO("Group '", groupName, "' ", enabled ? "enabled" : "disabled");
+}
+
+bool SystemManager::IsGroupEnabled(const std::string& groupName) const
+{
+    auto it = groups_.find(groupName);
+    if (it == groups_.end()) return false;
+
+    // Group is enabled if ANY system in it is enabled
+    for (System* sys : it->second)
+        if (sys->IsEnabled())
+            return true;
+    return false;
+}
+
 void SystemManager::Startup()
 {
     TLETC_ASSERT(!started_, "SystemManager already started!");

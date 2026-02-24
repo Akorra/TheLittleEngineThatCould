@@ -34,6 +34,17 @@ public:
     template<typename T>
     void RemoveSystem();
 
+    // System Groups
+    bool CreateGroup(const std::string& name);
+
+    // Groups need to be created normaly first
+    template<typename T>
+    void AddSystemToGroup(const std::string& groupName);
+
+    // Enable/disable entire group
+    void SetGroupEnabled(const std::string& groupName, bool enabled);
+    bool IsGroupEnabled(const std::string& groupName) const;
+
     // Lifecycle
     void Startup();
     void Shutdown();
@@ -56,6 +67,7 @@ private:
     Scene scene_;
 
     std::vector<UniquePtr<System>> systems_;
+    std::unordered_map<std::string, std::vector<System*>> groups_;
 
     struct TimestepState {
         float fixedDt_      = 1.0f / 60.0f;
@@ -111,6 +123,14 @@ void SystemManager::RemoveSystem()
         (*it)->Shutdown(scene_);
         systems_.erase(it);
     }
+}
+
+template<typename T>
+void AddSystemToGroup(const std::string& groupName)
+{
+    T* sys = GetSystem<T>();
+    TLETC_ASSERT(sys, "System not found!");
+    groups_[groupName].systems.push_back(sys);
 }
 
 } // namespace TLETC::ECS
