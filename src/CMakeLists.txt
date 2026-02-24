@@ -42,6 +42,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Prefab.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/System.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/SystemManager.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Transform.h
 )
 
 # Create the library
