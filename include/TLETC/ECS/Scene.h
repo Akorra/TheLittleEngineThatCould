@@ -94,6 +94,13 @@ public:
     
     size_t GetEntityCount() const;
     size_t GetAliveEntityCount() const;
+
+    // ===== Parent-Child =====
+    void SetParent(Entity child, Entity parent); //< Set parent-child Relationship
+    void ClearParent(Entity child);              //< Remove from parent (promote to root)
+    void DestroyEntityRecursive(Entity entity);  //< Destroy entity and descendents
+    std::vector<Entity> GetRootEntities() const; //< Get all root entities
+
     
     void Clear();
     
