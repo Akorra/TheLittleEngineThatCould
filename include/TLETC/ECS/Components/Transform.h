@@ -31,6 +31,13 @@ struct Transform
 
     // State
     bool dirty_ = true; // Needs matrix rebuild
+    bool worldDirty_ = true;
+
+    struct TransformConstraints {
+        bool lockX = false;
+        bool lockY = false;
+        bool lockZ = false;
+    } constrains_;
 
     // Helpers
     bool IsRoot() const { return !parent_; } 
@@ -45,15 +52,25 @@ struct Transform
         return T*R*S;
     }
 
-    // Get world position (from matrix)
-    vec3 GetWorldPosition() const { return vec3(worldMatrix_[3]); }
+    // World Space Helpers - column major (glm)
+    vec3 GetWorldPosition() const;
+    quat GetWorldRotation() const;
+    vec3 GetWorldScale()    const;
 
-    // Set world position (breaks hierarchy - use carefully!)
-    void SetWorldPosition(const vec3& pos)
-    {
-        worldMatrix_[3] = vec4(pos, 1.0f);
-        dirty_ = true;
-    }
+    void SetWorldPosition(const vec3& pos, Scene* scene=nullptr);
+    void SetWorldRotation(const quat& rot, Scene* scene=nullptr);
+    void SetWorldScale(const vec3& scale,  Scene* scene=nullptr);
+
+    const mat4& GetWorldMatrix(Scene& scene);
+    void  RebuildWorldMatrix(Scene& scene);
+
+    // Directions
+    vec3 Forward() const;
+    vec3 Right() const;
+    vec3 Up() const;
+
+    // Target
+    void LookAt(const vec3& target, const vec3& worldUp, Scene& scene);
 };
 
 } // namespace TLETC::ECS

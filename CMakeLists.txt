@@ -74,6 +74,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+# nlohman/json for serialization
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.12.0
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
 # Catch2 for testing (only if building tests)
 if(TLETC_BUILD_TESTS)
     FetchContent_Declare(

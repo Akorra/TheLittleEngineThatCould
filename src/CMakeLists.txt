@@ -46,6 +46,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/SystemManager.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/TransformSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/MovementSystem.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/CameraFollowSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Transform.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Velocity.h
 )
@@ -97,6 +98,7 @@ target_link_libraries(TLETC
         $<BUILD_INTERFACE:OpenGL::GL>
         $<BUILD_INTERFACE:glfw>
         $<BUILD_INTERFACE:glad_gl_core_46>
+        $<BUILD_INTERFACE:nlohmann_json>
 )
 
 # Install GLM headers alongside our headers so users don't need to find it separately
