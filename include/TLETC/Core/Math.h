@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/orthonormalize.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace TLETC {
@@ -71,11 +72,13 @@ using glm::scale;
 using glm::lookAt;
 using glm::perspective;
 using glm::ortho;
+using glm::orthonormalize;
 
 // -----------------------------------------------------------------------------
 // Quaternion operations.
 // -----------------------------------------------------------------------------
 using glm::angleAxis;
+using glm::lerp;
 using glm::slerp;
 using glm::sin;
 using glm::cos;

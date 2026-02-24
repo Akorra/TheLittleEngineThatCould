@@ -1,5 +1,7 @@
 #include "TLETC/ECS/Scene.h"
+
 #include "TLETC/ECS/Prefab.h"
+#include "TLETC/ECS/Components/Transform.h"
 
 namespace TLETC::ECS
 {
@@ -53,12 +55,36 @@ void Scene::DestroyEntity(Entity entity)
 {
     if (!IsValid(entity))
         return;
+
+    // Remove from parent's children list
+    Transform* t = GetComponent<Transform>(entity);
+    if ( t && !(t->parent_.IsNull()) )
+    {
+        Transform* parent = GetComponent<Transform>(t->parent_);
+        if (parent)
+        {
+            auto& siblings = parent->children_;
+            siblings.erase(std::remove(siblings.begin(), siblings.end(), entity), siblings.end());
+        }
+    }
+
+    // Orphan children (make children roots)
+    if (t)
+    {
+        for (Entity child : t->children_)
+        {
+            Transform* childT = GetComponent<Transform>(child);
+            if (childT)
+            {
+                childT->parent_ = Entity::Null();
+                childT->dirty_ = true;
+            }
+        }
+    }
     
     // Remove from all component pools
     for (auto& [typeID, pool] : componentPools_)
-    {
         pool->Remove(entity);
-    }
     
     // Mark as dead
     auto& record = entities_[entity.Index()];
@@ -102,6 +128,120 @@ size_t Scene::GetEntityCount() const
 size_t Scene::GetAliveEntityCount() const
 {
     return entities_.size() - freeList_.size();
+}
+
+void Scene::SetParent(Entity child, Entity parent)
+{
+    TLETC_ASSERT(IsValid(child), "Child entity is not valid!");
+    TLETC_ASSERT(IsValid(parent), "Parent entity is not valid!");
+    TLETC_ASSERT(child != parent, "Entity cannot be its own parent!");
+
+    Transform* childTransform = GetComponent<Transform>(child);
+    Transform* parentTransform = GetComponent<Transform>(parent);
+
+    if (!childTransform || !parentTransform)
+    {
+        TLETC_ERROR("Both entities must have Transform component!");
+        return;
+    }
+
+    // Check for cycles (child is ancestor of parent)
+    Entity ancestor = parent;
+    while (ancestor)
+    {
+        if (ancestor == child)
+        {
+            TLETC_ERROR("Cyclic parenting detected! Cannot set parent.");
+            return;
+        }
+
+        Transform* t = GetComponent<Transform>(ancestor);
+        ancestor = t ? t->parent_ : Entity::Null();
+    }
+
+    // Remove from old parent
+    if ( !(childTransform->parent_.IsNull()) )
+    {
+        Transform* oldParent = GetComponent<Transform>(childTransform->parent_);
+        if (oldParent)
+        {
+            auto& siblings = oldParent->children_;
+            siblings.erase(std::remove(siblings.begin(), siblings.end(), child), siblings.end());
+        }
+    }
+
+    // Set new parent
+    childTransform->parent_ = parent;
+    parentTransform->children_.push_back(child);
+
+    // Mark dirty
+    childTransform->dirty_ = true;
+}
+
+void Scene::ClearParent(Entity child)
+{
+    TLETC_ASSERT(IsValid(child), "Child entity is not valid!");
+
+    Transform* childTransform = GetComponent<Transform>(child);
+    if (!childTransform)
+        return;
+
+    // Remove from old parent's children list
+    if ( !(childTransform->parent_.IsNull()) )
+    {
+        Transform* parent = GetComponent<Transform>(childTransform->parent_);
+        if (parent)
+        {
+            auto& siblings = parent->children_;
+            siblings.erase(std::remove(siblings.begin(), siblings.end(), child), siblings.end());
+        }
+    }
+
+    childTransform->parent_ = Entity::Null();
+    childTransform->dirty_ = true;
+}
+
+void Scene::DestroyEntityRecursive(Entity entity)
+{
+    if (!IsValid(entity))
+        return;
+
+    Transform* t = GetComponent<Transform>(entity);
+    if (t)
+    {
+        // Destroy children first
+        std::vector<Entity> childrenCopy = t->children_;
+        for (Entity child : childrenCopy)
+            DestroyEntityRecursive(child);
+    }
+
+    // Then destroy this entity
+    DestroyEntity(entity);
+}
+
+std::vector<Entity> Scene::GetRootEntities() const
+{
+    std::vector<Entity> roots;
+
+    // Iterate all transforms, collect roots
+    const ComponentPool<Transform>* pool = GetPool<Transform>();
+    if (!pool)
+        return roots;
+
+    auto& arr = pool->GetArray();
+    for (size_t i = 0; i < arr.Size(); ++i)
+    {
+        uint32 entityIndex = arr.GetEntityID(i);
+        const Transform& t = arr[i];
+
+        if (t.IsRoot())
+        {
+            Entity e = Entity::Create(entityIndex, entities_[entityIndex].generation);
+            roots.push_back(e);
+        }
+    }
+
+    return roots;
 }
 
 void Scene::Clear()
