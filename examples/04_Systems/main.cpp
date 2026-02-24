@@ -9,6 +9,7 @@ using namespace TLETC::ECS;
 struct Transform { vec3 position; vec3 scale; bool dirty_=true; };
 struct Velocity  { vec3 direction; float speed = 1.0f; };
 struct DebugName { std::string value; };
+struct Health    { float current = 100.0f; };
 struct Lifetime  { float remaining; }; //< Component: entity destroys itself after N seconds
 
 // ============================================================================================================
@@ -57,6 +58,24 @@ public:
     }
 };
 
+class CombatSystem : public System
+{
+    void Update(Scene& scene, float dt) override
+    {
+        // Safe iteration - commands are deferred
+        scene.View<Health>([&](Entity e, Health& h) {
+            h.current -= 10;  // Take damage
+            if (h.current <= 0)
+            {
+                commands_.DestroyEntity(e);  // ✅ Safe!
+                TLETC_INFO("Entity died, will destroy after iteration");
+            }
+        });
+
+        // Entities are actually destroyed when SystemManager calls FlushCommands
+    }
+};
+
 // Debug system: prints all named entities
 class DebugSystem : public System
 {
@@ -95,6 +114,7 @@ public:
         world.AddSystem<MovementSystem>();
         world.AddSystem<LifetimeSystem>();
         world.AddSystem<DebugSystem>();
+        world.AddSystem<CombatSystem>();
 
         // world.Startup() is called by Application::Run()
         // BEFORE OnStartup, so we need to restart or just 
@@ -107,6 +127,7 @@ public:
         scene.AddComponent<DebugName>(player, "Player");
         scene.AddComponent<Transform>(player, vec3(0.0f));
         scene.AddComponent<Velocity>(player, vec3(1, 0, 0), 2.0f);
+        scene.AddComponent<Health>(player, 100.0f);
 
         // Create some bullets with lifetime
         for (int i = 0; i < 5; ++i)

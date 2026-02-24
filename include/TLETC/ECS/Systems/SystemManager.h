@@ -136,11 +136,11 @@ void SystemManager::RemoveSystem()
 }
 
 template<typename T>
-void AddSystemToGroup(const std::string& groupName)
+void SystemManager::AddSystemToGroup(const std::string& groupName)
 {
     T* sys = GetSystem<T>();
     TLETC_ASSERT(sys, "System not found!");
-    groups_[groupName].systems.push_back(sys);
+    groups_[groupName].push_back(sys);
 }
 
 } // namespace TLETC::ECS

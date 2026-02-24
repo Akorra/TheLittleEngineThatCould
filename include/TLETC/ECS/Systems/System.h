@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TLETC/Core/Types.h"
+#include "TLETC/ECS/CommandBuffer.h"
 #include <unordered_set>
 
 namespace TLETC::ECS
@@ -53,6 +54,12 @@ public:
     void RunsAfter(std::unordered_set<std::type_index>& systems)  { runsAfter_ = systems; }
     const std::unordered_set<std::type_index>& RunsBefore() const { return runsBefore_; }
     const std::unordered_set<std::type_index>& RunsAfter()  const { return runsAfter_; }
+
+    // deferre commands
+    void FlushCommands(Scene& scene) { commands_.Flush(scene); }
+
+protected:
+    CommandBuffer commands_;
     
 private:
     bool enabled_ = true;
