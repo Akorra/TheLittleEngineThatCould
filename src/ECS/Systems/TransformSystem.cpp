@@ -7,6 +7,8 @@ namespace TLETC::ECS
 
 void TransformSystem::FixedUpdate(Scene& scene, float dt)
 {
+    (void)dt;
+    
     // Process all root transforms
     auto roots = scene.GetRootEntities();
     for(Entity root : roots)

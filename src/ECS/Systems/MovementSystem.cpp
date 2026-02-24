@@ -9,6 +9,8 @@ void MovementSystem::FixedUpdate(Scene &scene, float dt)
 {
     scene.View<Transform, Velocity>([dt](Entity e, Transform& t, Velocity& v)
     {
+        (void)e;
+        
         if (v.space_ == VelocitySpace::World)
             t.position_ += v.linear_ * dt; //< Apply linear velocity
         else  // Local space
