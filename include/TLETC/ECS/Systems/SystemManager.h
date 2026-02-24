@@ -49,6 +49,7 @@ public:
     float GetAlpha() const { return ts.accumulator_ / ts.fixedDt_; }
 
 private:
+    void TopologicalSort();
     void SortSystems();
 
 private:

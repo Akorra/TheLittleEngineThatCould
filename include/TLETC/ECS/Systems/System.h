@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TLETC/Core/Types.h"
+#include <unordered_set>
 
 namespace TLETC::ECS
 {
@@ -46,9 +47,18 @@ public:
     // Enable/Disable
     bool IsEnabled() const        { return enabled_; }
     void SetEnabled(bool enabled) { enabled_ = enabled; }
+
+    //! Dependencies (didnt like other names):
+    void RunsBefore(std::unordered_set<std::type_index>& systems) { runsBefore_ = systems; }
+    void RunsAfter(std::unordered_set<std::type_index>& systems)  { runsAfter_ = systems; }
+    const std::unordered_set<std::type_index>& RunsBefore() const { return runsBefore_; }
+    const std::unordered_set<std::type_index>& RunsAfter()  const { return runsAfter_; }
     
 private:
     bool enabled_ = true;
+
+    std::unordered_set<std::type_index> runsAfter_;
+    std::unordered_set<std::type_index> runsBefore_;
 };
 
 } // namespace TLETC::ECS

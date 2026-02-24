@@ -1,5 +1,6 @@
 #include "TLETC/ECS/Systems/SystemManager.h"
 #include <algorithm>
+#include <queue>
 
 namespace TLETC::ECS
 {
@@ -114,6 +115,102 @@ void SystemManager::Render()
     for (auto& sys : systems_)
         if (sys->IsEnabled())
             sys->PostRender(scene_, alpha);
+}
+
+void SystemManager::TopologicalSort()
+{
+    const size_t N = systems_.size();
+    if (N <= 1) return;
+
+    struct Node {
+        std::unordered_set<int> out;
+        size_t indegree = 0;
+        int priority = 0;
+    };
+
+    std::vector<Node> graph(N);
+    std::unordered_map<std::type_index, int> idFromType;
+    idFromType.reserve(N);
+
+    // Assign IDs to systems
+    for (int i = 0; i < (int)N; ++i) 
+    {
+        idFromType.emplace(std::type_index(typeid(*systems_[i])), i);
+        graph[i].priority = systems_[i]->Priority();
+    }
+
+    // Build edges
+    for (int i = 0; i < (int)N; ++i) 
+    {
+        System* s = systems_[i].get();
+        std::type_index self = std::type_index(typeid(*s));
+
+        // RunsBefore: i -> target
+        for (auto& t : s->RunsBefore()) 
+        {
+            auto it = idFromType.find(t);
+            if (it == idFromType.end()) continue;
+            int j = it->second;
+            if (graph[i].out.insert(j).second)
+                graph[j].indegree++;
+        }
+
+        // RunsAfter: target -> i
+        for (auto& t : s->RunsAfter()) 
+        {
+            auto it = idFromType.find(t);
+            if (it == idFromType.end()) continue;
+            int j = it->second;
+            if (graph[j].out.insert(i).second)
+                graph[i].indegree++;
+        }
+    }
+
+    // Priority queue for deterministic order
+    struct QItem {
+        int id;
+        int priority;
+        bool operator<(const QItem& o) const 
+        {
+            if (priority != o.priority) return priority > o.priority;
+            return id > o.id;
+        }
+    };
+
+    std::priority_queue<QItem> q;
+
+    for (int i = 0; i < (int)N; ++i)
+        if (graph[i].indegree == 0)
+            q.push({i, graph[i].priority});
+
+    std::vector<int> order;
+    order.reserve(N);
+
+    while (!q.empty()) 
+    {
+        auto [u, prio] = q.top();
+        q.pop();
+        order.push_back(u);
+
+        for (int v : graph[u].out) 
+        {
+            if (--graph[v].indegree == 0)
+                q.push({v, graph[v].priority});
+        }
+    }
+
+    // Cycle detection
+    if (order.size() != N) // silently fail or log, depending on your design preference
+        return;
+
+    // Rebuild systems_ in sorted order
+    std::vector<UniquePtr<System>> sorted;
+    sorted.reserve(N);
+
+    for (int id : order)
+        sorted.push_back(std::move(systems_[id]));
+
+    systems_.swap(sorted);
 }
 
 void SystemManager::SortSystems()
