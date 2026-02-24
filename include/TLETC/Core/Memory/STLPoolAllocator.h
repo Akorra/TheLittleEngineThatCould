@@ -2,6 +2,8 @@
 
 #include "TLETC/Core/Memory/PoolAllocator.h"
 
+namespace TLETC::Memory
+{
 /**
  * STL-compatible allocator adapter
  * Allows using PoolAllocator with STL containers
@@ -78,3 +80,5 @@ public:
 private:
     PoolAllocator* pool_;
 };
+
+} // namespace TLETC::Memory

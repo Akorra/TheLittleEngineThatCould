@@ -28,6 +28,7 @@ void Application::Run()
     TLETC_INFO("Application starting main loop");
     running_ = true;
 
+    world_->Startup();
     OnStartup();
     
     // Main loop
@@ -39,13 +40,17 @@ void Application::Run()
         input_->BeginFrame();
         window_->PollEvents();
         
-        OnUpdate(dt);
-        OnRender();
+        world_->Tick(dt); //< ECS systems update
+        OnUpdate(dt);     //< App-level   update
+
+        world_->Render(); //< ECS systems render
+        OnRender();       //< App-level   render
         
         window_->SwapBuffers();
     }
     
     OnShutdown();
+    world_->Shutdown();
     Shutdown();
 }
 
@@ -53,11 +58,9 @@ bool Application::Initialize()
 {
     TLETC_INFO("Initializing application");
     
-    // Create input
-    input_ = MakeUnique<Input>();
-    
-    // Create window
-    window_ = MakeUnique<Window>();
+    input_ = MakeUnique<Input>();   //< Create input
+    window_ = MakeUnique<Window>(); //< Create window
+
     if (!window_->Create(windowProps_))
     {
         TLETC_ERROR("Failed to create window");
@@ -65,6 +68,8 @@ bool Application::Initialize()
     }
     
     window_->SetInput(input_.get());
+
+    world_ = MakeUnique<ECS::SystemManager>();
     
     initialized_ = true;
     return true;
@@ -77,6 +82,7 @@ void Application::Shutdown()
     
     TLETC_INFO("Shutting down application");
     
+    world_.reset();
     window_->Destroy();
     window_.reset();
     input_.reset();

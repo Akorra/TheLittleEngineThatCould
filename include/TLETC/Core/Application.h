@@ -1,8 +1,8 @@
 #pragma once
 
-#include "TLETC/Core/Types.h"
 #include "TLETC/Platform/Window.h"
 #include "TLETC/Platform/Input.h"
+#include "TLETC/ECS/Systems/SystemManager.h"
 
 #include <string>
 
@@ -18,6 +18,12 @@ public:
     void Run();
     void RequestShutdown() { running_ = false; }
 
+    // Access for subclasses
+    ECS::SystemManager& GetWorld()  { return *world_; }
+    ECS::Scene& GetScene()          { return world_->GetScene(); }
+    Window& GetWindow()             { return *window_; }
+    Input& GetInput()               { return *input_; }
+
 protected:
     // [USER]: Override this in your solution
     virtual void OnStartup() {}
@@ -30,8 +36,9 @@ private:
     void Shutdown();
 
 protected:
-    UniquePtr<Window> window_;
-    UniquePtr<Input>  input_;
+    UniquePtr<Window>             window_;
+    UniquePtr<Input>              input_;
+    UniquePtr<ECS::SystemManager> world_;
 
 private:
     bool initialized_ = false;
