@@ -1,4 +1,5 @@
 #include "TLETC/ECS/Systems/SystemManager.h"
+
 #include <algorithm>
 #include <queue>
 
@@ -97,8 +98,15 @@ void SystemManager::Tick(float frameDt)
     // PreUpdate (variable)
     for(auto& sys : systems_)
     {
-        if(sys->IsEnabled())
-            sys->PreUpdate(scene_, frameDt);
+        if(!sys->IsEnabled()) continue;
+
+#ifdef DEBUG
+        profiler_.BeginSample(std::string(sys->Name()) + "::PreUpdate");
+        sys->PreUpdate(scene_, frameDt);
+        profiler_.EndSample(std::string(sys->Name()) + "::PreUpdate");
+#else
+        sys->PreUpdate(scene_, frameDt);
+#endif
     }
 
     // FixedUpdate (fixed steps) -> runs multiple times per frame if game is running slowly (0 if frame is faster than fixed steps)
@@ -106,8 +114,15 @@ void SystemManager::Tick(float frameDt)
     {
         for(auto& sys : systems_)
         {
-            if(sys->IsEnabled())
-                sys->FixedUpdate(scene_, ts.fixedDt_);
+            if(!sys->IsEnabled()) continue;
+
+#ifdef DEBUG
+            profiler_.BeginSample(std::string(sys->Name()) + "::FixedUpdate");
+            sys->FixedUpdate(scene_, ts.fixedDt_);
+            profiler_.EndSample(std::string(sys->Name()) + "::FixedUpdate");
+#else
+            sys->FixedUpdate(scene_, ts.fixedDt_);
+#endif
         }
         ts.accumulator_ -= ts.fixedDt_;
     }

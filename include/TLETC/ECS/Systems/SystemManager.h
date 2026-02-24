@@ -2,6 +2,7 @@
 
 #include "TLETC/ECS/Scene.h"
 #include "TLETC/ECS/Systems/System.h"
+#include "TLETC/ECS/Systems/SystemStats.h"
 #include "TLETC/Core/Assert.h"
 #include "TLETC/Core/Log.h"
 
@@ -59,6 +60,11 @@ public:
 
     float GetAlpha() const { return ts.accumulator_ / ts.fixedDt_; }
 
+#ifdef DEBUG 
+    const SystemProfiler& GetProfiler() const { return profiler_; }
+    void ResetProfiler() { profiler_.Reset(); }
+#endif
+
 private:
     void TopologicalSort();
     void SortSystems();
@@ -68,6 +74,10 @@ private:
 
     std::vector<UniquePtr<System>> systems_;
     std::unordered_map<std::string, std::vector<System*>> groups_;
+
+#ifdef DEBUG 
+    SystemProfiler profiler_;    
+#endif
 
     struct TimestepState {
         float fixedDt_      = 1.0f / 60.0f;
