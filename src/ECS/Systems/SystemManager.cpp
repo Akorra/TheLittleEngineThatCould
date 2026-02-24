@@ -1,4 +1,5 @@
 #include "TLETC/ECS/Systems/SystemManager.h"
+#include <algorithm>
 
 namespace TLETC::ECS
 {

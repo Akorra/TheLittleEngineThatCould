@@ -12,9 +12,11 @@ endfunction()
 # Add examples
 add_tletc_example(01_HelloWindow "01_HelloWindow/main.cpp")
 add_tletc_example(02_MemoryTests "02_MemoryTests/main.cpp")
-add_tletc_example(03_ECS "03_ECS/main.cpp")
+add_tletc_example(03_ECS         "03_ECS/main.cpp")
+add_tletc_example(04_Systems     "04_Systems/main.cpp")
 
 message(STATUS "Examples configured:")
 message(STATUS "  - 01_HelloWindow")
 message(STATUS "  - 02_MemoryTests")
 message(STATUS "  - 03_ECS")
+message(STATUS "  - 04_Systems")
