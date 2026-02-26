@@ -19,6 +19,8 @@ namespace TLETC::ECS
  * Systems publish events, other systems subscribe.
  *
  * Thread-safety: NOT thread-safe! Use from one thread only.
+ * 
+ * TODO: support event batching maybe
  */
 class EventBus 
 {

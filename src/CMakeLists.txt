@@ -55,6 +55,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventBus.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/CommonEvents.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventRecorder.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventUtils.h
 )
 
 # Create the library
