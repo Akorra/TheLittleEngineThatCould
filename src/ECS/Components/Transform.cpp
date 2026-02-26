@@ -14,9 +14,9 @@ const mat4& Transform::GetWorldMatrix(Scene& scene)
     return worldMatrix_;
 }
 
-void RebuildWorldMatrix(Scene& scene)
+void Transform::RebuildWorldMatrix(Scene& scene)
 {
-    
+    (void)scene;   
 }
 
 vec3 Transform::GetWorldPosition() const

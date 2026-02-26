@@ -11,6 +11,7 @@ set(TLETC_SOURCES
     Core/Memory/DoubleEndedStackAllocator.cpp
     Core/Memory/MemoryStats.cpp
     ECS/Scene.cpp
+    ECS/Components/Transform.cpp
     ECS/Systems/SystemManager.cpp
     ECS/Systems/TransformSystem.cpp
     ECS/Systems/MovementSystem.cpp

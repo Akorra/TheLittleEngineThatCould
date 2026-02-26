@@ -6,6 +6,8 @@
 
 namespace TLETC::ECS
 {
+class Scene;
+
 /**
  * Transform Component
  * 
