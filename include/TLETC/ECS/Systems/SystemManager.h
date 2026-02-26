@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TLETC/ECS/Scene.h"
+#include "TLETC/ECS/Events/EventBus.h"
 #include "TLETC/ECS/Systems/System.h"
 #include "TLETC/ECS/Systems/SystemStats.h"
 #include "TLETC/Core/Assert.h"
@@ -58,6 +59,10 @@ public:
     void  SetFixedTimestep(float dt) { ts.fixedDt_ = dt; }
     float GetFixedTimestep() const   { return ts.fixedDt_; }
 
+    // Events
+    EventBus& GetEventBus() { return events_; }
+    const EventBus& GetEventBus() const { return events_; }
+
     float GetAlpha() const { return ts.accumulator_ / ts.fixedDt_; }
 
 #ifdef DEBUG 
@@ -71,6 +76,7 @@ private:
 
 private:
     Scene scene_;
+    EventBus events_;
 
     std::vector<UniquePtr<System>> systems_;
     std::unordered_map<std::string, std::vector<System*>> groups_;
@@ -99,6 +105,8 @@ T& SystemManager::AddSystem(Args&&... args)
 
     auto system = MakeUnique<T>(std::forward<Args>(args)...);
     T& ref = *system;
+
+    ref.SetEventBus(&events_); //< EventBus Access 
 
     systems_.push_back(std::move(system));
 

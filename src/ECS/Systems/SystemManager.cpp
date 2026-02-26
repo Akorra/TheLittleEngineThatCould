@@ -109,9 +109,6 @@ void SystemManager::Tick(float frameDt)
 #endif
     }
 
-    // Flush deferred commands after each phase
-    for (auto& sys : systems_) sys->FlushCommands(scene_);
-
     // FixedUpdate (fixed steps) -> runs multiple times per frame if game is running slowly (0 if frame is faster than fixed steps)
     while(ts.accumulator_ >= ts.fixedDt_)
     {
@@ -128,9 +125,6 @@ void SystemManager::Tick(float frameDt)
 #endif
         }
 
-        // Flush deferred commands after each phase
-        for (auto& sys : systems_) sys->FlushCommands(scene_);
-
         ts.accumulator_ -= ts.fixedDt_;
     }
 
@@ -141,9 +135,6 @@ void SystemManager::Tick(float frameDt)
             sys->Update(scene_, frameDt);
     }
 
-    // Flush deferred commands after each phase
-    for (auto& sys : systems_) sys->FlushCommands(scene_);
-
     // PostUpdate (variable)
     for(auto& sys : systems_)
     {
@@ -151,8 +142,11 @@ void SystemManager::Tick(float frameDt)
             sys->PostUpdate(scene_, frameDt);
     }
 
-    // Flush deferred commands after each phase
-    for (auto& sys : systems_) sys->FlushCommands(scene_);
+    // Process events that were queued during this frame - maybe move to end of render
+    events_.ProcessDeferred();
+    
+    // flush deferred commands after render or after each phase
+    // for (auto& sys : systems_) sys->FlushCommands(scene_);
 }
 
 void SystemManager::Render()
@@ -171,22 +165,13 @@ void SystemManager::Render()
         if (sys->IsEnabled())
             sys->PreRender(scene_, alpha);
 
-    // Flush deferred commands after each phase
-    for (auto& sys : systems_) sys->FlushCommands(scene_);
-
     for (auto& sys : systems_)
         if (sys->IsEnabled())
             sys->Render(scene_, alpha);
-
-    // Flush deferred commands after each phase
-    for (auto& sys : systems_) sys->FlushCommands(scene_);
     
     for (auto& sys : systems_)
         if (sys->IsEnabled())
             sys->PostRender(scene_, alpha);
-
-    // Flush deferred commands after each phase
-    for (auto& sys : systems_) sys->FlushCommands(scene_);
 }
 
 void SystemManager::TopologicalSort()
