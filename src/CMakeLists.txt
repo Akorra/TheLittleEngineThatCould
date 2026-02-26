@@ -49,6 +49,8 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/CameraFollowSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Transform.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Velocity.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventBus.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/CommonEvents.h
 )
 
 # Create the library
