@@ -18,6 +18,8 @@ set(TLETC_SOURCES
     Render/Frameworks/OpenGL/OGLDevice.cpp
     Render/Frameworks/OpenGL/OGLBuffer.cpp
     Render/Frameworks/OpenGL/OGLShader.cpp
+    Render/Resources/Mesh.cpp
+    Utils/GeometryFactory.cpp
 )
 
 # Public headers
@@ -66,6 +68,8 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLBuffer.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLShader.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLTexture.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Resources/Mesh.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Utils/GeometryFactory.h
 )
 
 # Create the library
