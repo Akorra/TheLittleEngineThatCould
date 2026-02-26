@@ -11,6 +11,7 @@ set(TLETC_SOURCES
     Core/Memory/DoubleEndedStackAllocator.cpp
     Core/Memory/MemoryStats.cpp
     ECS/Scene.cpp
+    ECS/Components/Transform.cpp
     ECS/Systems/SystemManager.cpp
     ECS/Systems/TransformSystem.cpp
     ECS/Systems/MovementSystem.cpp
@@ -34,6 +35,8 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/DoubleEndedStackAllocator.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Memory/MemoryStats.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Containers/PackedArray.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Core/Serialization/BinaryWriter.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Network/NetworkEventBus.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Entity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentStorage.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/ComponentPool.h
@@ -49,6 +52,10 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/CameraFollowSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Transform.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Velocity.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventBus.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/CommonEvents.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventRecorder.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventUtils.h
 )
 
 # Create the library

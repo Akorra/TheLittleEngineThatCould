@@ -2,6 +2,7 @@
 
 #include "TLETC/Core/Types.h"
 #include "TLETC/ECS/CommandBuffer.h"
+#include "TLETC/ECS/Events/EventBus.h"
 #include <unordered_set>
 
 namespace TLETC::ECS
@@ -58,9 +59,13 @@ public:
     // deferre commands
     void FlushCommands(Scene& scene) { commands_.Flush(scene); }
 
+    // Events
+    void SetEventBus(EventBus* events) { events_ = events; }
+
 protected:
     CommandBuffer commands_;
-    
+    EventBus*     events_ = nullptr;
+
 private:
     bool enabled_ = true;
 

@@ -67,7 +67,7 @@ class CombatSystem : public System
             h.current -= 10;  // Take damage
             if (h.current <= 0)
             {
-                commands_.DestroyEntity(e);  // ✅ Safe!
+                commands_.DestroyEntity(e);  // Safe!
                 TLETC_INFO("Entity died, will destroy after iteration");
             }
         });
