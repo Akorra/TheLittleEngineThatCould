@@ -15,6 +15,9 @@ set(TLETC_SOURCES
     ECS/Systems/SystemManager.cpp
     ECS/Systems/TransformSystem.cpp
     ECS/Systems/MovementSystem.cpp
+    Render/Frameworks/OpenGL/OGLDevice.cpp
+    Render/Frameworks/OpenGL/OGLBuffer.cpp
+    Render/Frameworks/OpenGL/OGLShader.cpp
 )
 
 # Public headers
@@ -56,6 +59,13 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/CommonEvents.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventRecorder.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventUtils.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/RenderDevice.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Buffer.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Shader.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLDevice.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLBuffer.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLShader.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLTexture.h
 )
 
 # Create the library
