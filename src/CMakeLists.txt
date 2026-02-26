@@ -55,6 +55,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/TransformSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/MovementSystem.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Systems/CameraFollowSystem.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Camera.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Transform.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Components/Velocity.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/ECS/Events/EventBus.h
@@ -69,6 +70,7 @@ set(TLETC_PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLShader.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Frameworks/OpenGL/OGLTexture.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Resources/Mesh.h
+    ${CMAKE_SOURCE_DIR}/include/TLETC/Render/Resources/Material.h
     ${CMAKE_SOURCE_DIR}/include/TLETC/Utils/GeometryFactory.h
 )
 
