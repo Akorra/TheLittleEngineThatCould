@@ -53,7 +53,7 @@ class VertexBuffer
 public:
     virtual ~VertexBuffer() = default;
 
-    virtual void Bind() const = 0;
+    virtual void Bind(uint32 baseAttrbIndex) const = 0;
     virtual void Unbind() const = 0;
     
     virtual void SetData(const void* data, size_t size) = 0;
@@ -90,10 +90,10 @@ public:
     
     virtual void SetData(const uint32* data, size_t count) = 0;
     
-    uint32 GetCount() const { return count_; }
+    size_t GetCount() const { return count_; }
 
 protected:
-    uint32 count_ = 0;
+    size_t count_ = 0;
 };
 
 } // namespace TLETC::Render

@@ -6,6 +6,8 @@
 namespace TLETC::ECS
 {
 class MeshRenderer;
+class VertexBuffer;
+class IndexBuffer;
 
 class RenderSystem : public System
 {

@@ -13,7 +13,12 @@ struct MeshRenderer
     Render::Material material;
 
     // GPU resources (created by RenderSystem)
-    Render::VertexBuffer* vbo = nullptr;
+    // SoA: one buffer per attribute
+    Render::VertexBuffer* positionVBO = nullptr;
+    Render::VertexBuffer* normalVBO   = nullptr;
+    Render::VertexBuffer* uvVBO       = nullptr;
+    Render::VertexBuffer* colorVBO    = nullptr;
+
     Render::IndexBuffer*  ibo = nullptr;
 
     bool castShadows    = true;

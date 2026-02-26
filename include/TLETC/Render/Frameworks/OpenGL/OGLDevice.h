@@ -21,17 +21,17 @@ public:
     VertexBuffer* CreateVertexBuffer(const void* data, size_t size, BufferUsage usage) override;
     IndexBuffer*  CreateIndexBuffer(const uint32* data, size_t count, BufferUsage usage) override;
     Shader*       CreateShader(const char* vertexSrc, const char* fragmentSrc) override;
-    Texture*      CreateTexture(const void* data, uint32 width, uint32 height) override;
+    //Texture*      CreateTexture(const void* data, uint32 width, uint32 height) override;
 
     void DestroyVertexBuffer(VertexBuffer* buffer) override;
     void DestroyIndexBuffer(IndexBuffer* buffer) override;
     void DestroyShader(Shader* shader) override;
-    void DestroyTexture(Texture* texture) override;
+    //void DestroyTexture(Texture* texture) override;
 
     void BindShader(Shader* shader) override;
-    void BindVertexBuffer(VertexBuffer* buffer) override;
+    void BindVertexBuffer(VertexBuffer* buffer, uint32 slot) override;
     void BindIndexBuffer(IndexBuffer* buffer) override;
-    void BindTexture(Texture* texture, uint32 slot) override;
+    //void BindTexture(Texture* texture, uint32 slot) override;
 
     void Draw(PrimitiveType type, uint32 vertexCount, uint32 startVertex) override;
     void DrawIndexed(PrimitiveType type, uint32 indexCount, uint32 startIndex) override;

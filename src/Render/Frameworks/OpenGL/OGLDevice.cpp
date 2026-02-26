@@ -65,11 +65,12 @@ Shader* OGLDevice::CreateShader(const char* vertexSrc, const char* fragmentSrc)
     return new OGLShader(vertexSrc, fragmentSrc);
 }
 
-Texture* OGLDevice::CreateTexture(const void* data, uint32 width, uint32 height)
+/*Texture* OGLDevice::CreateTexture(const void* data, uint32 width, uint32 height)
 {
+    (void)data; (void)width; (void)height;
     // TODO:
     // return new OGLTexture(data, width, height);
-}
+}*/
 
 void OGLDevice::DestroyVertexBuffer(VertexBuffer* buffer)
 {
@@ -86,10 +87,10 @@ void OGLDevice::DestroyShader(Shader* shader)
     delete shader;
 }
 
-void OGLDevice::DestroyTexture(Texture* texture)
+/*void OGLDevice::DestroyTexture(Texture* texture)
 {
     delete texture;
-}
+}*/
 
 void OGLDevice::BindShader(Shader* shader)
 {
@@ -97,10 +98,10 @@ void OGLDevice::BindShader(Shader* shader)
         shader->Bind();
 }
 
-void OGLDevice::BindVertexBuffer(VertexBuffer* buffer)
+void OGLDevice::BindVertexBuffer(VertexBuffer* buffer, uint32 slot)
 {
     if (buffer)
-        buffer->Bind();
+         buffer->Bind(slot);
 }
 
 void OGLDevice::BindIndexBuffer(IndexBuffer* buffer)
@@ -109,7 +110,7 @@ void OGLDevice::BindIndexBuffer(IndexBuffer* buffer)
         buffer->Bind();
 }
 
-void OGLDevice::BindTexture(Texture* texture, uint32 slot)
+/*void OGLDevice::BindTexture(Texture* texture, uint32 slot)
 {
     if (texture)
     {
@@ -117,7 +118,7 @@ void OGLDevice::BindTexture(Texture* texture, uint32 slot)
         // glActiveTexture(GL_TEXTURE0 + slot);
         // texture->Bind();
     }
-}
+}*/
 
 void OGLDevice::Draw(PrimitiveType type, uint32 vertexCount, uint32 startVertex)
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TLETC/Render/Buffer.h"
+#include "TLETC/Render/RenderDevice.h"
 #include <glad/gl.h>
 
 namespace TLETC::Render
@@ -12,7 +13,7 @@ public:
     OGLVertexBuffer(const void* data, size_t size, BufferUsage usage);
     ~OGLVertexBuffer() override;
 
-    void Bind() const override;
+    void Bind(uint32 baseAttrbIndex) const override;
     void Unbind() const override;
     void SetData(const void* data, size_t size) override;
 

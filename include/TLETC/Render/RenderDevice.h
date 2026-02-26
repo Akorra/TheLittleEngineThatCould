@@ -63,7 +63,7 @@ public:
 
     // --- Drawing ---
     virtual void BindShader(Shader* shader) = 0;
-    virtual void BindVertexBuffer(VertexBuffer* buffer) = 0;
+    virtual void BindVertexBuffer(VertexBuffer* buffer, uint32 slot) = 0;
     virtual void BindIndexBuffer(IndexBuffer* buffer) = 0;
     virtual void BindTexture(Texture* texture, uint32 slot = 0) = 0;
 

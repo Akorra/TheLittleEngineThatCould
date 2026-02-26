@@ -26,12 +26,13 @@ OGLVertexBuffer::~OGLVertexBuffer()
     glDeleteVertexArrays(1, &vao_);
 }
 
-void OGLVertexBuffer::Bind() const
+void OGLVertexBuffer::Bind(uint32 baseAttribIndex) const
 {
     glBindVertexArray(vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+
+    uint32 index = baseAttribIndex;
     
-    // Setup vertex attributes based on layout
-    uint32 index = 0;
     for (auto& attr : layout_)
     {
         glEnableVertexAttribArray(index);
@@ -48,9 +49,15 @@ void OGLVertexBuffer::Bind() const
             default: TLETC_ASSERT(false, "Unsupported vertex attribute type");
         }
         
-        glVertexAttribPointer(index, size, type,
-                            attr.normalized ? GL_TRUE : GL_FALSE,
-                            stride_, (void*)(uintptr_t)attr.offset);
+        glVertexAttribPointer(
+            index, 
+            size, 
+            type,
+            attr.normalized ? GL_TRUE : GL_FALSE,
+            stride_, 
+            (void*)(uintptr_t)attr.offset
+        );
+        
         index++;
     }
 }
