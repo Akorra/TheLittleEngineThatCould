@@ -1,6 +1,5 @@
 #include "TLETC/Utils/GeometryFactory.h"
 #include "TLETC/Core/Math.h"
-#include <cmath>
 
 namespace TLETC::Utils {
 
