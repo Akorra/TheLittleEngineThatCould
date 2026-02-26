@@ -2,9 +2,12 @@
 
 #include "TLETC/Core/Types.h"
 #include "TLETC/Core/Assert.h"
+#include "TLETC/Platform/Time.h"
+#include "TLETC/ECS/Events/EventRecorder.h"
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 #include <functional>
 
 namespace TLETC::ECS
@@ -23,18 +26,25 @@ public:
     using HandlerID = uint64;
     // Subscribe to an event type
     template<typename T>
-    HandlerID Subscribe(std::function<void(const T&)> handler)
+    HandlerID Subscribe(std::function<void(const T&)> handler, int priority = 0, std::function<bool(const T&)> ignoreIf = [](const T& event){ return false; })
     {
         std::type_index typeID = std::type_index(typeid(T));
         
         HandlerID id = nextHandlerID_++;
         
         // Type-erase the handler
-        auto wrapper = [handler](const void* data) {
-            handler(*static_cast<const T*>(data));
+        auto wrapper = [ignoreIf, handler](const void* data) {
+            const T& event = *static_cast<const T*>(data);
+
+            if(ignoreIf(event)) 
+                return;
+
+            handler(event);
         };
         
-        handlers_[typeID].push_back({id, wrapper});
+        handlers_[typeID].push_back({id, priority, wrapper});
+
+        SortHandlers(typeID);
         
         return id;
     }
@@ -61,6 +71,9 @@ public:
     template<typename T>
     void Publish(const T& event)
     {
+        // Record if enabled
+        if (recorder_) recorder_->Record(event, Time::TotalTime());
+
         std::type_index typeID = std::type_index(typeid(T));
         
         auto it = handlers_.find(typeID);
@@ -69,9 +82,7 @@ public:
         
         // Call all handlers
         for (auto& handler : it->second)
-        {
             handler.callback(&event);
-        }
     }
 
     // Deferred publish (queued, processed later)
@@ -120,10 +131,27 @@ public:
         return count;
     }
 
+    // Record Events
+    void SetRecorder(EventRecorder* recorder) { recorder_ = recorder; }
+
+private:
+    void SortHandlers(std::type_index typeID)
+    {
+        auto it = handlers_.find(typeID);
+        if (it == handlers_.end())
+            return;
+        
+        std::sort(it->second.begin(), it->second.end(),
+            [](const Handler& a, const Handler& b) {
+                return a.priority < b.priority;  // Lower priority first
+            });
+    }
+
 private:
     struct Handler
     {
         HandlerID id;
+        int       priority = 0;
         std::function<void(const void*)> callback;
     };
 
@@ -131,5 +159,7 @@ private:
     std::vector<std::function<void()>> deferredEvents_;
     
     HandlerID nextHandlerID_ = 1;
+
+    EventRecorder* recorder_ = nullptr;
 };
 } // namespace TLETC::ECS
