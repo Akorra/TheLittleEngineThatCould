@@ -1,4 +1,5 @@
 #include "TLETC/Utils/GeometryFactory.h"
+#include "TLETC/Core/Math.h"
 #include <cmath>
 
 namespace TLETC::Utils {
@@ -70,16 +71,16 @@ Render::Mesh GeometryFactory::CreateSphere(float radius, uint32 segments, uint32
     // Generate vertices
     for (uint32 ring = 0; ring <= rings; ++ring) {
         float v = static_cast<float>(ring) / static_cast<float>(rings);
-        float phi = v * PI;
+        float phi = v * kPi;
         
         for (uint32 segment = 0; segment <= segments; ++segment) {
             float u = static_cast<float>(segment) / static_cast<float>(segments);
-            float theta = u * TWO_PI;
+            float theta = u * kTwoPi;
             
             vec3 position(0.0f);
-            position.x = radius * std::sin(phi) * std::cos(theta);
-            position.y = radius * std::cos(phi);
-            position.z = radius * std::sin(phi) * std::sin(theta);
+            position.x = radius * sin(phi) * cos(theta);
+            position.y = radius * cos(phi);
+            position.z = radius * sin(phi) * sin(theta);
             
             mesh.AddVertex(position, normalize(position), vec2(u, v), vec4(1.0f));
         }
@@ -160,10 +161,10 @@ Render::Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 
     uint32 sideTopStart = static_cast<uint32>(mesh.GetVertexCount());
     for (uint32 i = 0; i <= segments; ++i) {
         float u = static_cast<float>(i) / static_cast<float>(segments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
         
         vec3 normal = normalize(vec3(x, 0.0f, z));
         
@@ -180,10 +181,10 @@ Render::Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 
     uint32 topCapStart = static_cast<uint32>(mesh.GetVertexCount());
     for (uint32 i = 0; i <= segments; ++i) {
         float u = static_cast<float>(i) / static_cast<float>(segments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
         
         mesh.AddVertex(vec3(x, halfHeight, z), vec3(0.0f, 1.0f, 0.0f), vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f));
     }
@@ -191,10 +192,10 @@ Render::Mesh GeometryFactory::CreateCylinder(float radius, float height, uint32 
     uint32 bottomCapStart = static_cast<uint32>(mesh.GetVertexCount());
     for (uint32 i = 0; i <= segments; ++i) {
         float u = static_cast<float>(i) / static_cast<float>(segments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
         
         mesh.AddVertex(vec3(x, -halfHeight, z), vec3(0.0f, -1.0f, 0.0f), vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f));
     }
@@ -240,10 +241,10 @@ Render::Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segm
     uint32 sideStart = static_cast<uint32>(mesh.GetVertexCount());
     for (uint32 i = 0; i <= segments; ++i) {
         float u = static_cast<float>(i) / static_cast<float>(segments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
         
         // Calculate normal for cone side
         vec3 normal = normalize(vec3(x, radius / height, z));
@@ -254,10 +255,10 @@ Render::Mesh GeometryFactory::CreateCone(float radius, float height, uint32 segm
     uint32 capStart = static_cast<uint32>(mesh.GetVertexCount());
     for (uint32 i = 0; i <= segments; ++i) {
         float u = static_cast<float>(i) / static_cast<float>(segments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
         
         mesh.AddVertex(vec3(x, -halfHeight, z), vec3(0.0f, -1.0f, 0.0f), vec2(x / radius * 0.5f + 0.5f, z / radius * 0.5f + 0.5f));
     }
@@ -284,17 +285,17 @@ Render::Mesh GeometryFactory::CreateTorus(float majorRadius, float minorRadius, 
     // Generate vertices
     for (uint32 i = 0; i <= majorSegments; ++i) {
         float u = static_cast<float>(i) / static_cast<float>(majorSegments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float cosTheta = std::cos(theta);
-        float sinTheta = std::sin(theta);
+        float cosTheta = cos(theta);
+        float sinTheta = sin(theta);
         
         for (uint32 j = 0; j <= minorSegments; ++j) {
             float v = static_cast<float>(j) / static_cast<float>(minorSegments);
-            float phi = v * TWO_PI;
+            float phi = v * kTwoPi;
             
-            float cosPhi = std::cos(phi);
-            float sinPhi = std::sin(phi);
+            float cosPhi = cos(phi);
+            float sinPhi = sin(phi);
             
             // Position
             vec3 position;
@@ -340,16 +341,16 @@ Render::Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 s
     // Generate top hemisphere
     for (uint32 ring = 0; ring <= rings; ++ring) {
         float v = static_cast<float>(ring) / static_cast<float>(rings);
-        float phi = v * HALF_PI; // 0 to PI/2
+        float phi = v * kHalfPi; // 0 to PI/2
         
         for (uint32 segment = 0; segment <= segments; ++segment) {
             float u = static_cast<float>(segment) / static_cast<float>(segments);
-            float theta = u * TWO_PI;
+            float theta = u *  kTwoPi;
             
             vec3 position;
-            position.x = radius * std::sin(phi) * std::cos(theta);
-            position.y = halfCylinderHeight + radius * std::cos(phi);
-            position.z = radius * std::sin(phi) * std::sin(theta);
+            position.x = radius * sin(phi) * cos(theta);
+            position.y = halfCylinderHeight + radius * cos(phi);
+            position.z = radius * sin(phi) * sin(theta);
             
             mesh.AddVertex(position, normalize(position - vec3(0.0f, halfCylinderHeight, 0.0f)), vec2(u, v * 0.25f + 0.75f), vec4(1.0f));
         }
@@ -360,10 +361,10 @@ Render::Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 s
     // Generate cylinder middle section
     for (uint32 segment = 0; segment <= segments; ++segment) {
         float u = static_cast<float>(segment) / static_cast<float>(segments);
-        float theta = u * TWO_PI;
+        float theta = u * kTwoPi;
         
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
         vec3 normal = normalize(vec3(x, 0.0f, z));
         
         // Top of cylinder
@@ -379,16 +380,16 @@ Render::Mesh GeometryFactory::CreateCapsule(float radius, float height, uint32 s
     uint32 bottomHemisphereStart = static_cast<uint32>(mesh.GetVertexCount());
     for (uint32 ring = 0; ring <= rings; ++ring) {
         float v = static_cast<float>(ring) / static_cast<float>(rings);
-        float phi = HALF_PI + v * HALF_PI; // PI/2 to PI
+        float phi = kHalfPi + v * kHalfPi; // PI/2 to PI
         
         for (uint32 segment = 0; segment <= segments; ++segment) {
             float u = static_cast<float>(segment) / static_cast<float>(segments);
-            float theta = u * TWO_PI;
+            float theta = u * kTwoPi;
             
             vec3 position;
-            position.x = radius * std::sin(phi) * std::cos(theta);
-            position.y = -halfCylinderHeight + radius * std::cos(phi);
-            position.z = radius * std::sin(phi) * std::sin(theta);
+            position.x = radius * sin(phi) * cos(theta);
+            position.y = -halfCylinderHeight + radius * cos(phi);
+            position.z = radius * sin(phi) * sin(theta);
             
             mesh.AddVertex(position, normalize(position - vec3(0.0f, -halfCylinderHeight, 0.0f)), vec2(u, v * 0.25f), vec4(1.0f));
         }
@@ -435,7 +436,7 @@ Render::Mesh GeometryFactory::CreateIcosphere(float radius, uint32 subdivisions)
     Render::Mesh mesh;
     
     // Start with icosahedron
-    const float t = (1.0f + std::sqrt(5.0f)) / 2.0f;
+    const float t = (1.0f + sqrt(5.0f)) / 2.0f;
     
     // 12 vertices of icosahedron
     vec3 vertices[12] = {
